@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de Rumbo: lienzo de 108dp, el contenido queda dentro de la zona segura de 66dp -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Anillo de brújula -->
+    <path
+        android:pathData="M54,36A18,18 0,1 1,54 72A18,18 0,1 1,54 36Z"
+        android:strokeWidth="5.5"
+        android:strokeColor="#FFFFFFFF"
+        android:fillColor="#00000000" />
+    <!-- Rombo de destino -->
+    <path
+        android:fillColor="@color/rumbo_coral"
+        android:pathData="M54,45.5L62.5,54L54,62.5L45.5,54Z" />
+</vector>
