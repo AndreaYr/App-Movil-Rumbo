@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -44,6 +44,7 @@ import com.app.rumbo.domain.model.FeedSort
 @Composable
 fun FeedRoute(
     onPublicationClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -52,7 +53,8 @@ fun FeedRoute(
         onCategorySelected = viewModel::onCategorySelected,
         onSortSelected = viewModel::onSortSelected,
         onPublicationClick = onPublicationClick,
-        onToggleInterest = viewModel::onToggleInterest
+        onToggleInterest = viewModel::onToggleInterest,
+        modifier = modifier
     )
 }
 
@@ -62,10 +64,11 @@ fun FeedScreen(
     onCategorySelected: (Category?) -> Unit,
     onSortSelected: (FeedSort) -> Unit,
     onPublicationClick: (String) -> Unit,
-    onToggleInterest: (String) -> Unit
+    onToggleInterest: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+        modifier = modifier.fillMaxSize().statusBarsPadding(),
         contentPadding = PaddingValues(vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {

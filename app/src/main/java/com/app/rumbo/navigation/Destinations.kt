@@ -8,6 +8,19 @@ import kotlinx.serialization.Serializable
 data object FeedDestination
 
 @Serializable
+data object CreatePublicationDestination
+
+@Serializable
+data class PublicationSubmittedDestination(val title: String) {
+    companion object {
+        const val ARG_TITLE = "title"
+    }
+}
+
+@Serializable
+data object MyPublicationsDestination
+
+@Serializable
 data class PublicationDetailDestination(val publicationId: String) {
     companion object {
         /** Debe coincidir con el nombre de la propiedad: así la guarda Navigation en SavedStateHandle. */
