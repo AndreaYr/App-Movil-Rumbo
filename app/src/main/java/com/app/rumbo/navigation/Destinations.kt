@@ -11,14 +11,13 @@ data object FeedDestination
 data object CreatePublicationDestination
 
 @Serializable
-data class PublicationSubmittedDestination(val title: String) {
-    companion object {
-        const val ARG_TITLE = "title"
-    }
-}
+data object LoginDestination
 
 @Serializable
-data object MyPublicationsDestination
+data object RegisterDestination
+
+@Serializable
+data object PasswordRecoveryDestination
 
 @Serializable
 data class PublicationDetailDestination(val publicationId: String) {

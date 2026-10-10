@@ -2,7 +2,9 @@ package com.app.rumbo.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,11 +13,17 @@ import com.app.rumbo.core.component.RumboScaffold
 import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
+import com.app.rumbo.features.login.LoginRoute
 import com.app.rumbo.features.mypublications.MyPublicationsDestination
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
+import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedDestination
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
+import com.app.rumbo.features.register.RegisterRoute
+
+private const val REGISTER_SUCCESS_RESULT_KEY = "register_success_message"
+private const val REGISTER_SUCCESS_MESSAGE = "Registro de prueba completado. Ya puedes iniciar sesión"
 
 /** Navegación principal: conecta todas las features. */
 @Composable
@@ -25,7 +33,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = FeedDestination,
+        startDestination = LoginDestination,
         modifier = modifier
     ) {
         composable<FeedDestination> {
@@ -75,6 +83,39 @@ fun AppNavHost(
                 onBack = navController::popBackStack,
                 onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
             )
+        }
+        composable<LoginDestination> { entry ->
+            val registrationMessage by entry.savedStateHandle
+                .getStateFlow<String?>(REGISTER_SUCCESS_RESULT_KEY, null)
+                .collectAsStateWithLifecycle()
+            LoginRoute(
+                onRegisterClick = { navController.navigate(RegisterDestination) },
+                onRecoveryClick = { navController.navigate(PasswordRecoveryDestination) },
+                registrationMessage = registrationMessage,
+                onRegistrationMessageConsumed = {
+                    entry.savedStateHandle[REGISTER_SUCCESS_RESULT_KEY] = null
+                },
+                onLoginSuccess = {
+                    navController.navigate(FeedDestination) {
+                        popUpTo<LoginDestination> { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable<RegisterDestination> {
+            RegisterRoute(
+                onBackToLogin = { navController.popBackStack() },
+                onRegisterSuccess = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(REGISTER_SUCCESS_RESULT_KEY, REGISTER_SUCCESS_MESSAGE)
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable<PasswordRecoveryDestination> {
+            PasswordRecoveryRoute(onBack = navController::popBackStack)
         }
         composable<PublicationDetailDestination> {
             PublicationDetailRoute(onBack = navController::popBackStack)
