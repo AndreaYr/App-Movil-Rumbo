@@ -14,18 +14,16 @@ import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.login.LoginRoute
-import com.app.rumbo.features.mypublications.MyPublicationsDestination
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
+import com.app.rumbo.features.onboarding.OnboardingRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
-import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedDestination
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
 import com.app.rumbo.features.register.RegisterRoute
 
 private const val REGISTER_SUCCESS_RESULT_KEY = "register_success_message"
 private const val REGISTER_SUCCESS_MESSAGE = "Registro de prueba completado. Ya puedes iniciar sesión"
 
-/** Navegación principal: conecta todas las features. */
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
@@ -33,9 +31,19 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = LoginDestination,
+        startDestination = OnboardingDestination,
         modifier = modifier
     ) {
+        composable<OnboardingDestination> {
+            OnboardingRoute(
+                onContinueClick = {
+                    navController.navigate(LoginDestination) {
+                        popUpTo(OnboardingDestination) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable<FeedDestination> {
             RumboScaffold(
                 selectedTab = RumboTab.EXPLORE,
@@ -123,7 +131,6 @@ fun AppNavHost(
     }
 }
 
-/** Cambia de pestaña. Inicio, Avisos y Perfil aún no tienen pantalla propia. */
 private fun navigateToTab(navController: NavHostController, tab: RumboTab) {
     when (tab) {
         RumboTab.EXPLORE -> {

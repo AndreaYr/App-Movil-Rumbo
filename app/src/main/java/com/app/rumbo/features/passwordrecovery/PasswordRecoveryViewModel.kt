@@ -64,6 +64,10 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
     }
 
     /** Activa un error visible de demostración, incluso si no se ingresó correo. */
+    fun clearMessage() {
+        _uiState.update { it.copy(message = null) }
+    }
+
     fun showErrorDemo() {
         if (_uiState.value.status == PasswordRecoveryStatus.LOADING) return
         _uiState.update {

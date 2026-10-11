@@ -27,18 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import com.app.rumbo.R
 import com.app.rumbo.core.theme.ErrorContainer
 import com.app.rumbo.core.theme.ErrorRed
@@ -55,8 +47,18 @@ fun PasswordRecoveryRoute(
     viewModel: PasswordRecoveryViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.status, state.message) {
+        if (state.message != null) {
+            snackbarHostState.showSnackbar(state.message.orEmpty())
+            viewModel.clearMessage()
+        }
+    }
+
     PasswordRecoveryScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onEmailChange = viewModel::onEmailChange,
         onSendLink = viewModel::sendLink,
@@ -67,12 +69,16 @@ fun PasswordRecoveryRoute(
 @Composable
 fun PasswordRecoveryScreen(
     state: PasswordRecoveryUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit,
     onEmailChange: (String) -> Unit,
     onSendLink: () -> Unit,
     onShowErrorDemo: () -> Unit
 ) {
-    Scaffold(containerColor = Sand) { padding ->
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Sand
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

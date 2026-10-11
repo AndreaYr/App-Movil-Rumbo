@@ -31,7 +31,8 @@ data class RegisterUiState(
     val acceptedTerms: Boolean = false,
     val termsError: String? = null,
     val hasSubmitted: Boolean = false,
-    val status: RegisterStatus = RegisterStatus.IDLE
+    val status: RegisterStatus = RegisterStatus.IDLE,
+    val message: String? = null
 ) {
     val hasMinimumLength: Boolean get() = password.length >= MIN_PASSWORD_LENGTH
     val hasUppercase: Boolean get() = password.any(Char::isUpperCase)
@@ -125,9 +126,11 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
             _uiState.update { it.copy(status = RegisterStatus.LOADING) }
             delay(SIMULATED_REQUEST_DELAY_MS)
             // Registro local de demostración: no crea ni persiste una cuenta.
-            _uiState.update { it.copy(status = RegisterStatus.SUCCESS) }
+            _uiState.update { it.copy(status = RegisterStatus.SUCCESS, message = "Registro completado") }
         }
     }
+
+    fun onAcceptedTermsChange(accepted: Boolean) = onTermsAcceptanceChange(accepted)
 
     private fun RegisterUiState.nextStatus() =
         if (status == RegisterStatus.LOADING) RegisterStatus.LOADING else RegisterStatus.IDLE
