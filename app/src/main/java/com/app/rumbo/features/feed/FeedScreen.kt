@@ -1,5 +1,6 @@
 package com.app.rumbo.features.feed
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ fun FeedRoute(
     modifier: Modifier = Modifier,
     viewModel: FeedViewModel = hiltViewModel()
 ) {
+    Log.d("RUMBO_NAV", "Composing FeedRoute")
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     FeedScreen(
         state = state,

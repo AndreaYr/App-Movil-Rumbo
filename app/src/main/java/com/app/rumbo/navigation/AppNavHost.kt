@@ -15,11 +15,11 @@ import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.login.LoginRoute
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
-import com.app.rumbo.features.onboarding.OnboardingRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
 import com.app.rumbo.features.register.RegisterRoute
+import com.app.rumbo.features.splash.SplashRoute
 
 private const val REGISTER_SUCCESS_RESULT_KEY = "register_success_message"
 private const val REGISTER_SUCCESS_MESSAGE = "Registro de prueba completado. Ya puedes iniciar sesión"
@@ -31,14 +31,14 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = OnboardingDestination,
+        startDestination = SplashDestination,
         modifier = modifier
     ) {
-        composable<OnboardingDestination> {
-            OnboardingRoute(
-                onContinueClick = {
+        composable<SplashDestination> {
+            SplashRoute(
+                onFinished = {
                     navController.navigate(LoginDestination) {
-                        popUpTo(OnboardingDestination) { inclusive = true }
+                        popUpTo(SplashDestination) { inclusive = true }
                         launchSingleTop = true
                     }
                 }

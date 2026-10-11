@@ -1,5 +1,6 @@
 package com.app.rumbo.features.login
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,7 @@ fun LoginRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    Log.d("RUMBO_NAV", "Composing LoginRoute status=${state.status}")
 
     LaunchedEffect(state.status) {
         when (state.status) {

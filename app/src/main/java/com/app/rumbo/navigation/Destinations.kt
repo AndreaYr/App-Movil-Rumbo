@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 // Rutas tipadas de Navigation Compose: cada pantalla es un objeto o clase serializable
 
 @Serializable
-data object OnboardingDestination
+data object SplashDestination
 
 @Serializable
 data object LoginDestination
