@@ -22,6 +22,10 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
     override fun observePublication(id: String): Flow<Publication?> =
         publications.map { list -> list.firstOrNull { it.id == id } }
 
+    override suspend fun addPublication(publication: Publication) {
+        publications.update { list -> listOf(publication) + list }
+    }
+
     override suspend fun toggleInterest(id: String) = update(id) {
         it.copy(interested = !it.interested, votes = it.votes + if (it.interested) -1 else 1)
     }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface PublicationRepository {
     fun observePublications(): Flow<List<Publication>>
     fun observePublication(id: String): Flow<Publication?>
+    suspend fun addPublication(publication: Publication)
     suspend fun toggleInterest(id: String)
     suspend fun toggleVisited(id: String)
 }
