@@ -17,7 +17,13 @@ data object RegisterDestination
 data object PasswordRecoveryDestination
 
 @Serializable
+data object HomeDestination
+
+@Serializable
 data object FeedDestination
+
+@Serializable
+data object NotificationsDestination
 
 @Serializable
 data object CreatePublicationDestination

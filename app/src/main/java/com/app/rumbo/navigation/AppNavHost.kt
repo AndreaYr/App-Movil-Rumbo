@@ -13,8 +13,10 @@ import com.app.rumbo.core.component.RumboScaffold
 import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
+import com.app.rumbo.features.home.HomeRoute
 import com.app.rumbo.features.login.LoginRoute
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
+import com.app.rumbo.features.notifications.NotificationsRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
@@ -44,12 +46,38 @@ fun AppNavHost(
                 }
             )
         }
+        composable<HomeDestination> {
+            RumboScaffold(
+                selectedTab = RumboTab.HOME,
+                onTabSelected = { navigateToTab(navController, it) }
+            ) { padding ->
+                HomeRoute(
+                    onSearchClick = { navigateToTab(navController, RumboTab.EXPLORE) },
+                    onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
+                    onNotificationsClick = { navigateToTab(navController, RumboTab.ALERTS) },
+                    // Se conecta cuando exista la pantalla del planificador
+                    onPlanRouteClick = {},
+                    modifier = Modifier.padding(padding)
+                )
+            }
+        }
         composable<FeedDestination> {
             RumboScaffold(
                 selectedTab = RumboTab.EXPLORE,
                 onTabSelected = { navigateToTab(navController, it) }
             ) { padding ->
                 FeedRoute(
+                    onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
+                    modifier = Modifier.padding(padding)
+                )
+            }
+        }
+        composable<NotificationsDestination> {
+            RumboScaffold(
+                selectedTab = RumboTab.ALERTS,
+                onTabSelected = { navigateToTab(navController, it) }
+            ) { padding ->
+                NotificationsRoute(
                     onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
                     modifier = Modifier.padding(padding)
                 )
@@ -75,12 +103,12 @@ fun AppNavHost(
             PublicationSubmittedRoute(
                 onMyPublications = {
                     navController.navigate(MyPublicationsDestination) {
-                        popUpTo(FeedDestination) { inclusive = false }
+                        popUpTo(HomeDestination) { inclusive = false }
                     }
                 },
                 onGoHome = {
-                    navController.navigate(FeedDestination) {
-                        popUpTo(FeedDestination) { inclusive = true }
+                    navController.navigate(HomeDestination) {
+                        popUpTo(HomeDestination) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
@@ -104,7 +132,7 @@ fun AppNavHost(
                     entry.savedStateHandle[REGISTER_SUCCESS_RESULT_KEY] = null
                 },
                 onLoginSuccess = {
-                    navController.navigate(FeedDestination) {
+                    navController.navigate(HomeDestination) {
                         popUpTo<LoginDestination> { inclusive = true }
                         launchSingleTop = true
                     }
@@ -133,15 +161,18 @@ fun AppNavHost(
 
 private fun navigateToTab(navController: NavHostController, tab: RumboTab) {
     when (tab) {
-        RumboTab.EXPLORE -> {
-            val popped = navController.popBackStack(FeedDestination, inclusive = false)
-            if (!popped) {
-                navController.navigate(FeedDestination) { launchSingleTop = true }
-            }
-        }
-        RumboTab.CREATE -> navController.navigate(CreatePublicationDestination) {
-            launchSingleTop = true
-        }
-        RumboTab.HOME, RumboTab.ALERTS, RumboTab.PROFILE -> Unit
+        RumboTab.HOME -> navController.popBackStack(HomeDestination, inclusive = false)
+        RumboTab.EXPLORE -> navigateToTopLevel(navController, FeedDestination)
+        RumboTab.CREATE -> navigateToTopLevel(navController, CreatePublicationDestination)
+        RumboTab.ALERTS -> navigateToTopLevel(navController, NotificationsDestination)
+        RumboTab.PROFILE -> Unit
+    }
+}
+
+/** Las pestañas cuelgan de Inicio: al cambiar de una a otra no se acumulan pantallas en la pila. */
+private fun navigateToTopLevel(navController: NavHostController, destination: Any) {
+    navController.navigate(destination) {
+        popUpTo(HomeDestination) { inclusive = false }
+        launchSingleTop = true
     }
 }

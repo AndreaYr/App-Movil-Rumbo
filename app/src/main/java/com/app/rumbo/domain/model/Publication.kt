@@ -15,6 +15,8 @@ data class Publication(
     val author: Author,
     val publishedAt: Long,
     val votes: Int,
+    /** Votos "Me interesa" recibidos en los últimos 7 días; base de las tendencias. */
+    val weeklyVotes: Int = 0,
     val interested: Boolean,
     val visited: Boolean,
     val latitude: Double,
