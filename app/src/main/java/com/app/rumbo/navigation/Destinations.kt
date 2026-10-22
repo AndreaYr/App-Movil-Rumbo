@@ -26,6 +26,15 @@ data object FeedDestination
 data object NotificationsDestination
 
 @Serializable
+data object ProfileDestination
+
+@Serializable
+data object EditProfileDestination
+
+@Serializable
+data object AchievementsDestination
+
+@Serializable
 data object CreatePublicationDestination
 
 @Serializable

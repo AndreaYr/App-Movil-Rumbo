@@ -11,13 +11,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.app.rumbo.core.component.RumboScaffold
 import com.app.rumbo.core.component.RumboTab
+import com.app.rumbo.features.achievements.AchievementsRoute
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
+import com.app.rumbo.features.editprofile.EditProfileRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.home.HomeRoute
 import com.app.rumbo.features.login.LoginRoute
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
 import com.app.rumbo.features.notifications.NotificationsRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
+import com.app.rumbo.features.profile.ProfileRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
 import com.app.rumbo.features.register.RegisterRoute
@@ -82,6 +85,25 @@ fun AppNavHost(
                     modifier = Modifier.padding(padding)
                 )
             }
+        }
+        composable<ProfileDestination> {
+            RumboScaffold(
+                selectedTab = RumboTab.PROFILE,
+                onTabSelected = { navigateToTab(navController, it) }
+            ) { padding ->
+                ProfileRoute(
+                    onMyPublicationsClick = { navController.navigate(MyPublicationsDestination) },
+                    onBadgesClick = { navController.navigate(AchievementsDestination) },
+                    onEditProfileClick = { navController.navigate(EditProfileDestination) },
+                    modifier = Modifier.padding(padding)
+                )
+            }
+        }
+        composable<EditProfileDestination> {
+            EditProfileRoute(onBack = navController::popBackStack)
+        }
+        composable<AchievementsDestination> {
+            AchievementsRoute(onBack = navController::popBackStack)
         }
         composable<CreatePublicationDestination> {
             RumboScaffold(
@@ -165,7 +187,7 @@ private fun navigateToTab(navController: NavHostController, tab: RumboTab) {
         RumboTab.EXPLORE -> navigateToTopLevel(navController, FeedDestination)
         RumboTab.CREATE -> navigateToTopLevel(navController, CreatePublicationDestination)
         RumboTab.ALERTS -> navigateToTopLevel(navController, NotificationsDestination)
-        RumboTab.PROFILE -> Unit
+        RumboTab.PROFILE -> navigateToTopLevel(navController, ProfileDestination)
     }
 }
 

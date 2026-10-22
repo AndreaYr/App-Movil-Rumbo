@@ -1,8 +1,10 @@
 package com.app.rumbo.core.di
 
+import com.app.rumbo.data.repository.InMemoryActivityRepository
 import com.app.rumbo.data.repository.InMemoryNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.data.repository.InMemoryUserRepository
+import com.app.rumbo.domain.repository.ActivityRepository
 import com.app.rumbo.domain.repository.NotificationRepository
 import com.app.rumbo.domain.repository.PublicationRepository
 import com.app.rumbo.domain.repository.UserRepository
@@ -24,4 +26,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindNotificationRepository(impl: InMemoryNotificationRepository): NotificationRepository
+
+    @Binds
+    abstract fun bindActivityRepository(impl: InMemoryActivityRepository): ActivityRepository
 }

@@ -1,10 +1,12 @@
 package com.app.rumbo.data.repository
 
+import com.app.rumbo.domain.model.ProfileUpdate
 import com.app.rumbo.domain.model.User
 import com.app.rumbo.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,9 +23,16 @@ class InMemoryUserRepository @Inject constructor() : UserRepository {
             name = "Mariana Ospina",
             email = "mariana.ospina@correo.co",
             city = "Armenia, Quindío",
-            levelName = "Exploradora"
+            levelName = "Exploradora",
+            bio = "Caminante de fin de semana. Busco miradores y cafés de finca en el Quindío."
         )
     )
 
     override fun observeCurrentUser(): Flow<User?> = currentUser.asStateFlow()
+
+    override suspend fun updateProfile(update: ProfileUpdate) {
+        currentUser.update { user ->
+            user?.copy(name = update.name, bio = update.bio, city = update.city)
+        }
+    }
 }

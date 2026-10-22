@@ -1,10 +1,12 @@
 package com.app.rumbo.features.home
 
+import com.app.rumbo.data.repository.InMemoryNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.GetHomeUseCase
+import com.app.rumbo.domain.usecase.HasUnreadNotificationsUseCase
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -31,7 +33,8 @@ class HomeViewModelTest {
     fun setUp() {
         viewModel = HomeViewModel(
             GetHomeUseCase(InMemoryPublicationRepository()),
-            GetCurrentUserUseCase(InMemoryUserRepository())
+            GetCurrentUserUseCase(InMemoryUserRepository()),
+            HasUnreadNotificationsUseCase(InMemoryNotificationRepository())
         )
     }
 
