@@ -11,6 +11,27 @@ data object SplashDestination
 data object LoginDestination
 
 @Serializable
+data object LoginModeratorDestination
+
+@Serializable
+data object ModeratorDashboardDestination
+
+@Serializable
+data object PendingPublicationsDestination
+
+@Serializable
+data class ReviewPublicationDestination(val publicationId: String)
+
+@Serializable
+data class RejectPublicationDestination(val publicationId: String)
+
+@Serializable
+data object ModerationFinishedDestination
+
+@Serializable
+data object ModeratorAccountDestination
+
+@Serializable
 data object RegisterDestination
 
 @Serializable

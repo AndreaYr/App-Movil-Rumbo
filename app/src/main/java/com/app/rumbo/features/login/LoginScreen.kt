@@ -3,6 +3,7 @@ package com.app.rumbo.features.login
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ fun LoginRoute(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit,
     onRecoveryClick: () -> Unit,
+    onModeratorClick: () -> Unit = {},
     registrationMessage: String? = null,
     onRegistrationMessageConsumed: () -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel()
@@ -95,7 +97,8 @@ fun LoginRoute(
         onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
         onLogin = viewModel::login,
         onRegisterClick = onRegisterClick,
-        onRecoveryClick = onRecoveryClick
+        onRecoveryClick = onRecoveryClick,
+        onModeratorClick = onModeratorClick
     )
 }
 
@@ -108,7 +111,8 @@ fun LoginScreen(
     onTogglePasswordVisibility: () -> Unit,
     onLogin: () -> Unit,
     onRegisterClick: () -> Unit,
-    onRecoveryClick: () -> Unit
+    onRecoveryClick: () -> Unit,
+    onModeratorClick: () -> Unit = {}
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -212,8 +216,8 @@ fun LoginScreen(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                RoleButton("◉", "Invitado", Modifier.weight(1f), selected = false)
-                RoleButton("♙", "Moderador", Modifier.weight(1f), selected = true)
+                RoleButton("◉", "Invitado", Modifier.weight(1f), selected = false, onClick = {})
+                RoleButton("♙", "Moderador", Modifier.weight(1f), selected = true, onClick = onModeratorClick)
             }
             Spacer(Modifier.height(2.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -285,18 +289,27 @@ private fun ErrorText(message: String) {
 }
 
 @Composable
-private fun RoleButton(icon: String, label: String, modifier: Modifier, selected: Boolean) {
+private fun RoleButton(icon: String, label: String, modifier: Modifier, selected: Boolean, onClick: () -> Unit = {}) {
     val background = if (selected) MaterialTheme.colorScheme.onSurface else White
     val foreground = if (selected) White else MaterialTheme.colorScheme.onSurfaceVariant
-    Row(
-        modifier = modifier.height(42.dp).clip(RoundedCornerShape(12.dp)).background(background)
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)).padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+    Box(
+        modifier = modifier
+            .height(42.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(background)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Text(icon, color = foreground)
-        Spacer(Modifier.width(6.dp))
-        Text(label, style = MaterialTheme.typography.labelMedium, color = foreground)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) {
+            Text(icon, color = foreground)
+            Spacer(Modifier.width(6.dp))
+            Text(label, style = MaterialTheme.typography.labelMedium, color = foreground)
+        }
     }
 }
 
