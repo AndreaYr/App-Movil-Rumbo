@@ -1,8 +1,8 @@
 package com.app.rumbo.domain.usecase
 
 import com.app.rumbo.domain.model.ActivityStats
-import com.app.rumbo.domain.model.Achievement
-import com.app.rumbo.domain.model.Badge
+import com.app.rumbo.domain.model.earnedPoints
+import com.app.rumbo.domain.model.toBadges
 import com.app.rumbo.domain.model.LevelProgress
 import com.app.rumbo.domain.model.User
 import com.app.rumbo.domain.model.UserProfile
@@ -27,11 +27,10 @@ class GetProfileUseCase @Inject constructor(
         }
 
     private fun buildProfile(user: User, activity: ActivityStats): UserProfile {
-        val badges = Achievement.entries.map { Badge(it, current = it.metric(activity)) }
-        val points = badges.filter { it.isUnlocked }.sumOf { it.achievement.points }
+        val badges = activity.toBadges()
         return UserProfile(
             user = user,
-            level = LevelProgress(points),
+            level = LevelProgress(badges.earnedPoints()),
             publicationsCount = activity.publications,
             pendingPublicationsCount = activity.pendingPublications,
             visitedCount = activity.visitedPlaces,
