@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.app.rumbo.R
 import com.app.rumbo.core.component.RumboScaffold
 import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.achievements.AchievementsRoute
@@ -33,15 +35,14 @@ import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
 import com.app.rumbo.features.register.RegisterRoute
 import com.app.rumbo.features.splash.SplashRoute
-
 private const val REGISTER_SUCCESS_RESULT_KEY = "register_success_message"
-private const val REGISTER_SUCCESS_MESSAGE = "Registro de prueba completado. Ya puedes iniciar sesión"
 
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
+    val registerSuccessMessage = stringResource(R.string.register_success_login_message)
     NavHost(
         navController = navController,
         startDestination = SplashDestination,
@@ -225,10 +226,10 @@ fun AppNavHost(
             val route = backStackEntry.toRoute<ReviewPublicationDestination>()
             ReviewPublicationRoute(
                 onBack = { navController.popBackStack() },
-                onVerify = {
-                    navController.navigate(ModerationFinishedDestination) { popUpTo(PendingPublicationsDestination) { inclusive = false } }
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_title", "Publicación aprobada")
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_message", "La publicación ya está visible en el feed público.")
+                onModerationCompleted = {
+                    navController.navigate(ModerationFinishedDestination(approved = true)) {
+                        popUpTo(PendingPublicationsDestination) { inclusive = false }
+                    }
                 },
                 onReject = { id -> navController.navigate(RejectPublicationDestination(id)) }
             )
@@ -238,19 +239,20 @@ fun AppNavHost(
             RejectPublicationRoute(
                 onBack = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() },
-                onConfirmReject = {
-                    navController.navigate(ModerationFinishedDestination) { popUpTo(PendingPublicationsDestination) { inclusive = false } }
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_title", "Publicación rechazada")
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_message", "Se notificó al autor con el motivo del rechazo.")
+                onModerationCompleted = { reason ->
+                    navController.navigate(
+                        ModerationFinishedDestination(approved = false, rejectionReason = reason)
+                    ) {
+                        popUpTo(PendingPublicationsDestination) { inclusive = false }
+                    }
                 }
             )
         }
         composable<ModerationFinishedDestination> { entry ->
-            val title = entry.savedStateHandle.get<String>("finished_title")
-            val message = entry.savedStateHandle.get<String>("finished_message")
+            val route = entry.toRoute<ModerationFinishedDestination>()
             ModerationFinishedRoute(
-                title = title,
-                message = message,
+                approved = route.approved,
+                rejectionReason = route.rejectionReason,
                 onBackToPanel = {
                     navController.navigate(ModeratorDashboardDestination) {
                         popUpTo(ModeratorDashboardDestination) { inclusive = true }
@@ -265,7 +267,7 @@ fun AppNavHost(
                 onRegisterSuccess = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.set(REGISTER_SUCCESS_RESULT_KEY, REGISTER_SUCCESS_MESSAGE)
+                        ?.set(REGISTER_SUCCESS_RESULT_KEY, registerSuccessMessage)
                     navController.popBackStack()
                 }
             )

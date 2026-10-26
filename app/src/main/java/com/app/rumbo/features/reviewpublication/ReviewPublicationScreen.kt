@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,15 +57,18 @@ private val TextTertiary = Color(0xFF94A3B8)
 @Composable
 fun ReviewPublicationRoute(
     onBack: () -> Unit = {},
-    onVerify: () -> Unit = {},
+    onModerationCompleted: () -> Unit = {},
     onReject: (String) -> Unit = {},
     viewModel: ReviewPublicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(state.moderationCompleted) {
+        if (state.moderationCompleted) onModerationCompleted()
+    }
     ReviewPublicationScreen(
         state = state,
         onBack = onBack,
-        onVerify = onVerify,
+        onVerify = viewModel::approve,
         onReject = { publicationId -> onReject(publicationId) }
     )
 }
@@ -101,6 +106,7 @@ fun ReviewPublicationScreen(
                     }
                     Button(
                         onClick = onVerify,
+                        enabled = !state.isProcessing && !state.moderationCompleted,
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
@@ -121,6 +127,13 @@ fun ReviewPublicationScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (state.actionFailed) {
+                Text(
+                    text = stringResource(R.string.moderation_action_failed),
+                    color = RejectOrange,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

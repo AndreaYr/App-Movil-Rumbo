@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Rumbo</string>
+    <string name="moderation_action_failed">No se pudo completar la moderación. La publicación ya no está pendiente o no existe.</string>
+    <string name="moderation_approved_title">Publicación aprobada</string>
+    <string name="moderation_approved_message">La publicación ya está verificada y aparece en las vistas públicas.</string>
+    <string name="moderation_rejected_title">Publicación rechazada</string>
+    <string name="moderation_rejected_message">La publicación fue rechazada. Motivo conservado: %1$s</string>
+    <string name="moderation_back_to_panel">Volver al panel</string>
+    <string name="register_success_message">Registro completado.</string>
+    <string name="register_success_login_message">Registro completado. Ya puedes iniciar sesión.</string>
+    <string name="register_error_message">No se pudo crear el usuario. Inténtalo de nuevo.</string>
 </resources>

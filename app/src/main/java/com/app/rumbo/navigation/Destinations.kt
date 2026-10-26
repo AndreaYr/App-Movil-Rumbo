@@ -26,7 +26,10 @@ data class ReviewPublicationDestination(val publicationId: String)
 data class RejectPublicationDestination(val publicationId: String)
 
 @Serializable
-data object ModerationFinishedDestination
+data class ModerationFinishedDestination(
+    val approved: Boolean,
+    val rejectionReason: String? = null
+)
 
 @Serializable
 data object ModeratorAccountDestination

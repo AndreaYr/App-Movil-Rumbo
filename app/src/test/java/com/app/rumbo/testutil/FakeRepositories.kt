@@ -20,6 +20,10 @@ class FakeActivityRepository(initial: ActivityStats = ActivityStats()) : Activit
 class FakeUserRepository(user: User? = TestUsers.mariana) : UserRepository {
     private val current = MutableStateFlow(user)
     override fun observeCurrentUser(): Flow<User?> = current.asStateFlow()
+    override suspend fun createUser(user: User): User {
+        current.value = user
+        return user
+    }
     override suspend fun updateProfile(update: ProfileUpdate) {
         current.update { it?.copy(name = update.name, bio = update.bio, city = update.city) }
     }

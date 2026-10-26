@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -67,11 +68,17 @@ fun RegisterRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val successMessage = stringResource(R.string.register_success_message)
+    val errorMessage = stringResource(R.string.register_error_message)
 
     LaunchedEffect(state.status) {
-        if (state.status == RegisterStatus.SUCCESS) {
-            snackbarHostState.showSnackbar(state.message.orEmpty())
-            onRegisterSuccess()
+        when (state.status) {
+            RegisterStatus.SUCCESS -> {
+                snackbarHostState.showSnackbar(successMessage)
+                onRegisterSuccess()
+            }
+            RegisterStatus.ERROR -> snackbarHostState.showSnackbar(errorMessage)
+            else -> Unit
         }
     }
 

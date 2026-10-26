@@ -22,5 +22,7 @@ data class Publication(
     val latitude: Double,
     val longitude: Double,
     val photos: List<Photo>,
-    val comments: List<Comment>
+    val comments: List<Comment>,
+    /** Motivo conservado cuando la publicación es rechazada. */
+    val rejectionReason: String? = null
 )

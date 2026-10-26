@@ -7,6 +7,8 @@ interface PublicationRepository {
     fun observePublications(): Flow<List<Publication>>
     fun observePublication(id: String): Flow<Publication?>
     suspend fun addPublication(publication: Publication)
+    suspend fun approvePublication(id: String): Boolean
+    suspend fun rejectPublication(id: String, reason: String): Boolean
     suspend fun toggleInterest(id: String)
     suspend fun toggleVisited(id: String)
 }

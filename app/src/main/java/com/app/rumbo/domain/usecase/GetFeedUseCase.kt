@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
- * Feed de la comunidad: publicaciones verificadas y pendientes (las rechazadas y
- * finalizadas no se muestran), filtradas por categoría y ordenadas según [sort].
+ * Feed público: solo publicaciones verificadas, filtradas por categoría y ordenadas según [sort].
  */
 class GetFeedUseCase @Inject constructor(
     private val repository: PublicationRepository
@@ -19,7 +18,7 @@ class GetFeedUseCase @Inject constructor(
     operator fun invoke(category: Category?, sort: FeedSort): Flow<List<Publication>> =
         repository.observePublications().map { publications ->
             publications
-                .filter { it.status == PublicationStatus.VERIFIED || it.status == PublicationStatus.PENDING }
+                .filter { it.status == PublicationStatus.VERIFIED }
                 .filter { category == null || it.category == category }
                 .let { list ->
                     when (sort) {

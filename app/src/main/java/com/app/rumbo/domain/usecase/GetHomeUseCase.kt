@@ -14,7 +14,7 @@ import javax.inject.Inject
  * - Cerca de ti: verificadas, de la más cercana a la más lejana.
  * - Más destacados: verificadas con más votos.
  * - Tendencias: verificadas cuyo interés creció más en la última semana.
- * - Nuevos lugares: las más recientes, verificadas o aún pendientes.
+ * - Nuevos lugares: las publicaciones verificadas más recientes.
  */
 class GetHomeUseCase @Inject constructor(
     private val repository: PublicationRepository
@@ -30,8 +30,7 @@ class GetHomeUseCase @Inject constructor(
                     .map { Trend(it, growthPercent(it)) }
                     .sortedByDescending { it.growthPercent }
                     .take(TRENDING_COUNT),
-                fresh = publications
-                    .filter { it.status == PublicationStatus.VERIFIED || it.status == PublicationStatus.PENDING }
+                fresh = verified
                     .sortedByDescending { it.publishedAt }
                     .take(FRESH_COUNT)
             )

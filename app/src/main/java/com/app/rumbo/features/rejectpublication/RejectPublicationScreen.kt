@@ -30,12 +30,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,15 +58,18 @@ private val ErrorRed = Color(0xFFE76F51)
 fun RejectPublicationRoute(
     onBack: () -> Unit = {},
     onCancel: () -> Unit = {},
-    onConfirmReject: () -> Unit = {},
+    onModerationCompleted: (String) -> Unit = {},
     viewModel: RejectPublicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(state.moderationCompleted, state.completedReason) {
+        if (state.moderationCompleted) state.completedReason?.let(onModerationCompleted)
+    }
     RejectPublicationScreen(
         state = state,
         onBack = onBack,
         onCancel = onCancel,
-        onConfirmReject = onConfirmReject,
+        onConfirmReject = viewModel::confirmReject,
         onReasonSelected = viewModel::selectReason,
         onDetailChanged = viewModel::updateDetail
     )
@@ -117,6 +122,7 @@ fun RejectPublicationScreen(
                     }
                     Button(
                         onClick = onConfirmReject,
+                        enabled = !state.isProcessing && !state.moderationCompleted,
                         modifier = Modifier.weight(1.35f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = RejectOrange)
@@ -141,6 +147,13 @@ fun RejectPublicationScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
+            if (state.actionFailed) {
+                Text(
+                    text = stringResource(R.string.moderation_action_failed),
+                    color = ErrorRed,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF1F3B35)),

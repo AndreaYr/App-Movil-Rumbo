@@ -3,16 +3,17 @@ package com.app.rumbo.features.register
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.domain.usecase.RegisterUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class RegisterStatus { IDLE, LOADING, SUCCESS }
+enum class RegisterStatus { IDLE, LOADING, SUCCESS, ERROR }
 
 private fun isValidEmail(email: String) =
     Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
@@ -31,8 +32,7 @@ data class RegisterUiState(
     val acceptedTerms: Boolean = false,
     val termsError: String? = null,
     val hasSubmitted: Boolean = false,
-    val status: RegisterStatus = RegisterStatus.IDLE,
-    val message: String? = null
+    val status: RegisterStatus = RegisterStatus.IDLE
 ) {
     val hasMinimumLength: Boolean get() = password.length >= MIN_PASSWORD_LENGTH
     val hasUppercase: Boolean get() = password.any(Char::isUpperCase)
@@ -45,7 +45,9 @@ data class RegisterUiState(
 }
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor() : ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val registerUser: RegisterUserUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
@@ -124,9 +126,14 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             _uiState.update { it.copy(status = RegisterStatus.LOADING) }
-            delay(SIMULATED_REQUEST_DELAY_MS)
-            // Registro local de demostración: no crea ni persiste una cuenta.
-            _uiState.update { it.copy(status = RegisterStatus.SUCCESS, message = "Registro completado") }
+            try {
+                registerUser(current.name, current.email)
+                _uiState.update { it.copy(status = RegisterStatus.SUCCESS) }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update { it.copy(status = RegisterStatus.ERROR) }
+            }
         }
     }
 
@@ -187,7 +194,6 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
 
     private companion object {
         const val MIN_PASSWORD_LENGTH = 10
-        const val SIMULATED_REQUEST_DELAY_MS = 800L
         const val TERMS_REQUIRED_ERROR = "Debes aceptar los términos y la política de tratamiento de datos."
     }
 }

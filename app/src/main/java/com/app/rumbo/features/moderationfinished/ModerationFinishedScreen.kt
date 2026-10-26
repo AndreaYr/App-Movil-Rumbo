@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,11 +40,16 @@ private val TextSecondary = Color(0xFF7DA89B)
 
 @Composable
 fun ModerationFinishedRoute(
+    approved: Boolean,
+    rejectionReason: String?,
     onBackToPanel: () -> Unit = {},
     viewModel: ModerationFinishedViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    ModerationFinishedScreen(state = state, onBackToPanel = onBackToPanel)
+    ModerationFinishedScreen(
+        state = state.copy(approved = approved, rejectionReason = rejectionReason),
+        onBackToPanel = onBackToPanel
+    )
 }
 
 @Composable
@@ -51,7 +57,7 @@ fun ModerationFinishedScreen(
     state: ModerationFinishedUiState,
     onBackToPanel: () -> Unit = {}
 ) {
-    val isApproved = state.title.contains("aprob", ignoreCase = true)
+    val isApproved = state.approved
     val iconColor = if (isApproved) VerifyGreen else Color(0xFFE76F51)
     val iconRes = if (isApproved) R.drawable.ic_check_circle else R.drawable.ic_cancel
     Scaffold(
@@ -75,9 +81,27 @@ fun ModerationFinishedScreen(
                 Icon(painter = painterResource(iconRes), contentDescription = null, tint = iconColor, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.height(24.dp))
-            Text(state.title, color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
+            Text(
+                text = stringResource(if (isApproved) R.string.moderation_approved_title else R.string.moderation_rejected_title),
+                color = White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                textAlign = TextAlign.Center
+            )
             Spacer(Modifier.height(8.dp))
-            Text(state.message, color = TextSecondary, fontSize = 14.sp, textAlign = TextAlign.Center)
+            Text(
+                text = if (isApproved) {
+                    stringResource(R.string.moderation_approved_message)
+                } else {
+                    stringResource(
+                        R.string.moderation_rejected_message,
+                        state.rejectionReason.orEmpty()
+                    )
+                },
+                color = TextSecondary,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
             Spacer(Modifier.height(32.dp))
             Button(
                 onClick = onBackToPanel,
@@ -85,7 +109,7 @@ fun ModerationFinishedScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = iconColor)
             ) {
-                Text("Volver al panel", color = White, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.moderation_back_to_panel), color = White, fontWeight = FontWeight.SemiBold)
             }
         }
     }

@@ -30,6 +30,11 @@ class InMemoryUserRepository @Inject constructor() : UserRepository {
 
     override fun observeCurrentUser(): Flow<User?> = currentUser.asStateFlow()
 
+    override suspend fun createUser(user: User): User {
+        currentUser.value = user
+        return user
+    }
+
     override suspend fun updateProfile(update: ProfileUpdate) {
         currentUser.update { user ->
             user?.copy(name = update.name, bio = update.bio, city = update.city)
