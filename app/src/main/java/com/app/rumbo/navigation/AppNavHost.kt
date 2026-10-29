@@ -28,6 +28,7 @@ import com.app.rumbo.features.reviewpublication.ReviewPublicationRoute
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
 import com.app.rumbo.features.notifications.NotificationsRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
+import com.app.rumbo.features.planroute.PlanRouteRoute
 import com.app.rumbo.features.profile.ProfileRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
 import com.app.rumbo.features.publicationsubmitted.PublicationSubmittedRoute
@@ -66,8 +67,7 @@ fun AppNavHost(
                     onSearchClick = { navigateToTab(navController, RumboTab.EXPLORE) },
                     onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
                     onNotificationsClick = { navigateToTab(navController, RumboTab.ALERTS) },
-                    // Se conecta cuando exista la pantalla del planificador
-                    onPlanRouteClick = {},
+                    onPlanRouteClick = { navController.navigate(PlanRouteDestination) },
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -106,6 +106,13 @@ fun AppNavHost(
                     modifier = Modifier.padding(padding)
                 )
             }
+        }
+        composable<PlanRouteDestination> {
+            PlanRouteRoute(
+                onBack = navController::popBackStack,
+                // Se conecta cuando exista la pantalla de la ruta generada
+                onViewRouteClick = {}
+            )
         }
         composable<EditProfileDestination> {
             EditProfileRoute(onBack = navController::popBackStack)
