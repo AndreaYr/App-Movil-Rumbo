@@ -1,6 +1,7 @@
 package com.app.rumbo.data.repository
 
 import com.app.rumbo.domain.model.ActivityStats
+import com.app.rumbo.domain.model.MonthlyVotes
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.repository.ActivityRepository
 import com.app.rumbo.domain.repository.PublicationRepository
@@ -12,7 +13,8 @@ import javax.inject.Singleton
 
 /**
  * Calcula la actividad a partir de las publicaciones. Comentarios, votos, rutas y mes
- * destacado se quedan en 0 mientras esas funciones no existan.
+ * destacado se quedan en 0 mientras esas funciones no existan; los votos por mes también,
+ * porque aún no se guarda la fecha de cada voto.
  */
 @Singleton
 class InMemoryActivityRepository @Inject constructor(
@@ -27,6 +29,10 @@ class InMemoryActivityRepository @Inject constructor(
                 publications = mine.size,
                 verifiedPublications = mine.count { it.status == PublicationStatus.VERIFIED },
                 pendingPublications = mine.count { it.status == PublicationStatus.PENDING },
+                rejectedPublications = mine.count { it.status == PublicationStatus.REJECTED },
+                finishedPublications = mine.count { it.status == PublicationStatus.FINISHED },
+                publicationsByCategory = mine.groupingBy { it.category }.eachCount(),
+                monthlyVotes = MonthlyVotes.emptyWindow(System.currentTimeMillis()),
                 visitedPlaces = publications.count { it.visited }
             )
         }

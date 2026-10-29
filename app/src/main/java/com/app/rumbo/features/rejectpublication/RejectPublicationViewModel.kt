@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.rejectpublication
+package com.app.rumbo.features.rejectpublication
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -45,35 +45,15 @@ class RejectPublicationViewModel @Inject constructor(
     }
 
     fun updateDetail(detail: String) {
-        val limitedDetail = detail.take(300)
-        _uiState.update {
-            it.copy(
-                detail = limitedDetail,
-                charCount = limitedDetail.length
-            )
-        }
+        _uiState.update { it.copy(detail = detail.take(MAX_REJECTION_DETAIL_LENGTH)) }
     }
 
-    fun confirmReject() {
+    /** Rechaza con el motivo elegido y avisa a la pantalla cuando ya quedó guardado. */
+    fun onConfirm(onDone: () -> Unit) {
         val state = _uiState.value
-        val reason = state.selectedReason?.trim().orEmpty()
-        if (state.isProcessing || state.moderationCompleted) return
-        if (reason.isBlank()) {
-            _uiState.update { it.copy(actionFailed = true) }
-            return
-        }
-        val completeReason = if (state.detail.isBlank()) reason else "$reason: ${state.detail.trim()}"
-        _uiState.update { it.copy(isProcessing = true, actionFailed = false) }
+        val reason = state.selectedReason ?: return
         viewModelScope.launch {
-            val rejected = rejectPublication(publicationId, completeReason)
-            _uiState.update {
-                it.copy(
-                    isProcessing = false,
-                    actionFailed = !rejected,
-                    moderationCompleted = rejected,
-                    completedReason = completeReason.takeIf { rejected }
-                )
-            }
+            if (rejectPublication(publicationId, reason, state.detail)) onDone()
         }
     }
 }

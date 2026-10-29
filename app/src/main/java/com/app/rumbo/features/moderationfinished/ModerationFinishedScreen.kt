@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.moderationfinished
+package com.app.rumbo.features.moderationfinished
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,19 +18,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
 
 private val BodyBg = Color(0xFF0F1E1B)
@@ -39,27 +35,20 @@ private val VerifyGreen = Color(0xFF117361)
 private val TextSecondary = Color(0xFF7DA89B)
 
 @Composable
-fun ModerationFinishedRoute(
-    approved: Boolean,
-    rejectionReason: String?,
-    onBackToPanel: () -> Unit = {},
-    viewModel: ModerationFinishedViewModel = hiltViewModel()
-) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    ModerationFinishedScreen(
-        state = state.copy(approved = approved, rejectionReason = rejectionReason),
-        onBackToPanel = onBackToPanel
-    )
-}
-
-@Composable
 fun ModerationFinishedScreen(
     state: ModerationFinishedUiState,
     onBackToPanel: () -> Unit = {}
 ) {
-    val isApproved = state.approved
-    val iconColor = if (isApproved) VerifyGreen else Color(0xFFE76F51)
-    val iconRes = if (isApproved) R.drawable.ic_check_circle else R.drawable.ic_cancel
+    val iconColor = when (state.outcome) {
+        ModerationOutcome.APPROVED -> VerifyGreen
+        ModerationOutcome.REJECTED -> Color(0xFFE76F51)
+        ModerationOutcome.FINISHED -> TextSecondary
+    }
+    val iconRes = when (state.outcome) {
+        ModerationOutcome.APPROVED -> R.drawable.ic_check_circle
+        ModerationOutcome.REJECTED -> R.drawable.ic_cancel
+        ModerationOutcome.FINISHED -> R.drawable.ic_task_alt
+    }
     Scaffold(
         containerColor = BodyBg
     ) { padding ->
@@ -81,27 +70,9 @@ fun ModerationFinishedScreen(
                 Icon(painter = painterResource(iconRes), contentDescription = null, tint = iconColor, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.height(24.dp))
-            Text(
-                text = stringResource(if (isApproved) R.string.moderation_approved_title else R.string.moderation_rejected_title),
-                color = White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                textAlign = TextAlign.Center
-            )
+            Text(state.title, color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(8.dp))
-            Text(
-                text = if (isApproved) {
-                    stringResource(R.string.moderation_approved_message)
-                } else {
-                    stringResource(
-                        R.string.moderation_rejected_message,
-                        state.rejectionReason.orEmpty()
-                    )
-                },
-                color = TextSecondary,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
+            Text(state.message, color = TextSecondary, fontSize = 14.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(32.dp))
             Button(
                 onClick = onBackToPanel,
@@ -109,7 +80,7 @@ fun ModerationFinishedScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = iconColor)
             ) {
-                Text(stringResource(R.string.moderation_back_to_panel), color = White, fontWeight = FontWeight.SemiBold)
+                Text("Volver al panel", color = White, fontWeight = FontWeight.SemiBold)
             }
         }
     }

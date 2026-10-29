@@ -96,6 +96,19 @@ class CreatePublicationViewModelTest {
     }
 
     @Test
+    fun `se puede publicar sin fotos`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onTitleChange("Café de la Plaza")
+        viewModel.onDescriptionChange("Cafetería en la plaza principal")
+
+        viewModel.onPublish()
+
+        val created = repository.observePublications().first().first { it.title == "Café de la Plaza" }
+        assertEquals(PublicationStatus.PENDING, created.status)
+        assertTrue(created.photos.isEmpty())
+    }
+
+    @Test
     fun `mover el marcador actualiza las coordenadas`() {
         val viewModel = createViewModel()
 

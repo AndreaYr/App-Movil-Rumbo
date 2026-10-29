@@ -3,6 +3,7 @@ package com.app.rumbo.features.publicationdetail
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -23,17 +25,22 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,6 +59,7 @@ import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.domain.model.Comment
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.domain.usecase.MAX_COMMENT_LENGTH
 import java.util.Locale
 
 @Composable
@@ -60,23 +68,32 @@ fun PublicationDetailRoute(
     viewModel: PublicationDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val commentText by viewModel.commentText.collectAsStateWithLifecycle()
     PublicationDetailScreen(
         state = state,
+        commentText = commentText,
         onBack = onBack,
         onToggleInterest = viewModel::onToggleInterest,
-        onToggleVisited = viewModel::onToggleVisited
+        onToggleVisited = viewModel::onToggleVisited,
+        onCommentChange = viewModel::onCommentChange,
+        onSendComment = viewModel::onSendComment,
+        onToggleCommentLike = viewModel::onToggleCommentLike
     )
 }
 
 @Composable
 fun PublicationDetailScreen(
     state: PublicationDetailUiState,
+    commentText: String,
     onBack: () -> Unit,
     onToggleInterest: () -> Unit,
-    onToggleVisited: () -> Unit
+    onToggleVisited: () -> Unit,
+    onCommentChange: (String) -> Unit,
+    onSendComment: () -> Unit,
+    onToggleCommentLike: (String) -> Unit
 ) {
     Scaffold(topBar = { RumboTopBar("Detalle", onBack) }) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
             when (state) {
                 PublicationDetailUiState.Loading ->
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -87,7 +104,9 @@ fun PublicationDetailScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 is PublicationDetailUiState.Success ->
-                    PublicationDetailContent(state.publication, onToggleInterest, onToggleVisited)
+                    PublicationDetailContent(
+                        state.publication, commentText, onToggleInterest, onToggleVisited, onCommentChange, onSendComment, onToggleCommentLike
+                    )
             }
         }
     }
@@ -96,8 +115,12 @@ fun PublicationDetailScreen(
 @Composable
 private fun PublicationDetailContent(
     publication: Publication,
+    commentText: String,
     onToggleInterest: () -> Unit,
-    onToggleVisited: () -> Unit
+    onToggleVisited: () -> Unit,
+    onCommentChange: (String) -> Unit,
+    onSendComment: () -> Unit,
+    onToggleCommentLike: (String) -> Unit
 ) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Gallery(publication)
@@ -184,7 +207,7 @@ private fun PublicationDetailContent(
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-            CommentsSection(publication.comments)
+            CommentsSection(publication, commentText, onCommentChange, onSendComment, onToggleCommentLike)
         }
     }
 }
@@ -268,7 +291,15 @@ private fun MapPreview(publication: Publication) {
 }
 
 @Composable
-private fun CommentsSection(comments: List<Comment>) {
+private fun CommentsSection(
+    publication: Publication,
+    commentText: String,
+    onCommentChange: (String) -> Unit,
+    onSendComment: () -> Unit,
+    onToggleCommentLike: (String) -> Unit
+) {
+    val canInteract = publication.status == PublicationStatus.VERIFIED
+    val comments = publication.comments
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text("Comentarios (${comments.size})", style = MaterialTheme.typography.titleMedium)
         if (comments.isEmpty()) {
@@ -278,12 +309,51 @@ private fun CommentsSection(comments: List<Comment>) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        comments.forEach { comment -> CommentItem(comment) }
+        comments.forEach { comment ->
+            CommentItem(comment, canInteract, onLikeClick = { onToggleCommentLike(comment.id) })
+        }
+        if (publication.status == PublicationStatus.VERIFIED) {
+            CommentInput(commentText, onCommentChange, onSendComment)
+        } else {
+            Text(
+                if (publication.status == PublicationStatus.PENDING) {
+                    "Los comentarios se habilitan cuando un moderador verifique la publicación."
+                } else {
+                    "Esta publicación ya no recibe comentarios."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
-private fun CommentItem(comment: Comment) {
+private fun CommentInput(text: String, onTextChange: (String) -> Unit, onSend: () -> Unit) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = onTextChange,
+        modifier = Modifier.fillMaxWidth(),
+        placeholder = { Text("Cuenta tu experiencia") },
+        minLines = 2,
+        shape = MaterialTheme.shapes.medium,
+        supportingText = {
+            Text(
+                "${text.length} / $MAX_COMMENT_LENGTH",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = onSend, enabled = text.isNotBlank()) {
+                Icon(painterResource(R.drawable.ic_send), contentDescription = "Enviar comentario")
+            }
+        }
+    )
+}
+
+@Composable
+private fun CommentItem(comment: Comment, canLike: Boolean, onLikeClick: () -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         AuthorAvatar(comment.author, size = 32.dp)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -293,9 +363,22 @@ private fun CommentItem(comment: Comment) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(comment.text, style = MaterialTheme.typography.bodyMedium)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Icon(painterResource(R.drawable.ic_thumb_up), null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(comment.likes.toString(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val likeColor = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.small)
+                    .clickable(
+                        enabled = canLike,
+                        role = Role.Button,
+                        onClickLabel = if (comment.liked) "Quitar me gusta" else "Me gusta",
+                        onClick = onLikeClick
+                    )
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(painterResource(R.drawable.ic_thumb_up), null, Modifier.size(14.dp), tint = likeColor)
+                Text(comment.likes.toString(), style = MaterialTheme.typography.labelMedium, color = likeColor)
             }
         }
     }
@@ -307,7 +390,9 @@ private fun PublicationDetailScreenPreview() {
     RumboTheme {
         PublicationDetailScreen(
             state = PublicationDetailUiState.Success(SamplePublications.create().first()),
-            onBack = {}, onToggleInterest = {}, onToggleVisited = {}
+            commentText = "",
+            onBack = {}, onToggleInterest = {}, onToggleVisited = {}, onCommentChange = {}, onSendComment = {},
+            onToggleCommentLike = {}
         )
     }
 }

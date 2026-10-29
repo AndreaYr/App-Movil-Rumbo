@@ -1,6 +1,7 @@
 package com.app.rumbo.data.repository
 
 import com.app.rumbo.data.local.SamplePublications
+import com.app.rumbo.domain.model.Comment
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.repository.PublicationRepository
@@ -28,13 +29,17 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
     }
 
     override suspend fun approvePublication(id: String): Boolean = updatePending(id) {
-        it.copy(status = PublicationStatus.VERIFIED, rejectionReason = null)
+        it.copy(status = PublicationStatus.VERIFIED, rejectionReason = null, rejectionDetail = null)
     }
 
-    override suspend fun rejectPublication(id: String, reason: String): Boolean {
+    override suspend fun rejectPublication(id: String, reason: String, detail: String): Boolean {
         if (reason.isBlank()) return false
         return updatePending(id) {
-            it.copy(status = PublicationStatus.REJECTED, rejectionReason = reason.trim())
+            it.copy(
+                status = PublicationStatus.REJECTED,
+                rejectionReason = reason.trim(),
+                rejectionDetail = detail.trim()
+            )
         }
     }
 
@@ -43,6 +48,34 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
     }
 
     override suspend fun toggleVisited(id: String) = update(id) { it.copy(visited = !it.visited) }
+
+    override suspend fun addComment(publicationId: String, comment: Comment) =
+        update(publicationId) { it.copy(comments = listOf(comment) + it.comments) }
+
+    override suspend fun toggleCommentLike(publicationId: String, commentId: String) =
+        update(publicationId) { publication ->
+            publication.copy(
+                comments = publication.comments.map {
+                    if (it.id == commentId) it.copy(liked = !it.liked, likes = it.likes + if (it.liked) -1 else 1) else it
+                }
+            )
+        }
+
+    override suspend fun updateStatus(
+        id: String,
+        status: PublicationStatus,
+        rejectionReason: String?,
+        rejectionDetail: String?
+    ) = update(id) {
+        val rejected = status == PublicationStatus.REJECTED
+        it.copy(
+            status = status,
+            rejectionReason = if (rejected) rejectionReason else null,
+            rejectionDetail = if (rejected) rejectionDetail else null
+        )
+    }
+
+    override suspend fun updatePublication(publication: Publication) = update(publication.id) { publication }
 
     private fun update(id: String, transform: (Publication) -> Publication) {
         publications.update { list -> list.map { if (it.id == id) transform(it) else it } }

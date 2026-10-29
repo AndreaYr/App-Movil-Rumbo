@@ -42,10 +42,9 @@ data class CreatePublicationUiState(
     val descriptionLength: Int get() = description.length
 
     val titleError: String? get() = if (showValidationErrors && title.isBlank()) "Escribe un título" else null
-    val photosError: String? get() = if (showValidationErrors && photos.isEmpty()) "Agrega al menos una foto" else null
     val descriptionError: String? get() = if (showValidationErrors && description.isBlank()) "Cuenta algo sobre el lugar" else null
 
-    val isValid: Boolean get() = title.isNotBlank() && description.isNotBlank() && photos.isNotEmpty()
+    val isValid: Boolean get() = title.isNotBlank() && description.isNotBlank()
 }
 
 /** Avisos de una sola vez que la pantalla debe atender (navegar, mostrar mensaje). */

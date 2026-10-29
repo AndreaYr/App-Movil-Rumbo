@@ -17,6 +17,7 @@ import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.achievements.AchievementsRoute
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.editprofile.EditProfileRoute
+import com.app.rumbo.features.editpublication.EditPublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.home.HomeRoute
 import com.app.rumbo.features.login.LoginRoute
@@ -25,6 +26,8 @@ import com.app.rumbo.features.moderatoraccount.ModeratorAccountRoute
 import com.app.rumbo.features.moderatordashboard.ModeratorDashboardRoute
 import com.app.rumbo.features.moderationfinished.ModerationFinishedRoute
 import com.app.rumbo.features.moderationhistory.ModerationHistoryRoute
+import com.app.rumbo.features.moderationfinished.ModerationOutcome
+import com.app.rumbo.features.moderatorfinish.ModeratorFinishRoute
 import com.app.rumbo.features.pendingpublications.PendingPublicationsRoute
 import com.app.rumbo.features.rejectpublication.RejectPublicationRoute
 import com.app.rumbo.features.reviewpublication.ReviewPublicationRoute
@@ -105,6 +108,12 @@ fun AppNavHost(
                     onMyPublicationsClick = { navController.navigate(MyPublicationsDestination) },
                     onBadgesClick = { navController.navigate(AchievementsDestination) },
                     onEditProfileClick = { navController.navigate(EditProfileDestination) },
+                    onLogoutClick = {
+                        navController.navigate(LoginDestination) {
+                            popUpTo(HomeDestination) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -156,7 +165,14 @@ fun AppNavHost(
         composable<MyPublicationsDestination> {
             MyPublicationsRoute(
                 onBack = navController::popBackStack,
-                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
+                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
+                onEditClick = { id -> navController.navigate(EditPublicationDestination(id)) }
+            )
+        }
+        composable<EditPublicationDestination> {
+            EditPublicationRoute(
+                onClose = navController::popBackStack,
+                onResubmitted = navController::popBackStack
             )
         }
         composable<LoginDestination> { entry ->
@@ -196,7 +212,7 @@ fun AppNavHost(
                 onNavigateToPending = { navController.navigate(PendingPublicationsDestination) },
                 onNavigateToVerified = {},
                 onNavigateToRejected = {},
-                onNavigateToFinished = {},
+                onNavigateToFinished = { navController.navigate(ModeratorFinishDestination) },
                 onNavigateToHistory = { navController.navigate(ModerationHistoryDestination) },
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) },
                 onLogout = {
@@ -249,37 +265,40 @@ fun AppNavHost(
                 }
             )
         }
-        composable<ReviewPublicationDestination> { backStackEntry ->
-            val route = backStackEntry.toRoute<ReviewPublicationDestination>()
+        composable<ReviewPublicationDestination> {
             ReviewPublicationRoute(
                 onBack = { navController.popBackStack() },
-                onModerationCompleted = {
-                    navController.navigate(ModerationFinishedDestination(approved = true)) {
+                onVerify = {
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.APPROVED)) {
                         popUpTo(PendingPublicationsDestination) { inclusive = false }
                     }
                 },
                 onReject = { id -> navController.navigate(RejectPublicationDestination(id)) }
             )
         }
-        composable<RejectPublicationDestination> { backStackEntry ->
-            val route = backStackEntry.toRoute<RejectPublicationDestination>()
+        composable<RejectPublicationDestination> {
             RejectPublicationRoute(
                 onBack = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() },
-                onModerationCompleted = { reason ->
-                    navController.navigate(
-                        ModerationFinishedDestination(approved = false, rejectionReason = reason)
-                    ) {
+                onConfirmReject = {
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.REJECTED)) {
                         popUpTo(PendingPublicationsDestination) { inclusive = false }
                     }
                 }
             )
         }
-        composable<ModerationFinishedDestination> { entry ->
-            val route = entry.toRoute<ModerationFinishedDestination>()
+        composable<ModeratorFinishDestination> {
+            ModeratorFinishRoute(
+                onBack = { navController.popBackStack() },
+                onFinished = {
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.FINISHED)) {
+                        popUpTo(ModeratorDashboardDestination) { inclusive = false }
+                    }
+                }
+            )
+        }
+        composable<ModerationFinishedDestination> {
             ModerationFinishedRoute(
-                approved = route.approved,
-                rejectionReason = route.rejectionReason,
                 onBackToPanel = {
                     navController.navigate(ModeratorDashboardDestination) {
                         popUpTo(ModeratorDashboardDestination) { inclusive = true }

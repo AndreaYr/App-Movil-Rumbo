@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.pendingpublications
+package com.app.rumbo.features.pendingpublications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

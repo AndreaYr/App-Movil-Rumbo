@@ -1,5 +1,6 @@
 package com.app.rumbo.navigation
 
+import com.app.rumbo.features.moderationfinished.ModerationOutcome
 import kotlinx.serialization.Serializable
 
 // Rutas tipadas de Navigation Compose: cada pantalla es un objeto o clase serializable
@@ -26,10 +27,10 @@ data class ReviewPublicationDestination(val publicationId: String)
 data class RejectPublicationDestination(val publicationId: String)
 
 @Serializable
-data class ModerationFinishedDestination(
-    val approved: Boolean,
-    val rejectionReason: String? = null
-)
+data class ModerationFinishedDestination(val outcome: ModerationOutcome)
+
+@Serializable
+data object ModeratorFinishDestination
 
 @Serializable
 data object ModeratorAccountDestination
@@ -76,6 +77,9 @@ data class PublicationSubmittedDestination(val title: String) {
 
 @Serializable
 data object MyPublicationsDestination
+
+@Serializable
+data class EditPublicationDestination(val publicationId: String)
 
 @Serializable
 data class PublicationDetailDestination(val publicationId: String) {

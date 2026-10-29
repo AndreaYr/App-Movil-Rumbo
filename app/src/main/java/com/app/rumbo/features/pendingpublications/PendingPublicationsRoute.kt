@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.pendingpublications
+package com.app.rumbo.features.pendingpublications
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel

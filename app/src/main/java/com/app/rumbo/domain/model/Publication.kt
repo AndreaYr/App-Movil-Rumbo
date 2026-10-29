@@ -23,6 +23,7 @@ data class Publication(
     val longitude: Double,
     val photos: List<Photo>,
     val comments: List<Comment>,
-    /** Motivo conservado cuando la publicación es rechazada. */
-    val rejectionReason: String? = null
+    /** Motivo y detalle que el moderador le deja al autor cuando la rechaza. */
+    val rejectionReason: String? = null,
+    val rejectionDetail: String? = null
 )

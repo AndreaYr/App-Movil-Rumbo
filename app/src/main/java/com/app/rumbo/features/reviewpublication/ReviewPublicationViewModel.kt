@@ -1,11 +1,11 @@
-﻿package com.app.rumbo.features.reviewpublication
+package com.app.rumbo.features.reviewpublication
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.app.rumbo.domain.usecase.ApprovePublicationUseCase
 import com.app.rumbo.domain.usecase.GetPublicationDetailUseCase
+import com.app.rumbo.domain.usecase.ApprovePublicationUseCase
 import com.app.rumbo.navigation.ReviewPublicationDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -40,18 +40,10 @@ class ReviewPublicationViewModel @Inject constructor(
         }
     }
 
-    fun approve() {
-        if (_uiState.value.isProcessing || _uiState.value.moderationCompleted) return
-        _uiState.update { it.copy(isProcessing = true, actionFailed = false) }
+    /** Aprueba la publicación y avisa a la pantalla cuando ya quedó guardado. */
+    fun onVerify(onDone: () -> Unit) {
         viewModelScope.launch {
-            val approved = approvePublication(publicationId)
-            _uiState.update {
-                it.copy(
-                    isProcessing = false,
-                    actionFailed = !approved,
-                    moderationCompleted = approved
-                )
-            }
+            if (approvePublication(publicationId)) onDone()
         }
     }
 }

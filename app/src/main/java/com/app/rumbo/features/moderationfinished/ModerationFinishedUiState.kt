@@ -1,6 +1,8 @@
-﻿package com.app.rumbo.features.moderationfinished
+package com.app.rumbo.features.moderationfinished
 
 data class ModerationFinishedUiState(
-    val approved: Boolean = true,
-    val rejectionReason: String? = null
-)
+    val outcome: ModerationOutcome = ModerationOutcome.APPROVED
+) {
+    val title: String get() = outcome.title
+    val message: String get() = outcome.message
+}

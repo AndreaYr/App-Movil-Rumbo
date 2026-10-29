@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.rejectpublication
+package com.app.rumbo.features.rejectpublication
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,14 +30,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,18 +56,15 @@ private val ErrorRed = Color(0xFFE76F51)
 fun RejectPublicationRoute(
     onBack: () -> Unit = {},
     onCancel: () -> Unit = {},
-    onModerationCompleted: (String) -> Unit = {},
+    onConfirmReject: () -> Unit = {},
     viewModel: RejectPublicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(state.moderationCompleted, state.completedReason) {
-        if (state.moderationCompleted) state.completedReason?.let(onModerationCompleted)
-    }
     RejectPublicationScreen(
         state = state,
         onBack = onBack,
         onCancel = onCancel,
-        onConfirmReject = viewModel::confirmReject,
+        onConfirmReject = { viewModel.onConfirm(onConfirmReject) },
         onReasonSelected = viewModel::selectReason,
         onDetailChanged = viewModel::updateDetail
     )
@@ -122,10 +117,13 @@ fun RejectPublicationScreen(
                     }
                     Button(
                         onClick = onConfirmReject,
-                        enabled = !state.isProcessing && !state.moderationCompleted,
+                        enabled = state.canConfirm,
                         modifier = Modifier.weight(1.35f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = RejectOrange)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = RejectOrange,
+                            disabledContainerColor = SurfaceBg
+                        )
                     ) {
                         Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -147,13 +145,6 @@ fun RejectPublicationScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
-            if (state.actionFailed) {
-                Text(
-                    text = stringResource(R.string.moderation_action_failed),
-                    color = ErrorRed,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF1F3B35)),
@@ -163,8 +154,8 @@ fun RejectPublicationScreen(
                 }
                 Spacer(Modifier.width(10.dp))
                 Column {
-                    Text(publication?.title ?: "Mirador de la Vereda Cruces", color = White, fontWeight = FontWeight.SemiBold)
-                    Text("${publication?.category?.name ?: "Naturaleza"} · ${publication?.author?.name ?: "Mariana Ospina"} · hace 2 d", color = TextSecondary, fontSize = 12.sp)
+                    Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.SemiBold)
+                    Text("${publication?.category?.label.orEmpty()} · ${publication?.author?.name.orEmpty()}", color = TextSecondary, fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -214,7 +205,7 @@ fun RejectPublicationScreen(
                     maxLines = 4
                 )
             }
-            Text("${state.charCount} / 300", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.align(Alignment.End).padding(top = 4.dp))
+            Text("${state.charCount} / $MAX_REJECTION_DETAIL_LENGTH", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.align(Alignment.End).padding(top = 4.dp))
             Spacer(Modifier.height(16.dp))
         }
     }
