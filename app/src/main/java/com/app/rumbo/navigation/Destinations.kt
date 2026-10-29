@@ -59,6 +59,9 @@ data object EditProfileDestination
 data object AchievementsDestination
 
 @Serializable
+data object PlanRouteDestination
+
+@Serializable
 data object CreatePublicationDestination
 
 @Serializable
