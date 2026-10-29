@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.pendingpublications
+package com.app.rumbo.features.pendingpublications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -43,13 +43,5 @@ class PendingPublicationsViewModel @Inject constructor(
                     }
                 }
         }
-    }
-
-    fun onVerify(publicationId: String) {
-        // Por ahora solo navegamos, la lógica se puede implementar después
-    }
-
-    fun onReject(publicationId: String) {
-        // Por ahora solo navegamos, la lógica se puede implementar después
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.reviewpublication
+package com.app.rumbo.features.reviewpublication
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,7 +63,7 @@ fun ReviewPublicationRoute(
     ReviewPublicationScreen(
         state = state,
         onBack = onBack,
-        onVerify = onVerify,
+        onVerify = { viewModel.onVerify(onVerify) },
         onReject = { publicationId -> onReject(publicationId) }
     )
 }
@@ -131,7 +131,7 @@ fun ReviewPublicationScreen(
                     Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás", tint = White)
                 }
                 Spacer(Modifier.weight(1f))
-                Text("foto 1/3 · mirador sobre el cañón", color = TextSecondary, fontSize = 12.sp)
+                Text(publication?.photos?.size?.let { "$it fotos" }.orEmpty(), color = TextSecondary, fontSize = 12.sp)
                 Spacer(Modifier.weight(1f))
                 Spacer(Modifier.size(48.dp))
             }
@@ -157,10 +157,10 @@ fun ReviewPublicationScreen(
                             .background(PendingBadgeBg)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("PENDIENTE · REVISIÓN 3/8", color = PendingBadgeText, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                        Text("PENDIENTE DE REVISIÓN", color = PendingBadgeText, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                     }
                 }
-                Text(publication?.title ?: "Mirador de la Vereda Cruces", color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
@@ -169,20 +169,20 @@ fun ReviewPublicationScreen(
                             .background(Color(0xFF1F3B35)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(publication?.author?.initials ?: "MO", color = White, fontWeight = FontWeight.Bold)
+                        Text(publication?.author?.initials.orEmpty(), color = White, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.width(10.dp))
                     Column {
-                        Text(publication?.author?.name ?: "Mariana Ospina", color = White, fontWeight = FontWeight.SemiBold)
-                        Text("${publication?.author?.levelName ?: "Exploradora"} · 6 publicaciones verificadas · 0 rechazos", color = TextSecondary, fontSize = 12.sp)
+                        Text(publication?.author?.name.orEmpty(), color = White, fontWeight = FontWeight.SemiBold)
+                        Text(publication?.author?.levelName.orEmpty(), color = TextSecondary, fontSize = 12.sp)
                     }
                 }
-                ReviewSection("CATEGORÍA DECLARADA", R.drawable.ic_category_nature, "${publication?.category?.name ?: "Naturaleza"} · miradores y senderos")
-                ReviewSection("DESCRIPCIÓN", R.drawable.ic_edit, publication?.description ?: "Mirador poco conocido sobre el cañón, a 15 minutos del casco urbano. Hay una caseta de café y bancas de guadua.")
-                ReviewSection("HORARIO SUGERIDO", R.drawable.ic_schedule, publication?.schedule ?: "7:00 – 18:00 · todos los días")
-                ReviewSection("RANGO DE PRECIO", R.drawable.ic_money, "Económico · entrada $5.000")
-                ReviewSection("UBICACIÓN", R.drawable.ic_place, "${publication?.town ?: "Vereda Cruces"}, Salento · 14,2 km del centro")
-                ReviewSection("Ubicación declarada", R.drawable.ic_map, "${publication?.latitude ?: 4.5871}, ${publication?.longitude ?: -75.6420}")
+                ReviewSection("CATEGORÍA DECLARADA", R.drawable.ic_category_nature, publication?.category?.label.orEmpty())
+                ReviewSection("DESCRIPCIÓN", R.drawable.ic_edit, publication?.description.orEmpty())
+                ReviewSection("HORARIO SUGERIDO", R.drawable.ic_schedule, publication?.schedule.orEmpty())
+                ReviewSection("RANGO DE PRECIO", R.drawable.ic_money, publication?.price?.label.orEmpty())
+                ReviewSection("UBICACIÓN", R.drawable.ic_place, publication?.town.orEmpty())
+                ReviewSection("Ubicación declarada", R.drawable.ic_map, "${publication?.latitude}, ${publication?.longitude}")
                 Button(
                     onClick = {},
                     modifier = Modifier.fillMaxWidth().height(44.dp),

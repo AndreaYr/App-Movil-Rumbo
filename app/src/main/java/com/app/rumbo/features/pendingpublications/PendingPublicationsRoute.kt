@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.pendingpublications
+package com.app.rumbo.features.pendingpublications
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -22,14 +22,8 @@ fun PendingPublicationsRoute(
         state = state.value,
         onBack = onBack,
         onFilterClick = onFilterClick,
-        onVerifyClick = { id -> 
-            viewModel.onVerify(id)
-            onVerifyClick(id)
-        },
-        onRejectClick = { id -> 
-            viewModel.onReject(id)
-            onRejectClick(id)
-        },
+        onVerifyClick = onVerifyClick,
+        onRejectClick = onRejectClick,
         onNavigateToPanel = onNavigateToPanel,
         onNavigateToPending = onNavigateToPending,
         onNavigateToHistory = onNavigateToHistory,

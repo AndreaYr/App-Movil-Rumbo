@@ -179,11 +179,11 @@ fun CreatePublicationScreen(
             ) {
                 ModerationNotice()
 
-                FormField("Fotografías · mínimo 1, máximo $MAX_PHOTOS") {
+                FormField("Fotografías · opcional, máximo $MAX_PHOTOS") {
                     PhotosField(
                         photos = state.photos,
                         canAdd = state.canAddPhoto,
-                        error = state.photosError,
+                        error = null,
                         onAdd = {
                             pickPhotos.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -284,7 +284,7 @@ private fun CreateTopBar(onClose: () -> Unit) {
 }
 
 @Composable
-private fun FormField(label: String, content: @Composable () -> Unit) {
+internal fun FormField(label: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         content()
@@ -410,7 +410,7 @@ private fun PhotoThumb(photo: Photo, isMain: Boolean, onRemove: () -> Unit) {
 }
 
 @Composable
-private fun CategoryPicker(selected: Category, onSelected: (Category) -> Unit) {
+internal fun CategoryPicker(selected: Category, onSelected: (Category) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(vertical = 2.dp)) {
         items(Category.entries) { category ->
             CategoryChip(category = category, selected = category == selected, onClick = { onSelected(category) })
@@ -442,7 +442,7 @@ private fun CategoryChip(category: Category, selected: Boolean, onClick: () -> U
 }
 
 @Composable
-private fun DescriptionField(value: String, onValueChange: (String) -> Unit, error: String?) {
+internal fun DescriptionField(value: String, onValueChange: (String) -> Unit, error: String?) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         OutlinedTextField(
             value = value,
@@ -472,7 +472,7 @@ private fun DescriptionField(value: String, onValueChange: (String) -> Unit, err
 }
 
 @Composable
-private fun PriceField(price: PriceLevel, onSelected: (PriceLevel) -> Unit) {
+internal fun PriceField(price: PriceLevel, onSelected: (PriceLevel) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         SelectorRow(iconRes = R.drawable.ic_money, text = price.label, onClick = { expanded = true })
@@ -510,7 +510,7 @@ private fun SelectorRow(iconRes: Int, text: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun RumboTextField(
+internal fun RumboTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
@@ -553,7 +553,7 @@ private fun rumboTextFieldColors() = OutlinedTextFieldDefaults.colors(
 )
 
 @Composable
-private fun LocationMap(
+internal fun LocationMap(
     latitude: Double,
     longitude: Double,
     markerColor: Color,

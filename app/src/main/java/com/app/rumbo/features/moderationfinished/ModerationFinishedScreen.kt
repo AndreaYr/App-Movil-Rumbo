@@ -1,4 +1,4 @@
-﻿package com.app.rumbo.features.moderationfinished
+package com.app.rumbo.features.moderationfinished
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
 
 private val BodyBg = Color(0xFF0F1E1B)
@@ -38,22 +35,20 @@ private val VerifyGreen = Color(0xFF117361)
 private val TextSecondary = Color(0xFF7DA89B)
 
 @Composable
-fun ModerationFinishedRoute(
-    onBackToPanel: () -> Unit = {},
-    viewModel: ModerationFinishedViewModel = hiltViewModel()
-) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    ModerationFinishedScreen(state = state, onBackToPanel = onBackToPanel)
-}
-
-@Composable
 fun ModerationFinishedScreen(
     state: ModerationFinishedUiState,
     onBackToPanel: () -> Unit = {}
 ) {
-    val isApproved = state.title.contains("aprob", ignoreCase = true)
-    val iconColor = if (isApproved) VerifyGreen else Color(0xFFE76F51)
-    val iconRes = if (isApproved) R.drawable.ic_check_circle else R.drawable.ic_cancel
+    val iconColor = when (state.outcome) {
+        ModerationOutcome.APPROVED -> VerifyGreen
+        ModerationOutcome.REJECTED -> Color(0xFFE76F51)
+        ModerationOutcome.FINISHED -> TextSecondary
+    }
+    val iconRes = when (state.outcome) {
+        ModerationOutcome.APPROVED -> R.drawable.ic_check_circle
+        ModerationOutcome.REJECTED -> R.drawable.ic_cancel
+        ModerationOutcome.FINISHED -> R.drawable.ic_task_alt
+    }
     Scaffold(
         containerColor = BodyBg
     ) { padding ->

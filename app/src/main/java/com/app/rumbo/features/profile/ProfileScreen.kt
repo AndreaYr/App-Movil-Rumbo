@@ -47,6 +47,7 @@ fun ProfileRoute(
     onMyPublicationsClick: () -> Unit,
     onBadgesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -56,6 +57,7 @@ fun ProfileRoute(
         onMyPublicationsClick = onMyPublicationsClick,
         onBadgesClick = onBadgesClick,
         onEditProfileClick = onEditProfileClick,
+        onLogoutClick = onLogoutClick,
         modifier = modifier
     )
 }
@@ -66,6 +68,7 @@ fun ProfileScreen(
     onMyPublicationsClick: () -> Unit,
     onBadgesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (state.isLoading) {
@@ -80,7 +83,7 @@ fun ProfileScreen(
         item { LevelCard(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { StatsRow(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)) }
         item { BadgesHeader(state.totalBadges, onBadgesClick) }
-        item { ProfileLinks(state, onMyPublicationsClick, onBadgesClick, onEditProfileClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
+        item { ProfileLinks(state, onMyPublicationsClick, onBadgesClick, onLogoutClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
     }
 }
 
@@ -235,7 +238,7 @@ private fun BadgesHeader(totalBadges: Int, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Unit, onBadgesClick: () -> Unit, onEditProfileClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Unit, onBadgesClick: () -> Unit, onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
     val publicationsSub = if (state.pendingPublicationsCount > 0) {
         "${state.publicationsCount} · ${state.pendingPublicationsCount} pendientes de verificación"
     } else {
@@ -247,7 +250,7 @@ private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Uni
         ProfileLink(R.drawable.ic_route, "Mis rutas", "Aún no has creado rutas")
         ProfileLink(R.drawable.ic_military_tech, "Logros e insignias", "${state.unlockedBadges.size} de ${state.totalBadges} desbloqueadas", onBadgesClick)
         ProfileLink(R.drawable.ic_bar_chart, "Mis estadísticas", "Tu actividad en Rumbo")
-        ProfileLink(R.drawable.ic_person, "Editar perfil", "Nombre, foto, ciudad base", onEditProfileClick)
+        ProfileLink(R.drawable.ic_logout, "Cerrar sesión", "Salir de tu cuenta", onLogoutClick)
     }
 }
 
@@ -304,7 +307,8 @@ private fun ProfileScreenPreview() {
             ),
             onMyPublicationsClick = {},
             onBadgesClick = {},
-            onEditProfileClick = {}
+            onEditProfileClick = {},
+            onLogoutClick = {}
         )
     }
 }

@@ -1,10 +1,11 @@
-﻿package com.app.rumbo.features.rejectpublication
+package com.app.rumbo.features.rejectpublication
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.app.rumbo.domain.repository.PublicationRepository
+import com.app.rumbo.domain.usecase.RejectPublicationUseCase
 import com.app.rumbo.navigation.RejectPublicationDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class RejectPublicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val publicationRepository: PublicationRepository
+    private val publicationRepository: PublicationRepository,
+    private val rejectPublication: RejectPublicationUseCase
 ) : ViewModel() {
 
     private val route = savedStateHandle.toRoute<RejectPublicationDestination>()
@@ -43,12 +45,15 @@ class RejectPublicationViewModel @Inject constructor(
     }
 
     fun updateDetail(detail: String) {
-        val limitedDetail = detail.take(300)
-        _uiState.update {
-            it.copy(
-                detail = limitedDetail,
-                charCount = limitedDetail.length
-            )
+        _uiState.update { it.copy(detail = detail.take(MAX_REJECTION_DETAIL_LENGTH)) }
+    }
+
+    /** Rechaza con el motivo elegido y avisa a la pantalla cuando ya quedó guardado. */
+    fun onConfirm(onDone: () -> Unit) {
+        val state = _uiState.value
+        val reason = state.selectedReason ?: return
+        viewModelScope.launch {
+            if (rejectPublication(publicationId, reason, state.detail)) onDone()
         }
     }
 }

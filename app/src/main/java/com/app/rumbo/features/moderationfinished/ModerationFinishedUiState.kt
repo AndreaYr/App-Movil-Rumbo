@@ -1,6 +1,8 @@
-﻿package com.app.rumbo.features.moderationfinished
+package com.app.rumbo.features.moderationfinished
 
 data class ModerationFinishedUiState(
-    val title: String = "Publicación aprobada",
-    val message: String = "La publicación ya está visible en el feed público."
-)
+    val outcome: ModerationOutcome = ModerationOutcome.APPROVED
+) {
+    val title: String get() = outcome.title
+    val message: String get() = outcome.message
+}

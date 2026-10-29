@@ -15,6 +15,7 @@ import com.app.rumbo.core.component.RumboTab
 import com.app.rumbo.features.achievements.AchievementsRoute
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.editprofile.EditProfileRoute
+import com.app.rumbo.features.editpublication.EditPublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.home.HomeRoute
 import com.app.rumbo.features.login.LoginRoute
@@ -22,6 +23,8 @@ import com.app.rumbo.features.loginmoderator.LoginModeratorRoute
 import com.app.rumbo.features.moderatoraccount.ModeratorAccountRoute
 import com.app.rumbo.features.moderatordashboard.ModeratorDashboardRoute
 import com.app.rumbo.features.moderationfinished.ModerationFinishedRoute
+import com.app.rumbo.features.moderationfinished.ModerationOutcome
+import com.app.rumbo.features.moderatorfinish.ModeratorFinishRoute
 import com.app.rumbo.features.pendingpublications.PendingPublicationsRoute
 import com.app.rumbo.features.rejectpublication.RejectPublicationRoute
 import com.app.rumbo.features.reviewpublication.ReviewPublicationRoute
@@ -103,6 +106,12 @@ fun AppNavHost(
                     onMyPublicationsClick = { navController.navigate(MyPublicationsDestination) },
                     onBadgesClick = { navController.navigate(AchievementsDestination) },
                     onEditProfileClick = { navController.navigate(EditProfileDestination) },
+                    onLogoutClick = {
+                        navController.navigate(LoginDestination) {
+                            popUpTo(HomeDestination) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -147,7 +156,14 @@ fun AppNavHost(
         composable<MyPublicationsDestination> {
             MyPublicationsRoute(
                 onBack = navController::popBackStack,
-                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
+                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
+                onEditClick = { id -> navController.navigate(EditPublicationDestination(id)) }
+            )
+        }
+        composable<EditPublicationDestination> {
+            EditPublicationRoute(
+                onClose = navController::popBackStack,
+                onResubmitted = navController::popBackStack
             )
         }
         composable<LoginDestination> { entry ->
@@ -187,7 +203,7 @@ fun AppNavHost(
                 onNavigateToPending = { navController.navigate(PendingPublicationsDestination) },
                 onNavigateToVerified = {},
                 onNavigateToRejected = {},
-                onNavigateToFinished = {},
+                onNavigateToFinished = { navController.navigate(ModeratorFinishDestination) },
                 onNavigateToHistory = {},
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) },
                 onLogout = {
@@ -221,36 +237,40 @@ fun AppNavHost(
                 }
             )
         }
-        composable<ReviewPublicationDestination> { backStackEntry ->
-            val route = backStackEntry.toRoute<ReviewPublicationDestination>()
+        composable<ReviewPublicationDestination> {
             ReviewPublicationRoute(
                 onBack = { navController.popBackStack() },
                 onVerify = {
-                    navController.navigate(ModerationFinishedDestination) { popUpTo(PendingPublicationsDestination) { inclusive = false } }
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_title", "Publicación aprobada")
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_message", "La publicación ya está visible en el feed público.")
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.APPROVED)) {
+                        popUpTo(PendingPublicationsDestination) { inclusive = false }
+                    }
                 },
                 onReject = { id -> navController.navigate(RejectPublicationDestination(id)) }
             )
         }
-        composable<RejectPublicationDestination> { backStackEntry ->
-            val route = backStackEntry.toRoute<RejectPublicationDestination>()
+        composable<RejectPublicationDestination> {
             RejectPublicationRoute(
                 onBack = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() },
                 onConfirmReject = {
-                    navController.navigate(ModerationFinishedDestination) { popUpTo(PendingPublicationsDestination) { inclusive = false } }
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_title", "Publicación rechazada")
-                    navController.currentBackStackEntry?.savedStateHandle?.set("finished_message", "Se notificó al autor con el motivo del rechazo.")
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.REJECTED)) {
+                        popUpTo(PendingPublicationsDestination) { inclusive = false }
+                    }
                 }
             )
         }
-        composable<ModerationFinishedDestination> { entry ->
-            val title = entry.savedStateHandle.get<String>("finished_title")
-            val message = entry.savedStateHandle.get<String>("finished_message")
+        composable<ModeratorFinishDestination> {
+            ModeratorFinishRoute(
+                onBack = { navController.popBackStack() },
+                onFinished = {
+                    navController.navigate(ModerationFinishedDestination(ModerationOutcome.FINISHED)) {
+                        popUpTo(ModeratorDashboardDestination) { inclusive = false }
+                    }
+                }
+            )
+        }
+        composable<ModerationFinishedDestination> {
             ModerationFinishedRoute(
-                title = title,
-                message = message,
                 onBackToPanel = {
                     navController.navigate(ModeratorDashboardDestination) {
                         popUpTo(ModeratorDashboardDestination) { inclusive = true }

@@ -1,10 +1,11 @@
-﻿package com.app.rumbo.features.reviewpublication
+package com.app.rumbo.features.reviewpublication
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.app.rumbo.domain.repository.PublicationRepository
+import com.app.rumbo.domain.usecase.VerifyPublicationUseCase
 import com.app.rumbo.navigation.ReviewPublicationDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ReviewPublicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val publicationRepository: PublicationRepository
+    private val publicationRepository: PublicationRepository,
+    private val verifyPublication: VerifyPublicationUseCase
 ) : ViewModel() {
 
     private val route = savedStateHandle.toRoute<ReviewPublicationDestination>()
@@ -35,6 +37,13 @@ class ReviewPublicationViewModel @Inject constructor(
             publicationRepository.observePublication(publicationId).collect { publication ->
                 _uiState.update { it.copy(publication = publication) }
             }
+        }
+    }
+
+    /** Aprueba la publicación y avisa a la pantalla cuando ya quedó guardado. */
+    fun onVerify(onDone: () -> Unit) {
+        viewModelScope.launch {
+            if (verifyPublication(publicationId)) onDone()
         }
     }
 }
