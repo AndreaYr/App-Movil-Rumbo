@@ -24,6 +24,7 @@ import com.app.rumbo.features.loginmoderator.LoginModeratorRoute
 import com.app.rumbo.features.moderatoraccount.ModeratorAccountRoute
 import com.app.rumbo.features.moderatordashboard.ModeratorDashboardRoute
 import com.app.rumbo.features.moderationfinished.ModerationFinishedRoute
+import com.app.rumbo.features.moderationhistory.ModerationHistoryRoute
 import com.app.rumbo.features.pendingpublications.PendingPublicationsRoute
 import com.app.rumbo.features.rejectpublication.RejectPublicationRoute
 import com.app.rumbo.features.reviewpublication.ReviewPublicationRoute
@@ -196,7 +197,7 @@ fun AppNavHost(
                 onNavigateToVerified = {},
                 onNavigateToRejected = {},
                 onNavigateToFinished = {},
-                onNavigateToHistory = {},
+                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination) },
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) },
                 onLogout = {
                     navController.navigate(LoginDestination) {
@@ -214,7 +215,26 @@ fun AppNavHost(
                 onRejectClick = { id -> navController.navigate(RejectPublicationDestination(id)) },
                 onNavigateToPanel = { navController.navigate(ModeratorDashboardDestination) { launchSingleTop = true } },
                 onNavigateToPending = { },
-                onNavigateToHistory = {},
+                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination) },
+                onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) }
+            )
+        }
+        composable<ModerationHistoryDestination> {
+            ModerationHistoryRoute(
+                onBack = { navController.popBackStack() },
+                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
+                onNavigateToPanel = {
+                    navController.navigate(ModeratorDashboardDestination) {
+                        popUpTo(ModeratorDashboardDestination) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToPending = {
+                    navController.navigate(PendingPublicationsDestination) {
+                        popUpTo(ModeratorDashboardDestination) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) }
             )
         }

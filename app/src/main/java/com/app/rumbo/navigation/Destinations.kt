@@ -35,6 +35,9 @@ data class ModerationFinishedDestination(
 data object ModeratorAccountDestination
 
 @Serializable
+data object ModerationHistoryDestination
+
+@Serializable
 data object RegisterDestination
 
 @Serializable

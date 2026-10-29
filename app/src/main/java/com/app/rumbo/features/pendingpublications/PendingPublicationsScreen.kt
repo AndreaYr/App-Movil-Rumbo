@@ -24,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import com.app.rumbo.core.component.ModeratorBottomBar
+import com.app.rumbo.core.component.ModeratorTab
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.domain.model.Author
 import com.app.rumbo.domain.model.Category
@@ -49,7 +50,6 @@ import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
 
 private val BodyBeige = Color(0xFFF7F5EE)
-private val HeaderDark = Color(0xFF0F1E1B)
 private val White = Color(0xFFFFFFFF)
 private val BorderColor = Color(0xFFEFECE4)
 private val PendingBadgeBg = Color(0xFFFEF3C7)
@@ -59,8 +59,6 @@ private val RejectOrange = Color(0xFFD95338)
 private val TextDark = Color(0xFF0F1E1B)
 private val TextSecondary = Color(0xFF6B7C75)
 private val TextMeta = Color(0xFF828282)
-private val ActiveNavGreen = Color(0xFF23C49D)
-private val InactiveNav = Color(0xFF6B7C75)
 private val ImagePlaceholder = Color(0xFFE6E2D6)
 
 @Composable
@@ -78,12 +76,12 @@ fun PendingPublicationsScreen(
     Scaffold(
         containerColor = BodyBeige,
         bottomBar = {
-            ModeratorBottomBarPending(
-                selected = "pendientes",
-                onNavigateToPanel = onNavigateToPanel,
-                onNavigateToPending = onNavigateToPending,
-                onNavigateToHistory = onNavigateToHistory,
-                onNavigateToAccount = onNavigateToAccount
+            ModeratorBottomBar(
+                selectedTab = ModeratorTab.PENDING,
+                onPanelClick = onNavigateToPanel,
+                onPendingClick = onNavigateToPending,
+                onHistoryClick = onNavigateToHistory,
+                onAccountClick = onNavigateToAccount
             )
         }
     ) { padding ->
@@ -324,81 +322,6 @@ private fun PendingPublicationCard(
                     }
             }
         }
-    }
-}
-
-@Composable
-private fun ModeratorBottomBarPending(
-    selected: String,
-    onNavigateToPanel: () -> Unit,
-    onNavigateToPending: () -> Unit,
-    onNavigateToHistory: () -> Unit,
-    onNavigateToAccount: () -> Unit
-) {
-    Surface(
-        color = HeaderDark,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomBarItemPending(
-                label = "Panel",
-                iconRes = R.drawable.ic_home,
-                selected = selected == "panel",
-                onClick = onNavigateToPanel
-            )
-            BottomBarItemPending(
-                label = "Pendientes",
-                iconRes = R.drawable.ic_schedule,
-                selected = selected == "pendientes",
-                onClick = onNavigateToPending
-            )
-            BottomBarItemPending(
-                label = "Historial",
-                iconRes = R.drawable.ic_library_books,
-                selected = selected == "historial",
-                onClick = onNavigateToHistory
-            )
-            BottomBarItemPending(
-                label = "Cuenta",
-                iconRes = R.drawable.ic_person,
-                selected = selected == "cuenta",
-                onClick = onNavigateToAccount
-            )
-        }
-    }
-}
-
-@Composable
-private fun BottomBarItemPending(
-    label: String,
-    iconRes: Int,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    ) {
-        IconButton(onClick = onClick) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = label,
-                tint = if (selected) ActiveNavGreen else InactiveNav,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        Text(
-            text = label,
-            color = if (selected) ActiveNavGreen else InactiveNav,
-            fontSize = 11.sp,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
-        )
     }
 }
 

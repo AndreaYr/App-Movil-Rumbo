@@ -25,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.rumbo.R
+import com.app.rumbo.core.component.ModeratorBottomBar
+import com.app.rumbo.core.component.ModeratorTab
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.domain.model.ModerationActionType
 import com.app.rumbo.domain.model.ModerationActivity
@@ -54,8 +55,6 @@ private val RejectedOrange = Color(0xFFE76F51)
 private val FinishedGray = Color(0xFFBDBDBD)
 private val TextDark = Color(0xFF0F1E1B)
 private val TextSecondary = Color(0xFF6B7C75)
-private val ActiveNavGreen = Color(0xFF23C49D)
-private val InactiveNav = Color(0xFF6B7C75)
 
 @Composable
 fun ModeratorDashboardScreen(
@@ -73,10 +72,11 @@ fun ModeratorDashboardScreen(
         containerColor = BodyBeige,
         bottomBar = {
             ModeratorBottomBar(
-                selected = "panel",
-                onNavigateToPending = onNavigateToPending,
-                onNavigateToHistory = onNavigateToHistory,
-                onNavigateToAccount = onNavigateToAccount
+                selectedTab = ModeratorTab.PANEL,
+                onPanelClick = {},
+                onPendingClick = onNavigateToPending,
+                onHistoryClick = onNavigateToHistory,
+                onAccountClick = onNavigateToAccount
             )
         }
     ) { padding ->
@@ -513,80 +513,6 @@ private fun ActivityItem(activity: ModerationActivity) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ModeratorBottomBar(
-    selected: String,
-    onNavigateToPending: () -> Unit,
-    onNavigateToHistory: () -> Unit,
-    onNavigateToAccount: () -> Unit
-) {
-    Surface(
-        color = HeaderDark,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BottomBarItem(
-                label = "Panel",
-                iconRes = R.drawable.ic_home,
-                selected = selected == "panel",
-                onClick = {}
-            )
-            BottomBarItem(
-                label = "Pendientes",
-                iconRes = R.drawable.ic_schedule,
-                selected = selected == "pendientes",
-                onClick = onNavigateToPending
-            )
-            BottomBarItem(
-                label = "Historial",
-                iconRes = R.drawable.ic_library_books,
-                selected = selected == "historial",
-                onClick = onNavigateToHistory
-            )
-            BottomBarItem(
-                label = "Cuenta",
-                iconRes = R.drawable.ic_person,
-                selected = selected == "cuenta",
-                onClick = onNavigateToAccount
-            )
-        }
-    }
-}
-
-@Composable
-private fun BottomBarItem(
-    label: String,
-    iconRes: Int,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    ) {
-        IconButton(onClick = onClick) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = label,
-                tint = if (selected) ActiveNavGreen else InactiveNav,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-        Text(
-            text = label,
-            color = if (selected) ActiveNavGreen else InactiveNav,
-            fontSize = 11.sp,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
-        )
     }
 }
 
