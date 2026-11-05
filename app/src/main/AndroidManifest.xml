@@ -5,6 +5,10 @@
     <!-- Necesario para descargar las fotos de las publicaciones -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Ubicación actual en el mapa: basta con que se conceda una de las dos -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:name=".RumboApp"
         android:allowBackup="true"

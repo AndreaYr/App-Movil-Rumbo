@@ -3,8 +3,10 @@ package com.app.rumbo.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,8 +34,11 @@ import com.app.rumbo.features.pendingpublications.PendingPublicationsRoute
 import com.app.rumbo.features.rejectpublication.RejectPublicationRoute
 import com.app.rumbo.features.reviewpublication.ReviewPublicationRoute
 import com.app.rumbo.features.mypublications.MyPublicationsRoute
+import com.app.rumbo.features.myroutes.MyRoutesRoute
+import com.app.rumbo.features.myroutes.SavedRouteRoute
 import com.app.rumbo.features.notifications.NotificationsRoute
 import com.app.rumbo.features.passwordrecovery.PasswordRecoveryRoute
+import com.app.rumbo.features.planroute.GeneratedRouteRoute
 import com.app.rumbo.features.planroute.PlanRouteRoute
 import com.app.rumbo.features.profile.ProfileRoute
 import com.app.rumbo.features.publicationdetail.PublicationDetailRoute
@@ -106,6 +111,7 @@ fun AppNavHost(
             ) { padding ->
                 ProfileRoute(
                     onMyPublicationsClick = { navController.navigate(MyPublicationsDestination) },
+                    onMyRoutesClick = { navController.navigate(MyRoutesDestination) },
                     onBadgesClick = { navController.navigate(AchievementsDestination) },
                     onEditProfileClick = { navController.navigate(EditProfileDestination) },
                     onLogoutClick = {
@@ -121,8 +127,29 @@ fun AppNavHost(
         composable<PlanRouteDestination> {
             PlanRouteRoute(
                 onBack = navController::popBackStack,
-                // Se conecta cuando exista la pantalla de la ruta generada
-                onViewRouteClick = {}
+                onViewRouteClick = { navController.navigate(GeneratedRouteDestination) }
+            )
+        }
+        composable<GeneratedRouteDestination> { entry ->
+            // Comparte el ViewModel con el planificador para mostrar el mismo plan
+            val plannerEntry = remember(entry) { navController.getBackStackEntry<PlanRouteDestination>() }
+            GeneratedRouteRoute(
+                viewModel = hiltViewModel(plannerEntry),
+                onBack = navController::popBackStack,
+                onStopClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
+            )
+        }
+        composable<MyRoutesDestination> {
+            MyRoutesRoute(
+                onBack = navController::popBackStack,
+                onRouteClick = { id -> navController.navigate(SavedRouteDestination(id)) },
+                onPlanRouteClick = { navController.navigate(PlanRouteDestination) }
+            )
+        }
+        composable<SavedRouteDestination> {
+            SavedRouteRoute(
+                onBack = navController::popBackStack,
+                onStopClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
             )
         }
         composable<EditProfileDestination> {

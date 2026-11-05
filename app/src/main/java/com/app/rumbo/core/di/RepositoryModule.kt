@@ -1,5 +1,6 @@
 package com.app.rumbo.core.di
 
+import com.app.rumbo.data.repository.FileSavedRouteRepository
 import com.app.rumbo.data.repository.InMemoryActivityRepository
 import com.app.rumbo.data.repository.InMemoryNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
@@ -7,6 +8,7 @@ import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.repository.ActivityRepository
 import com.app.rumbo.domain.repository.NotificationRepository
 import com.app.rumbo.domain.repository.PublicationRepository
+import com.app.rumbo.domain.repository.SavedRouteRepository
 import com.app.rumbo.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindActivityRepository(impl: InMemoryActivityRepository): ActivityRepository
+
+    @Binds
+    abstract fun bindSavedRouteRepository(impl: FileSavedRouteRepository): SavedRouteRepository
 }

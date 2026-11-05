@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,19 +70,33 @@ fun FeedScreen(
     onToggleInterest: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showMap by rememberSaveable { mutableStateOf(false) }
+    if (showMap) {
+        FeedMap(
+            state = state,
+            onCategorySelected = onCategorySelected,
+            onPublicationClick = onPublicationClick,
+            onShowList = { showMap = false },
+            modifier = modifier
+        )
+        return
+    }
     LazyColumn(
         modifier = modifier.fillMaxSize().statusBarsPadding(),
         contentPadding = PaddingValues(vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text("Explorar", style = MaterialTheme.typography.headlineMedium)
-                Text(
-                    "Lugares recomendados por la comunidad del Quindío",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Explorar", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        "Lugares recomendados por la comunidad del Quindío",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                FeedViewToggle(showMap = false, onChange = { showMap = it })
             }
         }
         item {
@@ -121,9 +136,10 @@ fun FeedScreen(
 }
 
 @Composable
-private fun CategoryFilters(selected: Category?, onSelected: (Category?) -> Unit) {
+internal fun CategoryFilters(selected: Category?, onSelected: (Category?) -> Unit) {
     // Selección en verde primario, como en el prototipo
     val colors = FilterChipDefaults.filterChipColors(
+        containerColor = MaterialTheme.colorScheme.surface,
         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
         selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
     )

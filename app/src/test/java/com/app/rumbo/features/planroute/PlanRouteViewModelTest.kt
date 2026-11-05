@@ -7,7 +7,10 @@ import com.app.rumbo.domain.model.RoutePreferences
 import com.app.rumbo.domain.model.RoutePriority
 import com.app.rumbo.domain.model.Transport
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
+import com.app.rumbo.domain.usecase.GetSavedRoutesUseCase
 import com.app.rumbo.domain.usecase.PlanRouteUseCase
+import com.app.rumbo.domain.usecase.SaveRouteUseCase
+import com.app.rumbo.testutil.FakeSavedRouteRepository
 import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,11 +34,15 @@ class PlanRouteViewModelTest {
 
     private lateinit var viewModel: PlanRouteViewModel
 
+    private val savedRoutes = FakeSavedRouteRepository()
+
     @Before
     fun setUp() {
         viewModel = PlanRouteViewModel(
             PlanRouteUseCase(InMemoryPublicationRepository()),
-            GetCurrentUserUseCase(FakeUserRepository())
+            GetCurrentUserUseCase(FakeUserRepository()),
+            GetSavedRoutesUseCase(savedRoutes),
+            SaveRouteUseCase(savedRoutes)
         )
     }
 

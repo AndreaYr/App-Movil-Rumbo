@@ -45,6 +45,7 @@ import com.app.rumbo.domain.model.Badge
 @Composable
 fun ProfileRoute(
     onMyPublicationsClick: () -> Unit,
+    onMyRoutesClick: () -> Unit,
     onBadgesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
     onLogoutClick: () -> Unit,
@@ -55,6 +56,7 @@ fun ProfileRoute(
     ProfileScreen(
         state = state,
         onMyPublicationsClick = onMyPublicationsClick,
+        onMyRoutesClick = onMyRoutesClick,
         onBadgesClick = onBadgesClick,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = onLogoutClick,
@@ -66,6 +68,7 @@ fun ProfileRoute(
 fun ProfileScreen(
     state: ProfileUiState,
     onMyPublicationsClick: () -> Unit,
+    onMyRoutesClick: () -> Unit,
     onBadgesClick: () -> Unit,
     onEditProfileClick: () -> Unit,
     onLogoutClick: () -> Unit,
@@ -83,7 +86,7 @@ fun ProfileScreen(
         item { LevelCard(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { StatsRow(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)) }
         item { BadgesHeader(state.totalBadges, onBadgesClick) }
-        item { ProfileLinks(state, onMyPublicationsClick, onBadgesClick, onLogoutClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
+        item { ProfileLinks(state, onMyPublicationsClick, onMyRoutesClick, onBadgesClick, onLogoutClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
     }
 }
 
@@ -238,7 +241,7 @@ private fun BadgesHeader(totalBadges: Int, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Unit, onBadgesClick: () -> Unit, onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Unit, onMyRoutesClick: () -> Unit, onBadgesClick: () -> Unit, onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
     val publicationsSub = if (state.pendingPublicationsCount > 0) {
         "${state.publicationsCount} · ${state.pendingPublicationsCount} pendientes de verificación"
     } else {
@@ -246,8 +249,17 @@ private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Uni
     }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(9.dp)) {
         ProfileLink(R.drawable.ic_library_books, "Mis publicaciones", publicationsSub, onMyPublicationsClick)
-        // Rutas y estadísticas aún no tienen pantalla: se muestran sin acción
-        ProfileLink(R.drawable.ic_route, "Mis rutas", "Aún no has creado rutas")
+        ProfileLink(
+            R.drawable.ic_route,
+            "Mis rutas",
+            when (state.routesCount) {
+                0 -> "Aún no has guardado rutas"
+                1 -> "1 guardada"
+                else -> "${state.routesCount} guardadas"
+            },
+            onMyRoutesClick
+        )
+        // Estadísticas aún no tiene pantalla: se muestra sin acción
         ProfileLink(R.drawable.ic_military_tech, "Logros e insignias", "${state.unlockedBadges.size} de ${state.totalBadges} desbloqueadas", onBadgesClick)
         ProfileLink(R.drawable.ic_bar_chart, "Mis estadísticas", "Tu actividad en Rumbo")
         ProfileLink(R.drawable.ic_logout, "Cerrar sesión", "Salir de tu cuenta", onLogoutClick)
@@ -306,6 +318,7 @@ private fun ProfileScreenPreview() {
                 totalBadges = 14
             ),
             onMyPublicationsClick = {},
+            onMyRoutesClick = {},
             onBadgesClick = {},
             onEditProfileClick = {},
             onLogoutClick = {}

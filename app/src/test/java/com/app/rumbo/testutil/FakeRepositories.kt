@@ -2,8 +2,10 @@ package com.app.rumbo.testutil
 
 import com.app.rumbo.domain.model.ActivityStats
 import com.app.rumbo.domain.model.ProfileUpdate
+import com.app.rumbo.domain.model.SavedRoute
 import com.app.rumbo.domain.model.User
 import com.app.rumbo.domain.repository.ActivityRepository
+import com.app.rumbo.domain.repository.SavedRouteRepository
 import com.app.rumbo.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +16,16 @@ import kotlinx.coroutines.flow.update
 class FakeActivityRepository(initial: ActivityStats = ActivityStats()) : ActivityRepository {
     val stats = MutableStateFlow(initial)
     override fun observeActivity(): Flow<ActivityStats> = stats.asStateFlow()
+}
+
+/** Rutas guardadas en memoria; con `failWrites` simula un error de almacenamiento. */
+class FakeSavedRouteRepository(var failWrites: Boolean = false) : SavedRouteRepository {
+    val routes = MutableStateFlow<List<SavedRoute>>(emptyList())
+    override fun observeRoutes(): Flow<List<SavedRoute>> = routes.asStateFlow()
+    override suspend fun saveRoute(route: SavedRoute) {
+        if (failWrites) throw java.io.IOException("Sin espacio")
+        routes.update { listOf(route) + it }
+    }
 }
 
 /** Usuario controlado por la prueba; con `null` simula que no hay sesión iniciada. */

@@ -101,11 +101,6 @@ class CreatePublicationViewModel @Inject constructor(
         it.copy(latitude = latitude, longitude = longitude)
     }
 
-    fun onUseMyLocation() {
-        // TODO: reemplazar por la ubicación real (FusedLocationProviderClient) cuando se pida permiso.
-        onMarkerMoved(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
-    }
-
     /** Guarda un borrador local mientras la pantalla siga abierta. */
     fun onSaveDraft() {
         viewModelScope.launch { _events.send(CreatePublicationEvent.DraftSaved) }

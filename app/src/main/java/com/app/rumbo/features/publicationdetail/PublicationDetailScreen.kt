@@ -1,5 +1,10 @@
 package com.app.rumbo.features.publicationdetail
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,24 +39,29 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
 import com.app.rumbo.core.component.AuthorAvatar
+import com.app.rumbo.core.component.MapBox
 import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.RumboTopBar
 import com.app.rumbo.core.component.StatusChip
 import com.app.rumbo.core.component.color
+import com.app.rumbo.core.component.toMapMarker
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.core.util.formatKm
 import com.app.rumbo.core.util.formatThousands
@@ -270,23 +281,50 @@ private fun InfoRow(@DrawableRes icon: Int, label: String, value: String) {
     }
 }
 
-/** Vista previa del mapa: maqueta hasta integrar Google Maps o Mapbox. */
+/** Mapa de solo lectura: va dentro de una pantalla con scroll, así que no responde a gestos. */
 @Composable
 private fun MapPreview(publication: Publication) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .background(Color(0xFFE4EEE9), MaterialTheme.shapes.large),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(painterResource(R.drawable.ic_place), null, Modifier.size(36.dp), tint = publication.category.color)
+    val context = LocalContext.current
+    val marker = remember(publication.id, publication.latitude, publication.longitude, publication.category) {
+        publication.toMapMarker()
+    }
+    Box(Modifier.fillMaxWidth().height(160.dp).clip(MaterialTheme.shapes.large)) {
+        MapBox(
+            modifier = Modifier.matchParentSize(),
+            center = marker.point,
+            zoom = 14.5,
+            markers = listOf(marker),
+            clusterMarkers = false,
+            interactive = false
+        )
         Text(
             String.format(Locale.US, "%.4f, %.4f", publication.latitude, publication.longitude),
             style = MaterialTheme.typography.labelMedium.copy(fontFamily = FontFamily.Monospace),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.BottomStart).padding(12.dp)
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(10.dp)
+                .background(Color(0xCCFFFFFF), MaterialTheme.shapes.small)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
+        FilledTonalButton(
+            onClick = { context.openDirections(publication) },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
+        ) {
+            Icon(painterResource(R.drawable.ic_near_me), null, Modifier.padding(end = 6.dp).size(16.dp))
+            Text("Cómo llegar", style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+/** Abre la app de mapas del dispositivo en el punto de la publicación. */
+private fun Context.openDirections(publication: Publication) {
+    val coordinates = String.format(Locale.US, "%f,%f", publication.latitude, publication.longitude)
+    val uri = "geo:$coordinates?q=$coordinates(${Uri.encode(publication.title)})".toUri()
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, uri))
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(this, "No hay una app de mapas instalada", Toast.LENGTH_SHORT).show()
     }
 }
 

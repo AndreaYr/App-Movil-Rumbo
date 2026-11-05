@@ -66,6 +66,19 @@ data object AchievementsDestination
 data object PlanRouteDestination
 
 @Serializable
+data object GeneratedRouteDestination
+
+@Serializable
+data object MyRoutesDestination
+
+@Serializable
+data class SavedRouteDestination(val routeId: String) {
+    companion object {
+        const val ARG_ROUTE_ID = "routeId"
+    }
+}
+
+@Serializable
 data object CreatePublicationDestination
 
 @Serializable

@@ -160,7 +160,7 @@ fun EditPublicationScreen(
             FormField("Rango de precio") {
                 PriceField(price = state.price, onSelected = onPriceSelected)
             }
-            FormField("Ubicación · arrastra el marcador") {
+            FormField("Ubicación · toca el mapa o arrastra el marcador") {
                 LocationMap(
                     latitude = state.latitude,
                     longitude = state.longitude,

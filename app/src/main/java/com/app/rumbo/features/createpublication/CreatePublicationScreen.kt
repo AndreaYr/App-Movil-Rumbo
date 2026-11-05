@@ -4,11 +4,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -48,6 +45,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,23 +59,19 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import com.app.rumbo.core.component.MapBox
 import com.app.rumbo.core.component.color
 import com.app.rumbo.core.component.iconRes
 import com.app.rumbo.core.theme.Coral
@@ -87,20 +81,13 @@ import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
 import com.app.rumbo.domain.model.PriceLevel
+import com.mapbox.geojson.Point
 import java.util.Locale
-import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-// Rango aproximado cubierto por el mapa del Quindío (maqueta hasta integrar Google Maps/Mapbox)
-private const val MIN_LATITUDE = 4.40
-private const val MAX_LATITUDE = 4.78
-private const val MIN_LONGITUDE = -75.90
-private const val MAX_LONGITUDE = -75.35
-
 private const val NOTICE_TEXT_COLOR = 0xFF8A6A0B
-private const val MAP_LAND = 0xFFE4EEE9
-private const val MAP_GREEN = 0xFFCFE3D6
+
 
 @Composable
 fun CreatePublicationRoute(
@@ -124,7 +111,6 @@ fun CreatePublicationRoute(
         onScheduleChange = viewModel::onScheduleChange,
         onPriceSelected = viewModel::onPriceSelected,
         onMarkerMoved = viewModel::onMarkerMoved,
-        onUseMyLocation = viewModel::onUseMyLocation,
         onSaveDraft = viewModel::onSaveDraft,
         onPublish = viewModel::onPublish,
         modifier = modifier
@@ -146,7 +132,6 @@ fun CreatePublicationScreen(
     onScheduleChange: (String) -> Unit,
     onPriceSelected: (PriceLevel) -> Unit,
     onMarkerMoved: (Double, Double) -> Unit,
-    onUseMyLocation: () -> Unit,
     onSaveDraft: () -> Unit,
     onPublish: () -> Unit,
     modifier: Modifier = Modifier
@@ -228,17 +213,20 @@ fun CreatePublicationScreen(
                     PriceField(price = state.price, onSelected = onPriceSelected)
                 }
 
-                FormField("Ubicación · arrastra el marcador") {
+                FormField("Ubicación · toca el mapa o arrastra el marcador") {
+                    var locateUserRequest by remember { mutableIntStateOf(0) }
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         LocationMap(
                             latitude = state.latitude,
                             longitude = state.longitude,
                             markerColor = Coral,
                             onMarkerMoved = onMarkerMoved,
-                            modifier = Modifier.fillMaxWidth().height(190.dp)
+                            modifier = Modifier.fillMaxWidth().height(190.dp),
+                            showMyLocationButton = false,
+                            locateUserRequest = locateUserRequest
                         )
                         OutlinedButton(
-                            onClick = onUseMyLocation,
+                            onClick = { locateUserRequest++ },
                             modifier = Modifier.align(Alignment.End).height(44.dp),
                             shape = MaterialTheme.shapes.medium,
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
@@ -552,82 +540,37 @@ private fun rumboTextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
 )
 
+/** Mapa de un formulario: el marcador se mueve al tocar el mapa, al arrastrarlo o con la ubicación del usuario. */
 @Composable
 internal fun LocationMap(
     latitude: Double,
     longitude: Double,
     markerColor: Color,
     onMarkerMoved: (Double, Double) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showMyLocationButton: Boolean = true,
+    locateUserRequest: Int = 0
 ) {
-    var boxSize by remember { mutableStateOf(IntSize.Zero) }
-    val density = LocalDensity.current
-    val markerSize = 34.dp
-    val markerPx = with(density) { markerSize.toPx() }
-
-    val markerOffset = remember(latitude, longitude, boxSize, markerPx) {
-        val width = boxSize.width.toFloat()
-        val height = boxSize.height.toFloat()
-        if (width <= 0f || height <= 0f) {
-            Offset.Unspecified
-        } else {
-            val fractionX = ((longitude - MIN_LONGITUDE) / (MAX_LONGITUDE - MIN_LONGITUDE)).toFloat().coerceIn(0f, 1f)
-            val fractionY = ((MAX_LATITUDE - latitude) / (MAX_LATITUDE - MIN_LATITUDE)).toFloat().coerceIn(0f, 1f)
-            Offset(fractionX * width - markerPx / 2f, fractionY * height - markerPx)
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .background(Color(MAP_LAND))
-            .onSizeChanged { boxSize = it }
-            .pointerInput(boxSize) {
-                if (boxSize.width == 0 || boxSize.height == 0) return@pointerInput
-                fun report(position: Offset) {
-                    val fractionX = (position.x / boxSize.width).coerceIn(0f, 1f)
-                    val fractionY = (position.y / boxSize.height).coerceIn(0f, 1f)
-                    onMarkerMoved(
-                        MAX_LATITUDE - fractionY * (MAX_LATITUDE - MIN_LATITUDE),
-                        MIN_LONGITUDE + fractionX * (MAX_LONGITUDE - MIN_LONGITUDE)
-                    )
-                }
-                detectDragGestures(
-                    onDragStart = { report(it) },
-                    onDrag = { change, _ ->
-                        change.consume()
-                        report(change.position)
-                    }
-                )
-            }
-    ) {
-        Canvas(Modifier.matchParentSize()) {
-            val green = Color(MAP_GREEN)
-            val road = Color.White
-            drawCircle(green, radius = size.minDimension * 0.30f, center = Offset(size.width * 0.82f, size.height * 0.78f))
-            drawCircle(green, radius = size.minDimension * 0.22f, center = Offset(size.width * 0.12f, size.height * 0.24f))
-            drawLine(road, Offset(0f, size.height * 0.32f), Offset(size.width, size.height * 0.24f), strokeWidth = 7f)
-            drawLine(road, Offset(size.width * 0.42f, 0f), Offset(size.width * 0.50f, size.height), strokeWidth = 7f)
-            drawLine(road, Offset(0f, size.height * 0.85f), Offset(size.width, size.height * 0.70f), strokeWidth = 7f)
-        }
-
-        if (markerOffset != Offset.Unspecified) {
-            Icon(
-                painterResource(R.drawable.ic_place),
-                contentDescription = "Marcador de la ubicación",
-                tint = markerColor,
-                modifier = Modifier
-                    .offset { IntOffset(markerOffset.x.roundToInt(), markerOffset.y.roundToInt()) }
-                    .size(markerSize)
-            )
-        }
-
+    val onPointSelected = { point: Point -> onMarkerMoved(point.latitude(), point.longitude()) }
+    Box(modifier.clip(MaterialTheme.shapes.large)) {
+        MapBox(
+            modifier = Modifier.matchParentSize(),
+            center = Point.fromLngLat(longitude, latitude),
+            zoom = 13.5,
+            selectedPoint = Point.fromLngLat(longitude, latitude),
+            selectedPointColor = markerColor,
+            draggableSelectedPoint = true,
+            showMyLocationButton = showMyLocationButton,
+            locateUserRequest = locateUserRequest,
+            onMapClick = onPointSelected,
+            onUserLocation = onPointSelected
+        )
         Text(
             String.format(Locale.US, "Lat %.4f · Lng %.4f", latitude, longitude),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
-                .align(Alignment.BottomStart)
+                .align(Alignment.TopStart)
                 .padding(10.dp)
                 .background(Color(0xCCFFFFFF), MaterialTheme.shapes.small)
                 .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -699,7 +642,6 @@ private fun CreatePublicationScreenPreview() {
             onScheduleChange = {},
             onPriceSelected = {},
             onMarkerMoved = { _, _ -> },
-            onUseMyLocation = {},
             onSaveDraft = {},
             onPublish = {}
         )
