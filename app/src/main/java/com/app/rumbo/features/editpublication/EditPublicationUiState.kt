@@ -15,6 +15,8 @@ data class EditPublicationUiState(
     val title: String = "",
     val category: Category = Category.NATURE,
     val description: String = "",
+    val department: String? = null,
+    val town: String? = null,
     val schedule: String = "",
     val price: PriceLevel = PriceLevel.CHEAP,
     val latitude: Double = 0.0,

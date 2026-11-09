@@ -30,6 +30,8 @@ data class CreatePublicationUiState(
     val title: String = "",
     val category: Category = Category.NATURE,
     val description: String = "",
+    val department: String? = null,
+    val town: String? = null,
     val schedule: String = "7:00 - 18:00",
     val price: PriceLevel = PriceLevel.CHEAP,
     val latitude: Double = DEFAULT_LATITUDE,
@@ -92,6 +94,11 @@ class CreatePublicationViewModel @Inject constructor(
         it.copy(description = value.take(MAX_DESCRIPTION_LENGTH))
     }
 
+    /** Al cambiar de departamento, el municipio elegido deja de valer. */
+    fun onDepartmentSelected(value: String?) = _uiState.update { it.copy(department = value, town = null) }
+
+    fun onTownSelected(value: String?) = _uiState.update { it.copy(town = value) }
+
     fun onScheduleChange(value: String) = _uiState.update { it.copy(schedule = value) }
 
     fun onPriceSelected(price: PriceLevel) = _uiState.update { it.copy(price = price) }
@@ -126,6 +133,8 @@ private fun CreatePublicationUiState.toDraft() = PublicationDraft(
     title = title.trim(),
     description = description.trim(),
     category = category,
+    department = department.orEmpty(),
+    town = town.orEmpty(),
     schedule = schedule.trim(),
     price = price,
     latitude = latitude,

@@ -5,6 +5,8 @@ import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.FeedSort
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.GetFeedUseCase
+import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import com.app.rumbo.testutil.FakePlaceSearchRepository
 import com.app.rumbo.domain.usecase.ToggleInterestUseCase
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +33,11 @@ class FeedViewModelTest {
     @Before
     fun setUp() {
         val repository = InMemoryPublicationRepository()
-        viewModel = FeedViewModel(GetFeedUseCase(repository), ToggleInterestUseCase(repository))
+        viewModel = FeedViewModel(
+            GetFeedUseCase(repository),
+            ToggleInterestUseCase(repository),
+            SearchPlacesUseCase(FakePlaceSearchRepository())
+        )
     }
 
     @Test

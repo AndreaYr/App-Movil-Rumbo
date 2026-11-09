@@ -57,6 +57,7 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.extension.compose.annotation.IconImage
 import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
@@ -77,6 +78,7 @@ import kotlinx.coroutines.awaitCancellation
 // Centro de Calarcá, Quindío. Mapbox usa el orden (longitud, latitud)
 private val CALARCA = Point.fromLngLat(-75.6811, 4.5339)
 private const val MARKER_MAX_FIT_ZOOM = 15.0
+private const val FOCUS_ZOOM = 16.0
 
 // Estilo claro con relieve y zonas verdes, acorde con el prototipo
 private const val MAP_STYLE = Style.OUTDOORS
@@ -103,6 +105,7 @@ data class MapMarker(
  *
  * @param center y [zoom] solo se usan al componerse por primera vez.
  * @param selectedPoint marcador suelto que controla la pantalla; null = ninguno.
+ * @param focusPoint si no es null, la cámara vuela hasta ese punto y no se encuadran los marcadores.
  * @param draggableSelectedPoint permite arrastrar [selectedPoint]; al soltarlo se llama a [onMapClick].
  * @param routeLine puntos unidos por una línea, en orden.
  * @param fitToMarkers encuadra la cámara para que se vean todos los marcadores.
@@ -117,6 +120,7 @@ fun MapBox(
     zoom: Double = 8.5,
     markers: List<MapMarker> = emptyList(),
     selectedPoint: Point? = null,
+    focusPoint: Point? = null,
     selectedPointColor: Color = Coral,
     draggableSelectedPoint: Boolean = false,
     routeLine: List<Point> = emptyList(),
@@ -256,7 +260,17 @@ fun MapBox(
                 }
             }
 
-            if (fitToMarkers && markers.size > 1) {
+            // Vuela al lugar elegido en el buscador
+            MapEffect(focusPoint) {
+                focusPoint?.let {
+                    mapViewportState.flyTo(
+                        CameraOptions.Builder().center(it).zoom(FOCUS_ZOOM).build(),
+                        MapAnimationOptions.mapAnimationOptions { duration(1200L) }
+                    )
+                }
+            }
+
+            if (fitToMarkers && focusPoint == null && markers.isNotEmpty()) {
                 MapEffect(markers) { mapView ->
                     val padding = 56.0 * density
                     mapView.mapboxMap.cameraForCoordinates(

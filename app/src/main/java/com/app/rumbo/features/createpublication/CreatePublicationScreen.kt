@@ -72,6 +72,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
 import com.app.rumbo.core.component.MapBox
+import com.app.rumbo.core.component.SelectField
+import com.app.rumbo.data.local.ColombiaDivisions
+import androidx.compose.ui.platform.LocalContext
 import com.app.rumbo.core.component.color
 import com.app.rumbo.core.component.iconRes
 import com.app.rumbo.core.theme.Coral
@@ -110,6 +113,8 @@ fun CreatePublicationRoute(
         onDescriptionChange = viewModel::onDescriptionChange,
         onScheduleChange = viewModel::onScheduleChange,
         onPriceSelected = viewModel::onPriceSelected,
+        onDepartmentSelected = viewModel::onDepartmentSelected,
+        onTownSelected = viewModel::onTownSelected,
         onMarkerMoved = viewModel::onMarkerMoved,
         onSaveDraft = viewModel::onSaveDraft,
         onPublish = viewModel::onPublish,
@@ -131,6 +136,8 @@ fun CreatePublicationScreen(
     onDescriptionChange: (String) -> Unit,
     onScheduleChange: (String) -> Unit,
     onPriceSelected: (PriceLevel) -> Unit,
+    onDepartmentSelected: (String?) -> Unit,
+    onTownSelected: (String?) -> Unit,
     onMarkerMoved: (Double, Double) -> Unit,
     onSaveDraft: () -> Unit,
     onPublish: () -> Unit,
@@ -211,6 +218,15 @@ fun CreatePublicationScreen(
 
                 FormField("Rango de precio") {
                     PriceField(price = state.price, onSelected = onPriceSelected)
+                }
+
+                FormField("Departamento y municipio") {
+                    DepartmentTownFields(
+                        department = state.department,
+                        town = state.town,
+                        onDepartmentSelected = onDepartmentSelected,
+                        onTownSelected = onTownSelected
+                    )
                 }
 
                 FormField("Ubicación · toca el mapa o arrastra el marcador") {
@@ -641,9 +657,41 @@ private fun CreatePublicationScreenPreview() {
             onDescriptionChange = {},
             onScheduleChange = {},
             onPriceSelected = {},
+            onDepartmentSelected = {},
+            onTownSelected = {},
             onMarkerMoved = { _, _ -> },
             onSaveDraft = {},
             onPublish = {}
+        )
+    }
+}
+
+/** Departamento y municipio de Colombia; el municipio se habilita cuando ya hay departamento. */
+@Composable
+internal fun DepartmentTownFields(
+    department: String?,
+    town: String?,
+    onDepartmentSelected: (String?) -> Unit,
+    onTownSelected: (String?) -> Unit
+) {
+    val context = LocalContext.current
+    val departments = remember { ColombiaDivisions.load(context) }
+    val municipalities = departments.firstOrNull { it.name == department }?.municipalities.orEmpty()
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SelectField(
+            label = "Departamento",
+            placeholder = "Selecciona el departamento",
+            selected = department,
+            options = departments.map { it.name },
+            onSelected = onDepartmentSelected
+        )
+        SelectField(
+            label = "Ciudad o municipio",
+            placeholder = if (department == null) "Elige primero un departamento" else "Selecciona el municipio",
+            selected = town,
+            options = municipalities,
+            enabled = department != null,
+            onSelected = onTownSelected
         )
     }
 }

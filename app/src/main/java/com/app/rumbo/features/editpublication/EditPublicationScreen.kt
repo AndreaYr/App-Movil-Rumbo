@@ -49,6 +49,7 @@ import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.features.createpublication.CategoryPicker
 import com.app.rumbo.features.createpublication.DescriptionField
 import com.app.rumbo.features.createpublication.FormField
+import com.app.rumbo.features.createpublication.DepartmentTownFields
 import com.app.rumbo.features.createpublication.LocationMap
 import com.app.rumbo.features.createpublication.PriceField
 import com.app.rumbo.features.createpublication.RumboTextField
@@ -73,6 +74,8 @@ fun EditPublicationRoute(
         onDescriptionChange = viewModel::onDescriptionChange,
         onScheduleChange = viewModel::onScheduleChange,
         onPriceSelected = viewModel::onPriceSelected,
+        onDepartmentSelected = viewModel::onDepartmentSelected,
+        onTownSelected = viewModel::onTownSelected,
         onMarkerMoved = viewModel::onMarkerMoved,
         onResubmit = { viewModel.onResubmit(onResubmitted) },
         modifier = modifier
@@ -89,6 +92,8 @@ fun EditPublicationScreen(
     onDescriptionChange: (String) -> Unit,
     onScheduleChange: (String) -> Unit,
     onPriceSelected: (PriceLevel) -> Unit,
+    onDepartmentSelected: (String?) -> Unit,
+    onTownSelected: (String?) -> Unit,
     onMarkerMoved: (Double, Double) -> Unit,
     onResubmit: () -> Unit,
     modifier: Modifier = Modifier
@@ -159,6 +164,14 @@ fun EditPublicationScreen(
             }
             FormField("Rango de precio") {
                 PriceField(price = state.price, onSelected = onPriceSelected)
+            }
+            FormField("Departamento y municipio") {
+                DepartmentTownFields(
+                    department = state.department,
+                    town = state.town,
+                    onDepartmentSelected = onDepartmentSelected,
+                    onTownSelected = onTownSelected
+                )
             }
             FormField("Ubicación · toca el mapa o arrastra el marcador") {
                 LocationMap(
@@ -275,6 +288,8 @@ private fun EditPublicationScreenPreview() {
             onDescriptionChange = {},
             onScheduleChange = {},
             onPriceSelected = {},
+            onDepartmentSelected = {},
+            onTownSelected = {},
             onMarkerMoved = { _, _ -> },
             onResubmit = {}
         )

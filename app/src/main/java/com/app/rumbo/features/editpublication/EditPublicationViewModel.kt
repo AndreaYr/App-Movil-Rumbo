@@ -50,6 +50,8 @@ class EditPublicationViewModel @Inject constructor(
                         title = publication.title,
                         category = publication.category,
                         description = publication.description,
+                        department = publication.department.ifBlank { null },
+                        town = publication.town.ifBlank { null },
                         schedule = publication.schedule,
                         price = publication.price,
                         latitude = publication.latitude,
@@ -65,6 +67,10 @@ class EditPublicationViewModel @Inject constructor(
     fun onCategorySelected(category: Category) = _uiState.update { it.copy(category = category) }
 
     fun onDescriptionChange(value: String) = _uiState.update { it.copy(description = value.take(MAX_DESCRIPTION_LENGTH)) }
+
+    fun onDepartmentSelected(value: String?) = _uiState.update { it.copy(department = value, town = null) }
+
+    fun onTownSelected(value: String?) = _uiState.update { it.copy(town = value) }
 
     fun onScheduleChange(value: String) = _uiState.update { it.copy(schedule = value) }
 
@@ -95,6 +101,8 @@ private fun EditPublicationUiState.toDraft() = PublicationDraft(
     title = title.trim(),
     description = description.trim(),
     category = category,
+    department = department.orEmpty(),
+    town = town.orEmpty(),
     schedule = schedule.trim(),
     price = price,
     latitude = latitude,

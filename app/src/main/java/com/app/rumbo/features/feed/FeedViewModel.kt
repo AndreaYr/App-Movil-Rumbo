@@ -4,15 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.FeedSort
+import com.app.rumbo.domain.model.PlaceResult
 import com.app.rumbo.domain.model.Publication
+import com.app.rumbo.domain.usecase.SearchPlacesUseCase
 import com.app.rumbo.domain.usecase.GetFeedUseCase
 import com.app.rumbo.domain.usecase.ToggleInterestUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -31,7 +37,8 @@ private data class FeedFilters(val category: Category? = null, val sort: FeedSor
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     private val getFeed: GetFeedUseCase,
-    private val toggleInterest: ToggleInterestUseCase
+    private val toggleInterest: ToggleInterestUseCase,
+    private val searchPlaces: SearchPlacesUseCase
 ) : ViewModel() {
 
     private val filters = MutableStateFlow(FeedFilters())
@@ -62,5 +69,36 @@ class FeedViewModel @Inject constructor(
 
     fun onToggleInterest(publicationId: String) {
         viewModelScope.launch { toggleInterest(publicationId) }
+    }
+
+    // Los filtros del mapa viven aquí para que sigan activos al abrir una tarjeta y volver
+    private val _mapFilters = MutableStateFlow(MapFilters())
+    val mapFilters: StateFlow<MapFilters> = _mapFilters
+
+    fun onMapFiltersChange(filters: MapFilters) {
+        _mapFilters.value = filters
+    }
+
+    private val placeQuery = MutableStateFlow("")
+
+    // Espera a que el usuario termine de escribir y descarta las búsquedas que ya no valen
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val places: StateFlow<List<PlaceResult>> = placeQuery
+        .debounce(PLACE_SEARCH_DELAY_MS)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            flow { emit(searchPlaces(query, CENTER_LATITUDE, CENTER_LONGITUDE)) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun onPlaceQueryChange(query: String) {
+        placeQuery.value = query
+    }
+
+    private companion object {
+        const val PLACE_SEARCH_DELAY_MS = 400L
+        // Centro de Calarcá, Quindío: los resultados cercanos salen primero
+        const val CENTER_LATITUDE = 4.5339
+        const val CENTER_LONGITUDE = -75.6811
     }
 }
