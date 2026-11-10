@@ -1,6 +1,7 @@
 package com.app.rumbo.core.component
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,18 +23,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.WindowInsets
 import com.app.rumbo.R
 
 /** Pestañas de la barra de navegación inferior. */
-enum class RumboTab(@param:DrawableRes val icon: Int, val label: String) {
-    HOME(R.drawable.ic_home, "Inicio"),
-    EXPLORE(R.drawable.ic_compass, "Explorar"),
-    CREATE(R.drawable.ic_add, "Crear"),
-    ALERTS(R.drawable.ic_notifications, "Avisos"),
-    PROFILE(R.drawable.ic_person, "Perfil")
+enum class RumboTab(@param:DrawableRes val icon: Int, @param:StringRes val labelRes: Int) {
+    HOME(R.drawable.ic_home, R.string.tab_home),
+    EXPLORE(R.drawable.ic_compass, R.string.tab_explore),
+    CREATE(R.drawable.ic_add, R.string.tab_create),
+    ALERTS(R.drawable.ic_notifications, R.string.tab_alerts),
+    PROFILE(R.drawable.ic_person, R.string.tab_profile)
 }
 
 /**
@@ -75,6 +77,7 @@ fun RumboBottomBar(selected: RumboTab, onTabSelected: (RumboTab) -> Unit) {
 @Composable
 private fun TabItem(tab: RumboTab, selected: Boolean, onClick: () -> Unit) {
     val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val label = stringResource(tab.labelRes)
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
@@ -83,7 +86,7 @@ private fun TabItem(tab: RumboTab, selected: Boolean, onClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
-        Icon(painterResource(tab.icon), contentDescription = tab.label, tint = tint, modifier = Modifier.size(24.dp))
-        Text(tab.label, style = MaterialTheme.typography.labelMedium, color = tint)
+        Icon(painterResource(tab.icon), contentDescription = label, tint = tint, modifier = Modifier.size(24.dp))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = tint)
     }
 }

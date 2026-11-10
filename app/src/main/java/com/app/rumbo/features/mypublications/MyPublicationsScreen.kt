@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -96,10 +97,10 @@ fun MyPublicationsScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Mis publicaciones", style = MaterialTheme.typography.titleLarge) },
+                title = { Text(stringResource(R.string.my_publications_title), style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás")
+                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -118,7 +119,7 @@ fun MyPublicationsScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        if (state.publications.isEmpty()) "Aún no tienes publicaciones." else "No hay publicaciones en este estado.",
+                        if (state.publications.isEmpty()) stringResource(R.string.my_publications_empty) else stringResource(R.string.my_publications_empty_filter),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -168,7 +169,7 @@ private fun TabsRow(state: MyPublicationsUiState, onTabSelected: (MyPublications
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(tab.label, style = MaterialTheme.typography.labelLarge, color = content)
+                Text(stringResource(tab.labelRes), style = MaterialTheme.typography.labelLarge, color = content)
                 Text(state.countFor(tab).formatThousands(), style = MaterialTheme.typography.labelMedium, color = content)
             }
         }
@@ -192,7 +193,7 @@ private fun PublicationItem(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Icon(painterResource(R.drawable.ic_edit), null, Modifier.size(18.dp))
-                Text("Editar y reenviar", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
+                Text(stringResource(R.string.my_publications_edit_resend), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
             }
         }
         if (publication.status == PublicationStatus.VERIFIED) {
@@ -202,7 +203,7 @@ private fun PublicationItem(
                 shape = MaterialTheme.shapes.medium
             ) {
                 Icon(painterResource(R.drawable.ic_task_alt), null, Modifier.size(18.dp))
-                Text("Finalizar", style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
+                Text(stringResource(R.string.common_finish), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
@@ -211,11 +212,15 @@ private fun PublicationItem(
 @Composable
 private fun RejectionReason(publication: Publication) {
     val shape = MaterialTheme.shapes.medium
+    val reasonPrefix = stringResource(R.string.my_publications_rejection_reason)
+    val noReason = stringResource(R.string.my_publications_no_reason)
+    val detail = publication.rejectionDetail
+    val detailSuffix = if (detail.isNullOrBlank()) "" else stringResource(R.string.my_publications_rejection_detail, detail)
     Text(
         buildAnnotatedString {
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Motivo del rechazo: ") }
-            append(publication.rejectionReason ?: "Sin motivo registrado")
-            if (!publication.rejectionDetail.isNullOrBlank()) append(" — ${publication.rejectionDetail}")
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(reasonPrefix) }
+            append(publication.rejectionReason ?: noReason)
+            append(detailSuffix)
         },
         style = MaterialTheme.typography.bodyMedium,
         color = RejectedContent,
@@ -243,12 +248,15 @@ private fun FinishPublicationSheet(publication: Publication, onConfirm: () -> Un
                 modifier = Modifier.size(56.dp).background(Color(0xFFECEEF1), CircleShape).padding(14.dp),
                 tint = Color(0xFF4A5458)
             )
-            Text("¿Marcar como finalizada?", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.my_publications_finish_title), style = MaterialTheme.typography.titleLarge)
+            val bodyPrefix = stringResource(R.string.my_publications_finish_body_prefix, publication.title)
+            val bodyState = stringResource(R.string.moderator_finish_state)
+            val bodySuffix = stringResource(R.string.my_publications_finish_body_suffix)
             Text(
                 buildAnnotatedString {
-                    append("“${publication.title}” dejará de recibir votos y comentarios nuevos y se mostrará como ")
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Finalizada") }
-                    append(". Podrás consultarla en tu historial, pero no volver a abrirla.")
+                    append(bodyPrefix)
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(bodyState) }
+                    append(bodySuffix)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -259,13 +267,13 @@ private fun FinishPublicationSheet(publication: Publication, onConfirm: () -> Un
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(48.dp),
                     shape = MaterialTheme.shapes.medium
-                ) { Text("Cancelar") }
+                ) { Text(stringResource(R.string.common_cancel)) }
                 Button(
                     onClick = onConfirm,
                     modifier = Modifier.weight(1f).height(48.dp),
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) { Text("Sí, finalizar") }
+                ) { Text(stringResource(R.string.my_publications_finish_confirm)) }
             }
         }
     }

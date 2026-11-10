@@ -43,14 +43,14 @@ internal fun directionsUrl(route: SavedRoute, start: StartPoint? = null): String
     }
 }
 
-internal fun shareText(route: SavedRoute, url: String): String =
-    "Mira mi ruta en Rumbo: ${route.name} · ${route.stops.size} paradas · ${route.transport.label}\n$url"
+internal fun shareText(route: SavedRoute, url: String, transportLabel: String): String =
+    "Mira mi ruta en Rumbo: ${route.name} · ${route.stops.size} paradas · $transportLabel\n$url"
 
 /** Comparte la ruta por [target]. Si la app elegida no está instalada, avisa en lugar de fallar. */
 internal fun Context.shareRoute(route: SavedRoute, start: StartPoint?, target: ShareTarget) {
     if (route.stops.isEmpty()) return
     val url = directionsUrl(route, start)
-    val text = shareText(route, url)
+    val text = shareText(route, url, getString(route.transport.labelRes))
     when (target) {
         ShareTarget.LINK -> {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

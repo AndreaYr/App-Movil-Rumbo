@@ -134,78 +134,78 @@ fun RegisterScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
-                    contentDescription = "Volver a iniciar sesión",
+                    contentDescription = stringResource(R.string.register_back_content_description),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp)
                 )
             }
 
             Spacer(Modifier.height(12.dp))
-            Text("Crea tu cuenta", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.register_title), style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(2.dp))
             Text(
-                "Únete a la comunidad que está mapeando el Quindío.",
+                stringResource(R.string.register_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(14.dp))
 
-            RegisterFieldLabel("Nombre")
+            RegisterFieldLabel(stringResource(R.string.register_name_label))
             RegisterInput(
                 value = state.name,
                 onValueChange = onNameChange,
-                placeholder = "Tu nombre",
+                placeholder = stringResource(R.string.register_name_placeholder),
                 leadingSymbol = "♙",
-                error = state.nameError,
+                error = state.nameError?.let { stringResource(it) },
                 showValidation = state.name.isNotBlank() || state.hasSubmitted
             )
-            state.nameError?.let { RegisterErrorText(it) }
+            state.nameError?.let { RegisterErrorText(stringResource(it)) }
             Spacer(Modifier.height(8.dp))
 
-            RegisterFieldLabel("Correo electrónico")
+            RegisterFieldLabel(stringResource(R.string.register_email_label))
             RegisterInput(
                 value = state.email,
                 onValueChange = onEmailChange,
-                placeholder = "Correo electrónico",
+                placeholder = stringResource(R.string.register_email_placeholder),
                 leadingSymbol = "✉",
                 keyboardType = KeyboardType.Email,
-                error = state.emailError,
+                error = state.emailError?.let { stringResource(it) },
                 showValidation = state.email.isNotBlank() || state.hasSubmitted
             )
-            state.emailError?.let { RegisterErrorText(it) }
+            state.emailError?.let { RegisterErrorText(stringResource(it)) }
             Spacer(Modifier.height(8.dp))
 
-            RegisterFieldLabel("Contraseña")
+            RegisterFieldLabel(stringResource(R.string.register_password_label))
             RegisterInput(
                 value = state.password,
                 onValueChange = onPasswordChange,
-                placeholder = "Contraseña",
+                placeholder = stringResource(R.string.register_password_placeholder),
                 leadingSymbol = "♙",
                 keyboardType = KeyboardType.Password,
                 isPassword = !state.isPasswordVisible,
                 trailingText = if (state.isPasswordVisible) "◉" else "◎",
                 onTrailingClick = onTogglePasswordVisibility,
-                error = state.passwordError,
+                error = state.passwordError?.let { stringResource(it) },
                 showValidation = false
             )
             PasswordSecurityIndicator(state)
-            state.passwordError?.let { RegisterErrorText(it) }
+            state.passwordError?.let { RegisterErrorText(stringResource(it)) }
             Spacer(Modifier.height(8.dp))
 
-            RegisterFieldLabel("Confirmar contraseña")
+            RegisterFieldLabel(stringResource(R.string.register_confirm_password_label))
             RegisterInput(
                 value = state.confirmPassword,
                 onValueChange = onConfirmPasswordChange,
-                placeholder = "Confirma tu contraseña",
+                placeholder = stringResource(R.string.register_confirm_password_placeholder),
                 leadingSymbol = "♙",
                 keyboardType = KeyboardType.Password,
                 isPassword = !state.isConfirmPasswordVisible,
                 trailingText = if (state.isConfirmPasswordVisible) "◉" else "◎",
                 onTrailingClick = onToggleConfirmPasswordVisibility,
-                error = state.confirmPasswordError,
+                error = state.confirmPasswordError?.let { stringResource(it) },
                 showValidation = state.confirmPassword.isNotBlank() || state.hasSubmitted
             )
-            state.confirmPasswordError?.let { RegisterErrorText(it) }
+            state.confirmPasswordError?.let { RegisterErrorText(stringResource(it)) }
             Spacer(Modifier.height(6.dp))
 
             Row(verticalAlignment = Alignment.Top) {
@@ -219,7 +219,7 @@ fun RegisterScreen(
                     )
                 )
                 Text(
-                    "Acepto los términos de uso y la política de tratamiento de datos.",
+                    stringResource(R.string.register_terms),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
@@ -228,7 +228,7 @@ fun RegisterScreen(
                         .clickable { onTermsAcceptanceChange(!state.acceptedTerms) }
                 )
             }
-            state.termsError?.let { RegisterErrorText(it) }
+            state.termsError?.let { RegisterErrorText(stringResource(it)) }
             Spacer(Modifier.height(10.dp))
 
             Button(
@@ -240,9 +240,9 @@ fun RegisterScreen(
             ) {
                 if (state.status == RegisterStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
-                    Text("  Creando cuenta…")
+                    Text(stringResource(R.string.register_creating_account))
                 } else {
-                    Text("Crear cuenta", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.register_button), style = MaterialTheme.typography.labelLarge)
                 }
             }
             Spacer(Modifier.height(10.dp))
@@ -252,7 +252,7 @@ fun RegisterScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "¿Ya tienes cuenta? ",
+                    stringResource(R.string.register_already_have_account),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -260,7 +260,7 @@ fun RegisterScreen(
                     onClick = onBackToLogin,
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("Inicia sesión", style = MaterialTheme.typography.labelMedium, color = Teal)
+                    Text(stringResource(R.string.register_sign_in), style = MaterialTheme.typography.labelMedium, color = Teal)
                 }
             }
         }
@@ -326,7 +326,7 @@ private fun RegisterInput(
         if (showValidation) {
             Icon(
                 painter = painterResource(if (hasError) R.drawable.ic_cancel else R.drawable.ic_check_circle),
-                contentDescription = if (hasError) "Campo inválido" else "Campo válido",
+                contentDescription = if (hasError) stringResource(R.string.register_field_invalid) else stringResource(R.string.register_field_valid),
                 tint = if (hasError) ErrorRed else Teal,
                 modifier = Modifier.size(15.dp)
             )
@@ -357,9 +357,9 @@ private fun PasswordSecurityIndicator(state: RegisterUiState) {
     }
     Text(
         text = if (state.passwordRuleCount == 3) {
-            "Segura · 10 caracteres, mayúscula y número"
+            stringResource(R.string.register_password_secure)
         } else {
-            "10 caracteres, mayúscula y número"
+            stringResource(R.string.register_password_rules)
         },
         style = MaterialTheme.typography.bodySmall,
         color = helperColor,

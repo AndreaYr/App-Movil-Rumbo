@@ -151,13 +151,14 @@ fun MapBox(
     var followUserRequest by remember { mutableIntStateOf(0) }
     val userLocation = remember { UserLocationTracker() }
 
+    val permissionRationale = stringResource(R.string.map_location_permission_rationale)
     val permissionState = rememberLocationPermissionState { granted ->
         if (granted) {
             followUserRequest++
         } else {
             Toast.makeText(
                 context,
-                "Activa el permiso de ubicación para ver tu posición en el mapa",
+                permissionRationale,
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -337,7 +338,7 @@ fun MapBox(
             ) {
                 Icon(
                     painterResource(R.drawable.ic_my_location),
-                    contentDescription = "Mi ubicación",
+                    contentDescription = stringResource(R.string.map_my_location),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -355,7 +356,7 @@ private fun MapUnavailable(modifier: Modifier) {
         ) {
             Icon(painterResource(R.drawable.ic_map), null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
-                "Mapa no disponible: falta MAPBOX_ACCESS_TOKEN en local.properties",
+                stringResource(R.string.map_unavailable),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

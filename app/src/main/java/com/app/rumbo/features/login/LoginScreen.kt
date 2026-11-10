@@ -34,13 +34,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -49,7 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.component.LanguageDialog
 import com.app.rumbo.core.theme.RumboTheme
+import com.app.rumbo.core.util.currentLanguage
 import com.app.rumbo.core.theme.Sand
 import com.app.rumbo.core.theme.Teal
 import com.app.rumbo.core.theme.White
@@ -66,16 +74,17 @@ fun LoginRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val resultMessage = state.messageRes?.let { stringResource(it) }.orEmpty()
     Log.d("RUMBO_NAV", "Composing LoginRoute status=${state.status}")
 
     LaunchedEffect(state.status) {
         when (state.status) {
             LoginStatus.SUCCESS -> {
-                snackbarHostState.showSnackbar(state.message.orEmpty())
+                snackbarHostState.showSnackbar(resultMessage)
                 onLoginSuccess()
             }
             LoginStatus.ERROR -> {
-                snackbarHostState.showSnackbar(state.message.orEmpty())
+                snackbarHostState.showSnackbar(resultMessage)
                 viewModel.resetResult()
             }
             LoginStatus.IDLE, LoginStatus.LOADING -> Unit
@@ -114,6 +123,13 @@ fun LoginScreen(
     onRecoveryClick: () -> Unit,
     onModeratorClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    val languageLabel = currentLanguage(context).tag?.uppercase() ?: "ES / EN"
+    val changeLanguageLabel = stringResource(R.string.language_change)
+    if (showLanguageDialog) {
+        LanguageDialog(onDismiss = { showLanguageDialog = false })
+    }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Sand
@@ -136,43 +152,51 @@ fun LoginScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = "Logo de Rumbo",
+                        contentDescription = stringResource(R.string.splash_logo_content_description),
                         tint = Color.Unspecified,
                         modifier = Modifier.size(108.dp)
                     )
                 }
                 Text(
-                    text = "Rumbo",
+                    text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(start = 10.dp)
                 )
+                Spacer(Modifier.weight(1f))
+                TextButton(
+                    onClick = { showLanguageDialog = true },
+                    modifier = Modifier.semantics { contentDescription = changeLanguageLabel },
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)
+                ) {
+                    Text(languageLabel, style = MaterialTheme.typography.labelMedium, color = Teal)
+                }
             }
 
             Spacer(Modifier.height(10.dp))
-            Text("Bienvenido de vuelta", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.login_welcome_title), style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Tus lugares guardados y tus rutas te esperan.",
+                stringResource(R.string.login_welcome_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(4.dp))
 
-            Text("Correo electrónico", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.login_email_label), style = MaterialTheme.typography.labelMedium)
             LoginInput(
                 value = state.email,
                 onValueChange = onEmailChange,
-                placeholder = "Correo electrónico",
+                placeholder = stringResource(R.string.login_email_placeholder),
                 icon = "✉",
                 isError = state.emailError != null,
                 keyboardType = KeyboardType.Email
             )
-            state.emailError?.let { ErrorText(it) }
+            state.emailError?.let { ErrorText(stringResource(it)) }
 
-            Text("Contraseña", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.login_password_label), style = MaterialTheme.typography.labelMedium)
             LoginInput(
                 value = state.password,
                 onValueChange = onPasswordChange,
-                placeholder = "Contraseña",
+                placeholder = stringResource(R.string.login_password_placeholder),
                 icon = "🔒",
                 isError = state.passwordError != null,
                 keyboardType = KeyboardType.Password,
@@ -180,14 +204,14 @@ fun LoginScreen(
                 trailingText = if (state.isPasswordVisible) "◉" else "◎",
                 onTrailingClick = onTogglePasswordVisibility
             )
-            state.passwordError?.let { ErrorText(it) }
+            state.passwordError?.let { ErrorText(stringResource(it)) }
 
             TextButton(
                 onClick = onRecoveryClick,
                 modifier = Modifier.align(Alignment.End).height(36.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp)
             ) {
-                Text("¿Olvidaste tu contraseña?", style = MaterialTheme.typography.labelMedium, color = Teal)
+                Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelMedium, color = Teal)
             }
 
             Button(
@@ -199,9 +223,9 @@ fun LoginScreen(
             ) {
                 if (state.status == LoginStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
-                    Text("  Iniciando sesión…")
+                    Text(stringResource(R.string.login_signing_in))
                 } else {
-                    Text("Iniciar sesión", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.login_button), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
@@ -211,23 +235,23 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
-                Text("O CONTINÚA COMO", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.login_or_continue), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                RoleButton("◉", "Invitado", Modifier.weight(1f), selected = false, onClick = {})
-                RoleButton("♙", "Moderador", Modifier.weight(1f), selected = true, onClick = onModeratorClick)
+                RoleButton("◉", stringResource(R.string.login_guest), Modifier.weight(1f), selected = false, onClick = {})
+                RoleButton("♙", stringResource(R.string.login_moderator), Modifier.weight(1f), selected = true, onClick = onModeratorClick)
             }
             Spacer(Modifier.height(2.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Text("¿Primera vez? ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.login_first_time), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(
                     onClick = onRegisterClick,
                     modifier = Modifier.height(28.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
                 ) {
-                    Text("Regístrate", style = MaterialTheme.typography.labelMedium, color = Teal)
+                    Text(stringResource(R.string.login_register), style = MaterialTheme.typography.labelMedium, color = Teal)
                 }
             }
         }

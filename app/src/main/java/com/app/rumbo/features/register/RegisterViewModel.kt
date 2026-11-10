@@ -1,8 +1,10 @@
 package com.app.rumbo.features.register
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -23,14 +25,14 @@ data class RegisterUiState(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
-    val nameError: String? = null,
-    val emailError: String? = null,
-    val passwordError: String? = null,
-    val confirmPasswordError: String? = null,
+    @StringRes val nameError: Int? = null,
+    @StringRes val emailError: Int? = null,
+    @StringRes val passwordError: Int? = null,
+    @StringRes val confirmPasswordError: Int? = null,
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
     val acceptedTerms: Boolean = false,
-    val termsError: String? = null,
+    @StringRes val termsError: Int? = null,
     val hasSubmitted: Boolean = false,
     val status: RegisterStatus = RegisterStatus.IDLE
 ) {
@@ -109,7 +111,9 @@ class RegisterViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 acceptedTerms = accepted,
-                termsError = if (accepted) null else if (state.hasSubmitted) TERMS_REQUIRED_ERROR else null,
+                termsError = if (accepted) null else if (state.hasSubmitted) {
+                    R.string.validation_terms_required
+                } else null,
                 status = state.nextStatus()
             )
         }
@@ -147,7 +151,7 @@ class RegisterViewModel @Inject constructor(
         email = validateEmail(email),
         password = validatePassword(password),
         confirmPassword = validateConfirmation(confirmPassword, password),
-        terms = if (acceptedTerms) null else TERMS_REQUIRED_ERROR
+        terms = if (acceptedTerms) null else R.string.validation_terms_required
     )
 
     private fun RegisterUiState.copyErrors(errors: ValidationErrors) = copy(
@@ -162,38 +166,41 @@ class RegisterViewModel @Inject constructor(
         name != null || email != null || password != null || confirmPassword != null || terms != null
 
     private data class ValidationErrors(
-        val name: String?,
-        val email: String?,
-        val password: String?,
-        val confirmPassword: String?,
-        val terms: String?
+        @StringRes val name: Int?,
+        @StringRes val email: Int?,
+        @StringRes val password: Int?,
+        @StringRes val confirmPassword: Int?,
+        @StringRes val terms: Int?
     )
 
-    private fun validateName(name: String): String? =
-        if (name.isBlank()) "El nombre es obligatorio." else null
+    @StringRes
+    private fun validateName(name: String): Int? =
+        if (name.isBlank()) R.string.validation_name_required else null
 
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "El correo electrónico es obligatorio."
-        !isValidEmail(email) -> "Ingresa un correo electrónico válido."
+    @StringRes
+    private fun validateEmail(email: String): Int? = when {
+        email.isBlank() -> R.string.validation_email_required
+        !isValidEmail(email) -> R.string.validation_email_invalid
         else -> null
     }
 
-    private fun validatePassword(password: String): String? = when {
-        password.isBlank() -> "La contraseña es obligatoria."
-        password.length < MIN_PASSWORD_LENGTH -> "La contraseña debe tener al menos 10 caracteres."
-        password.none(Char::isUpperCase) -> "Agrega al menos una letra mayúscula."
-        password.none(Char::isDigit) -> "Agrega al menos un número."
+    @StringRes
+    private fun validatePassword(password: String): Int? = when {
+        password.isBlank() -> R.string.validation_password_required
+        password.length < MIN_PASSWORD_LENGTH -> R.string.validation_password_min_length_10
+        password.none(Char::isUpperCase) -> R.string.validation_password_uppercase
+        password.none(Char::isDigit) -> R.string.validation_password_number
         else -> null
     }
 
-    private fun validateConfirmation(confirmation: String, password: String): String? = when {
-        confirmation.isBlank() -> "Confirma tu contraseña."
-        confirmation != password -> "Las contraseñas no coinciden."
+    @StringRes
+    private fun validateConfirmation(confirmation: String, password: String): Int? = when {
+        confirmation.isBlank() -> R.string.validation_confirm_password_required
+        confirmation != password -> R.string.validation_passwords_mismatch
         else -> null
     }
 
     private companion object {
         const val MIN_PASSWORD_LENGTH = 10
-        const val TERMS_REQUIRED_ERROR = "Debes aceptar los términos y la política de tratamiento de datos."
     }
 }

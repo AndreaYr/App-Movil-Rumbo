@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -70,16 +71,17 @@ fun LoginModeratorRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val resultMessage = state.messageRes?.let { stringResource(it) }.orEmpty()
     Log.d("RUMBO_NAV", "Composing LoginModeratorRoute status=${state.status}")
 
     LaunchedEffect(state.status) {
         when (state.status) {
             LoginModeratorStatus.SUCCESS -> {
-                snackbarHostState.showSnackbar(state.message.orEmpty())
+                snackbarHostState.showSnackbar(resultMessage)
                 onLoginSuccess()
             }
             LoginModeratorStatus.ERROR -> {
-                snackbarHostState.showSnackbar(state.message.orEmpty())
+                snackbarHostState.showSnackbar(resultMessage)
                 viewModel.resetResult()
             }
             LoginModeratorStatus.IDLE, LoginModeratorStatus.LOADING -> Unit
@@ -129,7 +131,7 @@ fun LoginModeratorScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_launcher_foreground),
-                        contentDescription = "Logo de Rumbo",
+                        contentDescription = stringResource(R.string.splash_logo_content_description),
                         tint = Color.Unspecified,
                         modifier = Modifier.size(72.dp)
                     )
@@ -137,13 +139,13 @@ fun LoginModeratorScreen(
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Rumbo",
+                        text = stringResource(R.string.app_name),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "CONSOLA DE MODERACIÓN",
+                        text = stringResource(R.string.moderator_login_console),
                         color = ModeratorIconTint,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -169,7 +171,7 @@ fun LoginModeratorScreen(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "ACCESO RESTRINGIDO",
+                    text = stringResource(R.string.moderator_login_restricted),
                     color = ModeratorBadgeText,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
@@ -180,7 +182,7 @@ fun LoginModeratorScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Ingresa con tu cuenta institucional",
+                text = stringResource(R.string.moderator_login_title),
                 color = Color.White,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
@@ -190,7 +192,7 @@ fun LoginModeratorScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Las cuentas de moderación requieren credenciales institucionales para acceder al panel de gestión.",
+                text = stringResource(R.string.moderator_login_subtitle),
                 color = ModeratorLabelText,
                 fontSize = 13.sp,
                 lineHeight = 18.sp
@@ -199,7 +201,7 @@ fun LoginModeratorScreen(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Correo institucional",
+                text = stringResource(R.string.moderator_login_email_label),
                 color = ModeratorLabelText,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
@@ -208,20 +210,20 @@ fun LoginModeratorScreen(
             ModeratorInput(
                 value = state.email,
                 onValueChange = onEmailChange,
-                placeholder = "correo@institucion.edu",
+                placeholder = stringResource(R.string.moderator_login_email_placeholder),
                 icon = "✉",
                 isError = state.emailError != null,
                 keyboardType = KeyboardType.Email
             )
             state.emailError?.let {
                 Spacer(Modifier.height(4.dp))
-                Text(it, color = Color(0xFFFF6B6B), fontSize = 12.sp)
+                Text(stringResource(it), color = Color(0xFFFF6B6B), fontSize = 12.sp)
             }
 
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Contraseña",
+                text = stringResource(R.string.moderator_login_password_label),
                 color = ModeratorLabelText,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
@@ -230,7 +232,7 @@ fun LoginModeratorScreen(
             ModeratorInput(
                 value = state.password,
                 onValueChange = onPasswordChange,
-                placeholder = "Ingresa tu contraseña",
+                placeholder = stringResource(R.string.moderator_login_password_placeholder),
                 icon = "🔒",
                 isError = state.passwordError != null,
                 keyboardType = KeyboardType.Password,
@@ -240,7 +242,7 @@ fun LoginModeratorScreen(
             )
             state.passwordError?.let {
                 Spacer(Modifier.height(4.dp))
-                Text(it, color = Color(0xFFFF6B6B), fontSize = 12.sp)
+                Text(stringResource(it), color = Color(0xFFFF6B6B), fontSize = 12.sp)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -256,9 +258,9 @@ fun LoginModeratorScreen(
             ) {
                 if (state.status == LoginModeratorStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
-                    Text("  Verificando...", color = Color.White)
+                    Text(stringResource(R.string.moderator_login_verifying), color = Color.White)
                 } else {
-                    Text("Entrar al panel", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.moderator_login_enter), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
             }
 
@@ -270,7 +272,7 @@ fun LoginModeratorScreen(
             ) {
                 TextButton(onClick = onBackToUserLogin) {
                     Text(
-                        text = "Volver al acceso de usuarios",
+                        text = stringResource(R.string.moderator_login_back_to_users),
                         color = ModeratorLinkText,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium

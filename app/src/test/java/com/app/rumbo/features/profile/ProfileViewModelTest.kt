@@ -1,6 +1,7 @@
 package com.app.rumbo.features.profile
 
 import com.app.rumbo.domain.model.ActivityStats
+import com.app.rumbo.domain.model.Level
 import com.app.rumbo.domain.usecase.GetProfileUseCase
 import com.app.rumbo.testutil.FakeActivityRepository
 import com.app.rumbo.testutil.FakeUserRepository
@@ -42,7 +43,7 @@ class ProfileViewModelTest {
         assertEquals("Mariana Ospina", state.name)
         assertEquals("MO", state.initials)
         assertEquals(1, state.levelNumber)
-        assertEquals("Turista", state.levelName)
+        assertEquals(Level.TOURIST, state.level)
     }
 
     @Test
@@ -52,7 +53,7 @@ class ProfileViewModelTest {
         val state = loadedState(createViewModel())
 
         assertEquals(10, state.points)
-        assertEquals("Exploradora", state.nextLevelName)
+        assertEquals(Level.EXPLORER, state.nextLevel)
         assertEquals(150, state.nextLevelPoints)
         assertEquals(140, state.pointsToNext)
         assertEquals(10f / 150f, state.levelProgress, 0.001f)
@@ -101,8 +102,8 @@ class ProfileViewModelTest {
 
         val state = loadedState(createViewModel())
 
-        assertEquals("Embajadora Local", state.levelName)
-        assertNull(state.nextLevelName)
+        assertEquals(Level.LOCAL_AMBASSADOR, state.level)
+        assertNull(state.nextLevel)
         assertEquals(1f, state.levelProgress, 0.001f)
     }
 

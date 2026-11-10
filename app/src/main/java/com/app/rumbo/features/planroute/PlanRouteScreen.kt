@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.theme.Coral
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.core.theme.TealContainer
@@ -111,12 +114,12 @@ fun PlanRouteScreen(
             .padding(top = 6.dp)
     ) {
         Header(onBack)
-        SectionLabel("Punto de inicio", Modifier.padding(top = 20.dp))
+        SectionLabel(stringResource(R.string.plan_start), Modifier.padding(top = 20.dp))
         StartCard(state.city, preferences.start, onStartClick)
 
         TimeSection(preferences.hours, onHoursChange)
 
-        SectionLabel("Presupuesto por persona", Modifier.padding(top = 20.dp), value = preferences.budget.label)
+        SectionLabel(stringResource(R.string.plan_budget), Modifier.padding(top = 20.dp), value = preferences.budget.label)
         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             PriceLevel.entries.forEach { level ->
                 OptionBox(
@@ -130,10 +133,10 @@ fun PlanRouteScreen(
             }
         }
 
-        SectionLabel("Categorías de interés", Modifier.padding(top = 20.dp))
+        SectionLabel(stringResource(R.string.plan_categories), Modifier.padding(top = 20.dp))
         CategoryChips(preferences.categories, onCategoryToggle)
 
-        SectionLabel("Medio de transporte", Modifier.padding(top = 20.dp))
+        SectionLabel(stringResource(R.string.plan_transport), Modifier.padding(top = 20.dp))
         Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Transport.entries.forEach { transport ->
                 OptionBox(
@@ -153,7 +156,7 @@ fun PlanRouteScreen(
             }
         }
 
-        SectionLabel("Prioriza", Modifier.padding(top = 20.dp))
+        SectionLabel(stringResource(R.string.plan_priority), Modifier.padding(top = 20.dp))
         PrioritySelector(preferences.priority, onPriorityChange)
 
         PlanSummary(state, Modifier.padding(top = 22.dp))
@@ -171,15 +174,15 @@ private fun Header(onBack: () -> Unit) {
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MaterialTheme.colorScheme.outline, shape)
-                .clickable(role = Role.Button, onClickLabel = "Atrás", onClick = onBack),
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.common_back), onClick = onBack),
             contentAlignment = Alignment.Center
         ) {
-            Icon(painterResource(R.drawable.ic_arrow_back), "Atrás", Modifier.size(20.dp))
+            Icon(painterResource(R.drawable.ic_arrow_back), stringResource(R.string.common_back), Modifier.size(20.dp))
         }
         Column {
-            Text("Planifica tu ruta", style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp))
+            Text(stringResource(R.string.plan_title), style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp))
             Text(
-                "Ajusta y la ruta se recalcula al instante",
+                stringResource(R.string.plan_subtitle),
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)
@@ -216,7 +219,7 @@ private fun StartCard(city: String, start: StartPoint?, onClick: () -> Unit) {
         Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
         Column(Modifier.weight(1f)) {
             Text(
-                if (start == null) "Mi ubicación" else "Punto elegido",
+                stringResource(if (start == null) R.string.map_my_location else R.string.plan_start_chosen),
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp)
             )
             val subtitle = start?.label ?: city
@@ -236,7 +239,7 @@ private fun StartCard(city: String, start: StartPoint?, onClick: () -> Unit) {
 
 @Composable
 private fun TimeSection(hours: Int, onHoursChange: (Int) -> Unit) {
-    SectionLabel("Tiempo disponible", Modifier.padding(top = 22.dp), value = "$hours horas")
+    SectionLabel(stringResource(R.string.plan_time), Modifier.padding(top = 22.dp), value = pluralStringResource(R.plurals.plan_hours, hours, hours))
     Slider(
         value = hours.toFloat(),
         onValueChange = { onHoursChange(it.toInt()) },
@@ -252,8 +255,8 @@ private fun TimeSection(hours: Int, onHoursChange: (Int) -> Unit) {
     )
     Row(Modifier.fillMaxWidth()) {
         val style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.sp)
-        Text("${RoutePreferences.MIN_HOURS} h", style = style, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text("Todo el día", style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.plan_min_hours, RoutePreferences.MIN_HOURS), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.plan_all_day), style = style, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -328,14 +331,18 @@ private fun PlanSummary(state: PlanRouteUiState, modifier: Modifier = Modifier) 
         Icon(painterResource(R.drawable.ic_bolt), null, Modifier.size(22.dp), tint = TealDark)
         Column {
             Text(
-                if (plan.stops.isEmpty()) "Sin paradas con estos parámetros"
-                else "Ruta lista: ${plan.stops.size} ${if (plan.stops.size == 1) "parada" else "paradas"} · ${plan.distanceKm.formatKm()}",
+                if (plan.stops.isEmpty()) stringResource(R.string.plan_no_stops)
+                else stringResource(
+                    R.string.plan_ready,
+                    pluralStringResource(R.plurals.routes_stops_count, plan.stops.size, plan.stops.size),
+                    plan.distanceKm.formatKm()
+                ),
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp),
                 color = TealDark
             )
             Text(
-                if (plan.stops.isEmpty()) "Prueba con más tiempo, otro presupuesto o más categorías"
-                else "Se recalcula cada vez que cambias un parámetro",
+                if (plan.stops.isEmpty()) stringResource(R.string.plan_no_stops_hint)
+                else stringResource(R.string.plan_recalc_hint),
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                 color = Color(0xFF3F5B52),
                 modifier = Modifier.padding(top = 4.dp)
@@ -358,7 +365,7 @@ private fun ViewRouteButton(enabled: Boolean, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.Center
     ) {
         Icon(painterResource(R.drawable.ic_route), null, Modifier.size(21.dp), tint = Color.White)
-        Text("Ver mi ruta", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.5.sp), color = Color.White, modifier = Modifier.padding(start = 9.dp))
+        Text(stringResource(R.string.plan_view_route), style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.5.sp), color = Color.White, modifier = Modifier.padding(start = 9.dp))
     }
 }
 

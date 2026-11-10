@@ -1,7 +1,9 @@
 package com.app.rumbo.features.createpublication
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import com.app.rumbo.data.local.CurrentUser
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -57,8 +59,15 @@ data class CreatePublicationUiState(
     val canAddPhoto: Boolean get() = photos.size < MAX_PHOTOS
     val descriptionLength: Int get() = description.length
 
-    val titleError: String? get() = if (showValidationErrors && title.isBlank()) "Escribe un título" else null
-    val descriptionError: String? get() = if (showValidationErrors && description.isBlank()) "Cuenta algo sobre el lugar" else null
+    @get:StringRes
+    val titleError: Int? get() = if (showValidationErrors && title.isBlank()) {
+        R.string.create_title_required
+    } else null
+
+    @get:StringRes
+    val descriptionError: Int? get() = if (showValidationErrors && description.isBlank()) {
+        R.string.create_description_required
+    } else null
 
     val isValid: Boolean get() = title.isNotBlank() && description.isNotBlank()
 }

@@ -1,5 +1,6 @@
 package com.app.rumbo.features.feed
 
+import com.app.rumbo.core.util.label
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

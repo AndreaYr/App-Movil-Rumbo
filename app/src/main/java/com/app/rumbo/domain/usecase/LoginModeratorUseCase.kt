@@ -1,9 +1,13 @@
 ﻿package com.app.rumbo.domain.usecase
 
+import androidx.annotation.StringRes
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.User
 import com.app.rumbo.domain.repository.UserRepository
 import kotlinx.coroutines.delay
 import javax.inject.Inject
+
+class LoginModeratorException(@param:StringRes val messageRes: Int) : Exception()
 
 /**
  * Caso de uso para iniciar sesión como moderador.
@@ -29,7 +33,7 @@ class LoginModeratorUseCase @Inject constructor(
             )
             Result.success(moderatorUser)
         } else {
-            Result.failure(Exception("Correo o contraseña incorrectos."))
+            Result.failure(LoginModeratorException(R.string.login_error_invalid_credentials))
         }
     }
 

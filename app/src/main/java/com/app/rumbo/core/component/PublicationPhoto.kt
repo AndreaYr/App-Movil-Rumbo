@@ -12,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.Photo
 
 /**
@@ -45,7 +47,7 @@ fun PublicationPhoto(
         // Crédito del autor: requisito de las licencias Creative Commons
         photo.credit?.let { credit ->
             Text(
-                "Foto: $credit",
+                stringResource(R.string.photo_credit, credit),
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, letterSpacing = 0.sp),
                 color = Color.White,
                 maxLines = 1,

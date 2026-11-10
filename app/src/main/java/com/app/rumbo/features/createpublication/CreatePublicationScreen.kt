@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +72,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import androidx.compose.ui.text.style.TextOverflow
 import com.app.rumbo.core.component.MapBox
 import com.app.rumbo.domain.model.PlaceResult
@@ -87,7 +89,6 @@ import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
 import com.app.rumbo.domain.model.PriceLevel
 import com.mapbox.geojson.Point
-import java.util.Locale
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -115,9 +116,9 @@ fun CreatePublicationRoute(
         onDescriptionChange = viewModel::onDescriptionChange,
         onScheduleChange = viewModel::onScheduleChange,
         onPriceSelected = viewModel::onPriceSelected,
+        onMarkerMoved = viewModel::onMarkerMoved,
         onDepartmentSelected = viewModel::onDepartmentSelected,
         onTownSelected = viewModel::onTownSelected,
-        onMarkerMoved = viewModel::onMarkerMoved,
         onAddressChange = viewModel::onAddressChange,
         onAddressSuggestionSelected = viewModel::onAddressSuggestionSelected,
         onSaveDraft = viewModel::onSaveDraft,
@@ -140,9 +141,9 @@ fun CreatePublicationScreen(
     onDescriptionChange: (String) -> Unit,
     onScheduleChange: (String) -> Unit,
     onPriceSelected: (PriceLevel) -> Unit,
+    onMarkerMoved: (Double, Double) -> Unit,
     onDepartmentSelected: (String?) -> Unit,
     onTownSelected: (String?) -> Unit,
-    onMarkerMoved: (Double, Double) -> Unit,
     onAddressChange: (String) -> Unit,
     onAddressSuggestionSelected: (PlaceResult) -> Unit,
     onSaveDraft: () -> Unit,
@@ -150,6 +151,7 @@ fun CreatePublicationScreen(
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val draftSavedMessage = stringResource(R.string.create_draft_saved)
     val pickPhotos = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(MAX_PHOTOS)
     ) { uris -> onPhotosAdded(uris.map { it.toString() }) }
@@ -157,7 +159,7 @@ fun CreatePublicationScreen(
     LaunchedEffect(Unit) {
         events.collect { event ->
             when (event) {
-                CreatePublicationEvent.DraftSaved -> snackbarHostState.showSnackbar("Borrador guardado")
+                CreatePublicationEvent.DraftSaved -> snackbarHostState.showSnackbar(draftSavedMessage)
                 is CreatePublicationEvent.Published -> onPublished(state.title)
             }
         }
@@ -177,7 +179,7 @@ fun CreatePublicationScreen(
             ) {
                 ModerationNotice()
 
-                FormField("Fotografías · opcional, máximo $MAX_PHOTOS") {
+                FormField(stringResource(R.string.create_photos_label, MAX_PHOTOS)) {
                     PhotosField(
                         photos = state.photos,
                         canAdd = state.canAddPhoto,
@@ -191,38 +193,38 @@ fun CreatePublicationScreen(
                     )
                 }
 
-                FormField("Título") {
+                FormField(stringResource(R.string.create_title_label)) {
                     RumboTextField(
                         value = state.title,
                         onValueChange = onTitleChange,
-                        placeholder = "Mirador de la Vereda Cruces",
+                        placeholder = stringResource(R.string.create_title_placeholder),
                         isError = state.titleError != null,
-                        supportingText = state.titleError
+                        supportingText = state.titleError?.let { stringResource(it) }
                     )
                 }
 
-                FormField("Categoría") {
+                FormField(stringResource(R.string.create_category)) {
                     CategoryPicker(selected = state.category, onSelected = onCategorySelected)
                 }
 
-                FormField("Descripción") {
+                FormField(stringResource(R.string.create_description)) {
                     DescriptionField(
                         value = state.description,
                         onValueChange = onDescriptionChange,
-                        error = state.descriptionError
+                        error = state.descriptionError?.let { stringResource(it) }
                     )
                 }
 
-                FormField("Horario sugerido") {
+                FormField(stringResource(R.string.create_schedule)) {
                     RumboTextField(
                         value = state.schedule,
                         onValueChange = onScheduleChange,
-                        placeholder = "7:00 - 18:00",
+                        placeholder = stringResource(R.string.create_schedule_placeholder),
                         leadingIcon = R.drawable.ic_schedule
                     )
                 }
 
-                FormField("Rango de precio") {
+                FormField(stringResource(R.string.create_price)) {
                     PriceField(price = state.price, onSelected = onPriceSelected)
                 }
 
@@ -247,7 +249,7 @@ fun CreatePublicationScreen(
                     }
                 }
 
-                FormField("Ubicación · toca el mapa o arrastra el marcador") {
+                FormField(stringResource(R.string.create_location)) {
                     var locateUserRequest by remember { mutableIntStateOf(0) }
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         LocationMap(
@@ -269,7 +271,7 @@ fun CreatePublicationScreen(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
-                            Text("Usar mi ubicación", style = MaterialTheme.typography.titleSmall)
+                            Text(stringResource(R.string.create_use_my_location), style = MaterialTheme.typography.titleSmall)
                             Icon(
                                 painterResource(R.drawable.ic_compass),
                                 contentDescription = null,
@@ -298,10 +300,10 @@ fun CreatePublicationScreen(
 @Composable
 private fun CreateTopBar(onClose: () -> Unit) {
     CenterAlignedTopAppBar(
-        title = { Text("Nuevo punto de interés", style = MaterialTheme.typography.titleLarge) },
+        title = { Text(stringResource(R.string.create_title_bar), style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {
             IconButton(onClick = onClose) {
-                Icon(painterResource(R.drawable.ic_close), contentDescription = "Cerrar")
+                Icon(painterResource(R.drawable.ic_close), contentDescription = stringResource(R.string.common_close))
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -318,10 +320,13 @@ internal fun FormField(label: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun ModerationNotice() {
+    val prefix = stringResource(R.string.create_moderation_prefix)
+    val state = stringResource(R.string.create_moderation_state)
+    val suffix = stringResource(R.string.create_moderation_suffix)
     val message = buildAnnotatedString {
-        append("Tu publicación será revisada por un moderador antes de aparecer públicamente. Quedará como ")
-        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Pendiente de verificación") }
-        append(".")
+        append(prefix)
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(state) }
+        append(suffix)
     }
     Row(
         modifier = Modifier
@@ -375,7 +380,7 @@ private fun AddPhotoBox(onClick: () -> Unit) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Icon(painterResource(R.drawable.ic_camera), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-            Text("Agregar", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.create_add_photo), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -405,7 +410,7 @@ private fun PhotoThumb(photo: Photo, isMain: Boolean, onRemove: () -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
         Text(
-            if (isMain) "foto 1 principal" else "foto",
+            if (isMain) stringResource(R.string.create_photo_main) else stringResource(R.string.create_photo),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White,
             modifier = Modifier
@@ -426,7 +431,7 @@ private fun PhotoThumb(photo: Photo, isMain: Boolean, onRemove: () -> Unit) {
         ) {
             Icon(
                 painterResource(R.drawable.ic_close),
-                contentDescription = "Quitar foto",
+                contentDescription = stringResource(R.string.create_remove_photo),
                 tint = Color.White,
                 modifier = Modifier.size(14.dp)
             )
@@ -472,7 +477,7 @@ internal fun DescriptionField(value: String, onValueChange: (String) -> Unit, er
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text("Describe el sitio a visitar.") },
+            placeholder = { Text(stringResource(R.string.create_description_placeholder)) },
             minLines = 4,
             isError = error != null,
             shape = MaterialTheme.shapes.medium,
@@ -485,7 +490,7 @@ internal fun DescriptionField(value: String, onValueChange: (String) -> Unit, er
                         Text(" ")
                     }
                     Text(
-                        "${value.length} / $MAX_DESCRIPTION_LENGTH",
+                        stringResource(R.string.create_description_counter, value.length, MAX_DESCRIPTION_LENGTH),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -605,7 +610,7 @@ internal fun LocationMap(
             onUserLocation = onPointSelected
         )
         Text(
-            String.format(Locale.US, "Lat %.4f · Lng %.4f", latitude, longitude),
+            stringResource(R.string.create_coordinates, latitude, longitude),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
@@ -634,7 +639,7 @@ private fun ActionBar(isSaving: Boolean, onSaveDraft: () -> Unit, onPublish: () 
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text("Guardar", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.create_save_draft), style = MaterialTheme.typography.titleSmall)
             }
             Button(
                 onClick = onPublish,
@@ -653,7 +658,7 @@ private fun ActionBar(isSaving: Boolean, onSaveDraft: () -> Unit, onPublish: () 
                 } else {
                     Icon(painterResource(R.drawable.ic_send), contentDescription = null, modifier = Modifier.size(18.dp))
                     Text(
-                        "Publicar para revisión",
+                        stringResource(R.string.create_publish),
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         modifier = Modifier.padding(start = 8.dp)
@@ -680,9 +685,9 @@ private fun CreatePublicationScreenPreview() {
             onDescriptionChange = {},
             onScheduleChange = {},
             onPriceSelected = {},
+            onMarkerMoved = { _, _ -> },
             onDepartmentSelected = {},
             onTownSelected = {},
-            onMarkerMoved = { _, _ -> },
             onAddressChange = {},
             onAddressSuggestionSelected = {},
             onSaveDraft = {},

@@ -1,8 +1,10 @@
 package com.app.rumbo.features.login
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
@@ -17,11 +19,11 @@ enum class LoginStatus { IDLE, LOADING, SUCCESS, ERROR }
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
-    val emailError: String? = null,
-    val passwordError: String? = null,
+    @StringRes val emailError: Int? = null,
+    @StringRes val passwordError: Int? = null,
     val isPasswordVisible: Boolean = false,
     val status: LoginStatus = LoginStatus.IDLE,
-    val message: String? = null
+    @StringRes val messageRes: Int? = null
 ) {
     val isFormValid: Boolean
         get() = emailError == null && passwordError == null &&
@@ -44,7 +46,7 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 email = email,
                 emailError = if (email.isBlank()) null else validateEmail(email),
                 status = if (state.status == LoginStatus.LOADING) LoginStatus.LOADING else LoginStatus.IDLE,
-                message = null
+                messageRes = null
             )
         }
     }
@@ -55,7 +57,7 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 password = password,
                 passwordError = if (password.isEmpty()) null else validatePassword(password),
                 status = if (state.status == LoginStatus.LOADING) LoginStatus.LOADING else LoginStatus.IDLE,
-                message = null
+                messageRes = null
             )
         }
     }
@@ -77,32 +79,38 @@ class LoginViewModel @Inject constructor() : ViewModel() {
         val submittedPassword = current.password
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = LoginStatus.LOADING, message = null) }
+            _uiState.update { it.copy(status = LoginStatus.LOADING, messageRes = null) }
             delay(SIMULATED_REQUEST_DELAY_MS)
             val successful = submittedEmail.equals(TEST_EMAIL, ignoreCase = true) &&
                 submittedPassword == TEST_PASSWORD
             _uiState.update {
                 it.copy(
                     status = if (successful) LoginStatus.SUCCESS else LoginStatus.ERROR,
-                    message = if (successful) "Inicio de sesión exitoso." else "Correo o contraseña incorrectos."
+                    messageRes = if (successful) {
+                        R.string.login_success_message
+                    } else {
+                        R.string.login_error_invalid_credentials
+                    }
                 )
             }
         }
     }
 
     fun resetResult() {
-        _uiState.update { it.copy(status = LoginStatus.IDLE, message = null) }
+        _uiState.update { it.copy(status = LoginStatus.IDLE, messageRes = null) }
     }
 
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "El correo electrónico es obligatorio."
-        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Ingresa un correo electrónico válido."
+    @StringRes
+    private fun validateEmail(email: String): Int? = when {
+        email.isBlank() -> R.string.validation_email_required
+        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> R.string.validation_email_invalid
         else -> null
     }
 
-    private fun validatePassword(password: String): String? = when {
-        password.isBlank() -> "La contraseña es obligatoria."
-        password.length < MIN_PASSWORD_LENGTH -> "La contraseña debe tener al menos 6 caracteres."
+    @StringRes
+    private fun validatePassword(password: String): Int? = when {
+        password.isBlank() -> R.string.validation_password_required
+        password.length < MIN_PASSWORD_LENGTH -> R.string.validation_password_min_length_6
         else -> null
     }
 

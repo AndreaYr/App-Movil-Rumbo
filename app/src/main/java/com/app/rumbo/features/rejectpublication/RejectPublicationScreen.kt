@@ -36,12 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 
 private val BodyBg = Color(0xFF0F1E1B)
 private val SurfaceBg = Color(0xFF162824)
@@ -90,10 +92,10 @@ fun RejectPublicationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás", tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text("Rechazar publicación", color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.reject_title), color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         },
         bottomBar = {
@@ -113,7 +115,7 @@ fun RejectPublicationScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = SurfaceBg)
                     ) {
-                        Text("Cancelar", color = White)
+                        Text(stringResource(R.string.common_cancel), color = White)
                     }
                     Button(
                         onClick = onConfirmReject,
@@ -128,7 +130,7 @@ fun RejectPublicationScreen(
                         Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            "Rechazar publicación",
+                            stringResource(R.string.reject_title),
                             color = White,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1
@@ -155,19 +157,25 @@ fun RejectPublicationScreen(
                 Spacer(Modifier.width(10.dp))
                 Column {
                     Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.SemiBold)
-                    Text("${publication?.category?.label.orEmpty()} · ${publication?.author?.name.orEmpty()}", color = TextSecondary, fontSize = 12.sp)
+                    Text(stringResource(R.string.reject_header_line, publication?.category?.label.orEmpty(), publication?.author?.name.orEmpty()), color = TextSecondary, fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.Top) {
                 Icon(painter = painterResource(R.drawable.ic_warning), contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("El motivo es obligatorio y se le muestra al usuario. La publicación rechazada no aparecerá en el feed público.", color = TextSecondary, fontSize = 13.sp)
+                Text(stringResource(R.string.reject_warning), color = TextSecondary, fontSize = 13.sp)
             }
             Spacer(Modifier.height(16.dp))
-            Text("Motivo del rechazo *", color = White, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.reject_reason_label), color = White, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            val reasons = listOf("Información insuficiente", "Ubicación incorrecta", "Fotografías no válidas", "Punto de interés no encontrado", "Información inconsistente")
+            val reasons = listOf(
+                stringResource(R.string.reject_reason_insufficient),
+                stringResource(R.string.reject_reason_location),
+                stringResource(R.string.reject_reason_photos),
+                stringResource(R.string.reject_reason_not_found),
+                stringResource(R.string.reject_reason_inconsistent)
+            )
             reasons.forEach { reason ->
                 Row(
                     modifier = Modifier
@@ -186,7 +194,7 @@ fun RejectPublicationScreen(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Text("Detalle para el usuario", color = White, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.reject_detail_label), color = White, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(6.dp))
             Box(
                 modifier = Modifier
@@ -205,7 +213,7 @@ fun RejectPublicationScreen(
                     maxLines = 4
                 )
             }
-            Text("${state.charCount} / $MAX_REJECTION_DETAIL_LENGTH", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.align(Alignment.End).padding(top = 4.dp))
+            Text(stringResource(R.string.create_description_counter, state.charCount, MAX_REJECTION_DETAIL_LENGTH), color = TextSecondary, fontSize = 11.sp, modifier = Modifier.align(Alignment.End).padding(top = 4.dp))
             Spacer(Modifier.height(16.dp))
         }
     }

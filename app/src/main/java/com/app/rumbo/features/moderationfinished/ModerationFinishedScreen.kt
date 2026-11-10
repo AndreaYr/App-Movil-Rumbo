@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -70,9 +71,9 @@ fun ModerationFinishedScreen(
                 Icon(painter = painterResource(iconRes), contentDescription = null, tint = iconColor, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.height(24.dp))
-            Text(state.title, color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
+            Text(stringResource(state.outcome.titleRes), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(8.dp))
-            Text(state.message, color = TextSecondary, fontSize = 14.sp, textAlign = TextAlign.Center)
+            Text(stringResource(state.outcome.messageRes), color = TextSecondary, fontSize = 14.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(32.dp))
             Button(
                 onClick = onBackToPanel,
@@ -80,7 +81,7 @@ fun ModerationFinishedScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = iconColor)
             ) {
-                Text("Volver al panel", color = White, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.moderation_back_to_panel), color = White, fontWeight = FontWeight.SemiBold)
             }
         }
     }

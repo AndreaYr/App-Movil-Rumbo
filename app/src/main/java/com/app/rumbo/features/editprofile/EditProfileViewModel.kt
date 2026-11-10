@@ -1,7 +1,9 @@
 package com.app.rumbo.features.editprofile
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.MAX_BIO_LENGTH
 import com.app.rumbo.domain.model.ProfileField
 import com.app.rumbo.domain.model.ProfileUpdate
@@ -32,8 +34,15 @@ data class EditProfileUiState(
 ) {
     private val invalidFields: Set<ProfileField> get() = ProfileUpdate(name, bio, city).errors
 
-    val nameError: String? get() = if (showValidationErrors && ProfileField.NAME in invalidFields) "Escribe tu nombre" else null
-    val cityError: String? get() = if (showValidationErrors && ProfileField.CITY in invalidFields) "Escribe tu ciudad base" else null
+    @get:StringRes
+    val nameError: Int? get() = if (showValidationErrors && ProfileField.NAME in invalidFields) {
+        R.string.edit_profile_name_required
+    } else null
+
+    @get:StringRes
+    val cityError: Int? get() = if (showValidationErrors && ProfileField.CITY in invalidFields) {
+        R.string.edit_profile_city_required
+    } else null
     val bioLength: Int get() = bio.length
 }
 

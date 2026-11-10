@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.description
+import com.app.rumbo.core.util.displayName
 import com.app.rumbo.core.component.iconRes
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.domain.model.Achievement
@@ -89,13 +92,13 @@ fun AchievementsScreen(
             item(span = { GridItemSpan(maxLineSpan) }) { SummaryCard(state) }
             if (state.unlocked.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    SectionLabel("DESBLOQUEADAS · ${state.unlocked.size}", Modifier.padding(top = 12.dp))
+                    SectionLabel(stringResource(R.string.achievements_section_unlocked, state.unlocked.size), Modifier.padding(top = 12.dp))
                 }
                 items(state.unlocked, key = { it.achievement.name }) { UnlockedCard(it) }
             }
             if (state.locked.isNotEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    SectionLabel("POR DESBLOQUEAR · ${state.locked.size}", Modifier.padding(top = 14.dp))
+                    SectionLabel(stringResource(R.string.achievements_section_locked, state.locked.size), Modifier.padding(top = 14.dp))
                 }
                 items(state.locked, key = { it.achievement.name }, span = { GridItemSpan(maxLineSpan) }) { LockedCard(it) }
             }
@@ -113,12 +116,12 @@ private fun TopRow(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MaterialTheme.colorScheme.outline, shape)
-                .clickable(role = Role.Button, onClickLabel = "Volver", onClick = onBack),
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.common_back), onClick = onBack),
             contentAlignment = Alignment.Center
         ) {
             Icon(painterResource(R.drawable.ic_arrow_back), null, Modifier.size(20.dp))
         }
-        Text("Logros e insignias", style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
+        Text(stringResource(R.string.achievements_title), style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
     }
 }
 
@@ -142,7 +145,7 @@ private fun SummaryCard(state: AchievementsUiState) {
         }
         Column(Modifier.weight(1f)) {
             Text(
-                "${state.unlocked.size} de ${state.total} desbloqueadas",
+                stringResource(R.string.achievements_summary, state.unlocked.size, state.total),
                 style = MaterialTheme.typography.titleSmall,
                 color = GoldDark
             )
@@ -154,7 +157,7 @@ private fun SummaryCard(state: AchievementsUiState) {
                 modifier = Modifier.padding(top = 9.dp)
             )
             Text(
-                "${state.pointsEarned} puntos ganados con insignias",
+                stringResource(R.string.achievements_points, state.pointsEarned),
                 style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.5.sp),
                 color = Color(0xFF8A6A0B),
                 modifier = Modifier.padding(top = 7.dp)
@@ -195,13 +198,13 @@ private fun UnlockedCard(badge: Badge) {
             modifier = Modifier.padding(top = 10.dp)
         )
         Text(
-            "Desbloqueada",
+            stringResource(R.string.achievements_unlocked),
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 5.dp)
         )
         Text(
-            "+${badge.achievement.points} pts",
+            stringResource(R.string.achievements_points_badge, badge.achievement.points),
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, letterSpacing = 0.sp),
             color = GoldMid,
             modifier = Modifier.padding(top = 7.dp)
@@ -243,7 +246,7 @@ private fun LockedCard(badge: Badge) {
                     modifier = Modifier.weight(1f, fill = false)
                 )
                 Text(
-                    "BLOQUEADA",
+                    stringResource(R.string.achievements_locked_badge),
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.background(LockedChip, RoundedCornerShape(5.dp)).padding(horizontal = 6.dp, vertical = 2.dp)

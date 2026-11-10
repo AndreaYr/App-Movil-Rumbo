@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +56,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.AuthorAvatar
 import com.app.rumbo.core.component.MapBox
 import com.app.rumbo.core.component.PublicationPhoto
@@ -103,14 +105,14 @@ fun PublicationDetailScreen(
     onSendComment: () -> Unit,
     onToggleCommentLike: (String) -> Unit
 ) {
-    Scaffold(topBar = { RumboTopBar("Detalle", onBack) }) { padding ->
+    Scaffold(topBar = { RumboTopBar(stringResource(R.string.detail_title), onBack) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
             when (state) {
                 PublicationDetailUiState.Loading ->
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
                 PublicationDetailUiState.NotFound ->
                     Text(
-                        "No encontramos esta publicación.",
+                        stringResource(R.string.detail_not_found),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -165,7 +167,11 @@ private fun PublicationDetailContent(
                 ) {
                     Icon(painterResource(R.drawable.ic_star), null, Modifier.size(18.dp))
                     Text(
-                        "${if (publication.interested) "Te interesa" else "Me interesa"} · ${publication.votes.formatThousands()}",
+                        stringResource(
+                            R.string.detail_interest_count,
+                            stringResource(if (publication.interested) R.string.detail_interested else R.string.detail_interest_cta),
+                            publication.votes.formatThousands()
+                        ),
                         modifier = Modifier.padding(start = 6.dp)
                     )
                 }
@@ -181,7 +187,10 @@ private fun PublicationDetailContent(
                         null,
                         Modifier.size(18.dp)
                     )
-                    Text(if (publication.visited) "Visitado" else "No visitado", modifier = Modifier.padding(start = 6.dp))
+                    Text(
+                        stringResource(if (publication.visited) R.string.detail_visited else R.string.detail_not_visited),
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
                 }
             }
 
@@ -196,10 +205,18 @@ private fun PublicationDetailContent(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                InfoRow(R.drawable.ic_place, "Dirección", "${publication.address} · ${publication.town}")
-                InfoRow(R.drawable.ic_schedule, "Horario", publication.schedule)
-                InfoRow(R.drawable.ic_map, "Distancia", "${publication.distanceKm.formatKm()} de tu ubicación")
-                InfoRow(R.drawable.ic_money, "Precio", publication.price.label)
+                InfoRow(
+                    R.drawable.ic_place,
+                    stringResource(R.string.detail_address),
+                    stringResource(R.string.detail_address_line, publication.address, publication.town)
+                )
+                InfoRow(R.drawable.ic_schedule, stringResource(R.string.detail_schedule), publication.schedule)
+                InfoRow(
+                    R.drawable.ic_map,
+                    stringResource(R.string.detail_distance),
+                    stringResource(R.string.detail_distance_from_you, publication.distanceKm.formatKm())
+                )
+                InfoRow(R.drawable.ic_money, stringResource(R.string.detail_price), publication.price.label)
             }
 
             MapPreview(publication)
@@ -208,9 +225,9 @@ private fun PublicationDetailContent(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AuthorAvatar(publication.author, size = 44.dp)
                 Column {
-                    Text("Publicado por ${publication.author.name}", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.detail_published_by, publication.author.name), style = MaterialTheme.typography.titleSmall)
                     Text(
-                        "${publication.author.levelName} · ${publication.publishedAt.toTimeAgo()}",
+                        stringResource(R.string.detail_author_meta, publication.author.levelName, publication.publishedAt.toTimeAgo()),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -239,7 +256,7 @@ private fun Gallery(publication: Publication) {
         }
         if (photos.size > 1) {
             Text(
-                "${pagerState.currentPage + 1} / ${photos.size}",
+                stringResource(R.string.detail_photo_page, pagerState.currentPage + 1, photos.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White,
                 modifier = Modifier
@@ -263,7 +280,7 @@ private fun PendingNotice() {
     ) {
         Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(18.dp), tint = Color(0xFF8A6A0B))
         Text(
-            "Un moderador aún no ha verificado esta publicación. La información podría cambiar.",
+            stringResource(R.string.detail_pending_notice),
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF8A6A0B)
         )
@@ -312,7 +329,7 @@ private fun MapPreview(publication: Publication) {
             modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
         ) {
             Icon(painterResource(R.drawable.ic_near_me), null, Modifier.padding(end = 6.dp).size(16.dp))
-            Text("Cómo llegar", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.detail_directions), style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -324,7 +341,7 @@ private fun Context.openDirections(publication: Publication) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     } catch (_: ActivityNotFoundException) {
-        Toast.makeText(this, "No hay una app de mapas instalada", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.detail_no_maps_app), Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -339,10 +356,10 @@ private fun CommentsSection(
     val canInteract = publication.status == PublicationStatus.VERIFIED
     val comments = publication.comments
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("Comentarios (${comments.size})", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.detail_comments_title, comments.size), style = MaterialTheme.typography.titleMedium)
         if (comments.isEmpty()) {
             Text(
-                "Todavía no hay comentarios. ¡Sé el primero en contar tu experiencia!",
+                stringResource(R.string.detail_no_comments),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -355,9 +372,9 @@ private fun CommentsSection(
         } else {
             Text(
                 if (publication.status == PublicationStatus.PENDING) {
-                    "Los comentarios se habilitan cuando un moderador verifique la publicación."
+                    stringResource(R.string.detail_comments_pending)
                 } else {
-                    "Esta publicación ya no recibe comentarios."
+                    stringResource(R.string.detail_comments_closed)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -372,7 +389,7 @@ private fun CommentInput(text: String, onTextChange: (String) -> Unit, onSend: (
         value = text,
         onValueChange = onTextChange,
         modifier = Modifier.fillMaxWidth(),
-        placeholder = { Text("Cuenta tu experiencia") },
+        placeholder = { Text(stringResource(R.string.detail_comment_placeholder)) },
         minLines = 2,
         shape = MaterialTheme.shapes.medium,
         supportingText = {
@@ -384,7 +401,7 @@ private fun CommentInput(text: String, onTextChange: (String) -> Unit, onSend: (
         },
         trailingIcon = {
             IconButton(onClick = onSend, enabled = text.isNotBlank()) {
-                Icon(painterResource(R.drawable.ic_send), contentDescription = "Enviar comentario")
+                Icon(painterResource(R.drawable.ic_send), contentDescription = stringResource(R.string.detail_send_comment))
             }
         }
     )
@@ -408,7 +425,7 @@ private fun CommentItem(comment: Comment, canLike: Boolean, onLikeClick: () -> U
                     .clickable(
                         enabled = canLike,
                         role = Role.Button,
-                        onClickLabel = if (comment.liked) "Quitar me gusta" else "Me gusta",
+                        onClickLabel = stringResource(if (comment.liked) R.string.detail_unlike else R.string.detail_like),
                         onClick = onLikeClick
                     )
                     .padding(vertical = 4.dp),

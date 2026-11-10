@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,10 +55,10 @@ fun ModeratorAccountScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás", tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text("Cuenta", color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.moderator_account_title), color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         }
     ) { padding ->
@@ -93,7 +94,7 @@ fun ModeratorAccountScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(painter = painterResource(R.drawable.ic_shield), contentDescription = null, tint = TextSecondary)
                         Spacer(Modifier.width(12.dp))
-                        Text("Acceso de moderación", color = White)
+                        Text(stringResource(R.string.moderator_account_access), color = White)
                     }
                 }
             }
@@ -106,7 +107,7 @@ fun ModeratorAccountScreen(
             ) {
                 Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = White)
                 Spacer(Modifier.width(8.dp))
-                Text("Cerrar sesión", color = White, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.moderator_account_logout), color = White, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(16.dp))
         }

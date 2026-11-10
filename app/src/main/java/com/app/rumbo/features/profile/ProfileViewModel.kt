@@ -3,6 +3,7 @@ package com.app.rumbo.features.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.domain.model.Badge
+import com.app.rumbo.domain.model.Level
 import com.app.rumbo.domain.model.UserProfile
 import com.app.rumbo.domain.usecase.GetProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,10 +18,10 @@ data class ProfileUiState(
     val name: String = "",
     val initials: String = "",
     val levelNumber: Int = 1,
-    val levelName: String = "",
+    val level: Level = Level.TOURIST,
     val points: Int = 0,
     /** Null cuando el usuario ya está en el nivel más alto. */
-    val nextLevelName: String? = null,
+    val nextLevel: Level? = null,
     val nextLevelPoints: Int = 0,
     val pointsToNext: Int = 0,
     /** 0f..1f hacia el siguiente nivel. */
@@ -49,9 +50,9 @@ private fun UserProfile.toUiState() = ProfileUiState(
     name = user.name,
     initials = user.initials,
     levelNumber = level.level.number,
-    levelName = level.level.displayName,
+    level = level.level,
     points = level.points,
-    nextLevelName = level.nextLevel?.displayName,
+    nextLevel = level.nextLevel,
     nextLevelPoints = level.nextLevel?.minPoints ?: 0,
     pointsToNext = level.pointsToNext,
     levelProgress = level.progress,

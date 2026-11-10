@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -62,6 +63,7 @@ import com.app.rumbo.core.component.MapMarker
 import com.app.rumbo.core.theme.Coral
 import com.app.rumbo.core.theme.Teal
 import com.app.rumbo.core.util.formatKm
+import com.app.rumbo.core.util.label
 import com.app.rumbo.domain.model.SavedRoute
 import com.app.rumbo.domain.model.SavedRouteStop
 import com.app.rumbo.domain.model.Transport
@@ -85,6 +87,8 @@ fun GeneratedRouteRoute(
     val route = remember(state.plan, state.preferences) { state.plan.toSavedRoute(state.preferences) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val savedMessage = stringResource(R.string.route_saved_snackbar)
+    val saveFailedMessage = stringResource(R.string.route_save_failed)
     RouteScreen(
         route = route,
         isSaved = state.isRouteSaved,
@@ -94,7 +98,7 @@ fun GeneratedRouteRoute(
             viewModel.onSaveRoute { saved ->
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        if (saved) "Ruta guardada en Mis rutas" else "No se pudo guardar la ruta"
+                        if (saved) savedMessage else saveFailedMessage
                     )
                 }
             }
@@ -189,19 +193,28 @@ fun RouteScreen(
             ) {
                 Column {
                     Text(route.name, style = MaterialTheme.typography.headlineMedium)
+                    var categoryLabels = ""
+                    for (category in route.categories) {
+                        if (categoryLabels.isNotEmpty()) categoryLabels += ", "
+                        categoryLabels += category.label
+                    }
                     Text(
-                        "${route.categories.joinToString { it.label }} · " +
-                            "${route.transport.label} · ${route.budget.label}",
+                stringResource(
+                    R.string.route_header_line,
+                    categoryLabels,
+                    route.transport.label,
+                    route.budget.label
+                ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Kpi(R.drawable.ic_map, route.distanceKm.formatKm(), "Distancia", Modifier.weight(1f))
-                    Kpi(R.drawable.ic_schedule, route.totalMinutes.formatDuration(), "Tiempo total", Modifier.weight(1f))
-                    Kpi(R.drawable.ic_place, route.stops.size.toString(), "Paradas", Modifier.weight(1f))
+                    Kpi(R.drawable.ic_map, route.distanceKm.formatKm(), stringResource(R.string.route_kpi_distance), Modifier.weight(1f))
+                    Kpi(R.drawable.ic_schedule, route.totalMinutes.formatDuration(), stringResource(R.string.route_kpi_time), Modifier.weight(1f))
+                    Kpi(R.drawable.ic_place, route.stops.size.toString(), stringResource(R.string.route_kpi_stops), Modifier.weight(1f))
                 }
-                Text("Orden del recorrido", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.route_order), style = MaterialTheme.typography.titleMedium)
                 route.stops.forEachIndexed { index, stop ->
                     StopRow(
                         number = index + 1,
@@ -212,7 +225,7 @@ fun RouteScreen(
                 }
                 if (route.stops.isEmpty()) {
                     Text(
-                        "Sin paradas con estos parámetros.",
+                        stringResource(R.string.route_no_stops),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -235,7 +248,7 @@ private fun TopActions(isSaved: Boolean, canShare: Boolean, onBack: () -> Unit, 
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBack, colors = colors) {
-            Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás")
+            Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back))
         }
         Box(Modifier.weight(1f))
         Button(
@@ -252,7 +265,7 @@ private fun TopActions(isSaved: Boolean, canShare: Boolean, onBack: () -> Unit, 
         ) {
             Icon(painterResource(R.drawable.ic_bookmark), null, Modifier.size(17.dp))
             Text(
-                if (isSaved) "Guardada" else "Guardar",
+                if (isSaved) stringResource(R.string.route_saved) else stringResource(R.string.route_save),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(start = 6.dp)
             )
@@ -263,7 +276,7 @@ private fun TopActions(isSaved: Boolean, canShare: Boolean, onBack: () -> Unit, 
             modifier = Modifier.padding(start = 8.dp),
             colors = colors
         ) {
-            Icon(painterResource(R.drawable.ic_share), contentDescription = "Compartir ruta")
+            Icon(painterResource(R.drawable.ic_share), contentDescription = stringResource(R.string.route_share))
         }
     }
 }
@@ -292,7 +305,7 @@ private fun BottomActions(isSaved: Boolean, canNavigate: Boolean, onSave: () -> 
         ) {
             Icon(painterResource(R.drawable.ic_bookmark), null, Modifier.size(19.dp))
             Text(
-                if (isSaved) "Ruta guardada" else "Guardar ruta",
+                if (isSaved) stringResource(R.string.route_saved_full) else stringResource(R.string.route_save_full),
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -305,7 +318,7 @@ private fun BottomActions(isSaved: Boolean, canNavigate: Boolean, onSave: () -> 
             contentPadding = ButtonDefaults.TextButtonContentPadding,
             border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline)
         ) {
-            Icon(painterResource(R.drawable.ic_navigation), contentDescription = "Iniciar recorrido", tint = Teal)
+            Icon(painterResource(R.drawable.ic_navigation), contentDescription = stringResource(R.string.route_start_navigation), tint = Teal)
         }
     }
 }
@@ -348,7 +361,7 @@ private fun StopRow(number: Int, stop: SavedRouteStop, isLast: Boolean, onClick:
         Column(Modifier.weight(1f)) {
             Text(stop.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                "${stop.category.label} · ${stop.price.label} · ${stop.town}",
+                stringResource(R.string.route_stop_line, stop.category.label, stop.price.label, stop.town),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -359,13 +372,14 @@ private fun StopRow(number: Int, stop: SavedRouteStop, isLast: Boolean, onClick:
     }
 }
 
+@Composable
 internal fun Int.formatDuration(): String {
     val hours = this / 60
     val minutes = this % 60
     return when {
-        hours == 0 -> "$minutes min"
-        minutes == 0 -> "$hours h"
-        else -> "$hours h $minutes"
+        hours == 0 -> stringResource(R.string.duration_minutes, minutes)
+        minutes == 0 -> stringResource(R.string.duration_hours, hours)
+        else -> stringResource(R.string.duration_hours_minutes, hours, minutes)
     }
 }
 
@@ -374,7 +388,7 @@ private fun Context.openRouteNavigation(route: SavedRoute, start: StartPoint?) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, directionsUrl(route, start).toUri()))
     } catch (_: ActivityNotFoundException) {
-        Toast.makeText(this, "No hay una app para abrir el recorrido", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.route_no_navigation_app), Toast.LENGTH_SHORT).show()
     }
 }
 

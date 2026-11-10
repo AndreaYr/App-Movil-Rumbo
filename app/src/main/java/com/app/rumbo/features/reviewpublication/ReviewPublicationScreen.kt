@@ -32,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 
 private val BodyBg = Color(0xFF0F1E1B)
 private val SurfaceBg = Color(0xFF162824)
@@ -76,6 +79,7 @@ fun ReviewPublicationScreen(
     onReject: (String) -> Unit = {}
 ) {
     val publication = state.publication
+    val photosCount = publication?.photos?.size
     Scaffold(
         containerColor = BodyBg,
         bottomBar = {
@@ -97,7 +101,7 @@ fun ReviewPublicationScreen(
                     ) {
                         Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = RejectOrange, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Rechazar", color = RejectOrange, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.pending_reject), color = RejectOrange, fontWeight = FontWeight.SemiBold)
                     }
                     Button(
                         onClick = onVerify,
@@ -109,7 +113,7 @@ fun ReviewPublicationScreen(
                     ) {
                         Icon(painter = painterResource(R.drawable.ic_check_circle), contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Verificar", color = White, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.pending_verify), color = White, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -128,10 +132,14 @@ fun ReviewPublicationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás", tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
                 }
                 Spacer(Modifier.weight(1f))
-                Text(publication?.photos?.size?.let { "$it fotos" }.orEmpty(), color = TextSecondary, fontSize = 12.sp)
+                Text(
+                    if (photosCount == null) "" else pluralStringResource(R.plurals.review_photos, photosCount, photosCount),
+                    color = TextSecondary,
+                    fontSize = 12.sp
+                )
                 Spacer(Modifier.weight(1f))
                 Spacer(Modifier.size(48.dp))
             }
@@ -157,7 +165,7 @@ fun ReviewPublicationScreen(
                             .background(PendingBadgeBg)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text("PENDIENTE DE REVISIÓN", color = PendingBadgeText, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                        Text(stringResource(R.string.review_badge), color = PendingBadgeText, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                     }
                 }
                 Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
@@ -177,12 +185,20 @@ fun ReviewPublicationScreen(
                         Text(publication?.author?.levelName.orEmpty(), color = TextSecondary, fontSize = 12.sp)
                     }
                 }
-                ReviewSection("CATEGORÍA DECLARADA", R.drawable.ic_category_nature, publication?.category?.label.orEmpty())
-                ReviewSection("DESCRIPCIÓN", R.drawable.ic_edit, publication?.description.orEmpty())
-                ReviewSection("HORARIO SUGERIDO", R.drawable.ic_schedule, publication?.schedule.orEmpty())
-                ReviewSection("RANGO DE PRECIO", R.drawable.ic_money, publication?.price?.label.orEmpty())
-                ReviewSection("UBICACIÓN", R.drawable.ic_place, publication?.town.orEmpty())
-                ReviewSection("Ubicación declarada", R.drawable.ic_map, "${publication?.latitude}, ${publication?.longitude}")
+                ReviewSection(stringResource(R.string.review_section_category), R.drawable.ic_category_nature, publication?.category?.label.orEmpty())
+                ReviewSection(stringResource(R.string.review_section_description), R.drawable.ic_edit, publication?.description.orEmpty())
+                ReviewSection(stringResource(R.string.review_section_schedule), R.drawable.ic_schedule, publication?.schedule.orEmpty())
+                ReviewSection(stringResource(R.string.review_section_price), R.drawable.ic_money, publication?.price?.label.orEmpty())
+                ReviewSection(stringResource(R.string.review_section_location), R.drawable.ic_place, publication?.town.orEmpty())
+                ReviewSection(
+                    stringResource(R.string.review_section_coordinates),
+                    R.drawable.ic_map,
+                    stringResource(
+                        R.string.review_coordinates,
+                        publication?.latitude?.toString().orEmpty(),
+                        publication?.longitude?.toString().orEmpty()
+                    )
+                )
                 Button(
                     onClick = {},
                     modifier = Modifier.fillMaxWidth().height(44.dp),
@@ -191,7 +207,7 @@ fun ReviewPublicationScreen(
                 ) {
                     Icon(painter = painterResource(R.drawable.ic_near_me), contentDescription = null, tint = White)
                     Spacer(Modifier.width(8.dp))
-                    Text("Verificar en Street View", color = White)
+                    Text(stringResource(R.string.review_street_view), color = White)
                 }
             }
         }
