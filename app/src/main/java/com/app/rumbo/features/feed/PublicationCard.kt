@@ -22,11 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.AuthorAvatar
 import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.StatusChip
@@ -65,7 +67,7 @@ fun PublicationCard(
             Column(Modifier.weight(1f)) {
                 Text(publication.author.name, style = MaterialTheme.typography.titleSmall)
                 Text(
-                    "${publication.author.levelName} · ${publication.publishedAt.toTimeAgo()}",
+                    stringResource(R.string.publication_author_line, publication.author.levelName, publication.publishedAt.toTimeAgo()),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -99,7 +101,7 @@ fun PublicationCard(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Icon(painterResource(R.drawable.ic_place), null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
-                    "${publication.town} · ${publication.distanceKm.formatKm()} · ${publication.price.label}",
+                    stringResource(R.string.publication_place_line, publication.town, publication.distanceKm.formatKm(), publication.price.label),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -134,7 +136,7 @@ private fun VotePill(votes: Int, interested: Boolean, onClick: () -> Unit) {
             .clip(shape)
             .background(background)
             .border(1.dp, border, shape)
-            .clickable(role = Role.Button, onClickLabel = if (interested) "Quitar interés" else "Me interesa", onClick = onClick)
+            .clickable(role = Role.Button, onClickLabel = if (interested) stringResource(R.string.publication_vote_remove_interest) else stringResource(R.string.publication_vote_interest), onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -154,7 +156,7 @@ private fun VisitedLabel(visited: Boolean) {
             Modifier.size(16.dp),
             tint = color
         )
-        Text(if (visited) "Visitado" else "No visitado", style = MaterialTheme.typography.labelMedium, color = color)
+        Text(if (visited) stringResource(R.string.publication_visited) else stringResource(R.string.publication_not_visited), style = MaterialTheme.typography.labelMedium, color = color)
     }
 }
 

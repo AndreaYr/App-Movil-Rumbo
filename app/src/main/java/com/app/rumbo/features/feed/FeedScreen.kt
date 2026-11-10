@@ -32,12 +32,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.domain.model.Category
@@ -89,9 +92,9 @@ fun FeedScreen(
         item {
             Row(Modifier.padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f)) {
-                    Text("Explorar", style = MaterialTheme.typography.headlineMedium)
+                    Text(stringResource(R.string.feed_title), style = MaterialTheme.typography.headlineMedium)
                     Text(
-                        "Lugares recomendados por la comunidad del Quindío",
+                        stringResource(R.string.feed_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -108,7 +111,7 @@ fun FeedScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (state.isLoading) "" else "${state.publications.size} publicaciones",
+                    if (state.isLoading) "" else pluralStringResource(R.plurals.feed_publications_count, state.publications.size, state.publications.size),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
@@ -148,7 +151,7 @@ internal fun CategoryFilters(selected: Category?, onSelected: (Category?) -> Uni
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            FilterChip(selected = selected == null, onClick = { onSelected(null) }, label = { Text("Todas") }, colors = colors)
+            FilterChip(selected = selected == null, onClick = { onSelected(null) }, label = { Text(stringResource(R.string.feed_all_categories)) }, colors = colors)
         }
         items(Category.entries) { category ->
             FilterChip(
@@ -168,7 +171,7 @@ private fun SortMenu(current: FeedSort, onSelected: (FeedSort) -> Unit) {
         AssistChip(
             onClick = { expanded = true },
             label = { Text(current.label) },
-            leadingIcon = { Icon(painterResource(R.drawable.ic_sort), contentDescription = "Ordenar", modifier = Modifier.size(18.dp)) }
+            leadingIcon = { Icon(painterResource(R.drawable.ic_sort), contentDescription = stringResource(R.string.feed_sort_content_description), modifier = Modifier.size(18.dp)) }
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             FeedSort.entries.forEach { sort ->
@@ -197,9 +200,9 @@ private fun EmptyFeed() {
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(40.dp)
         )
-        Text("Aún no hay publicaciones", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.feed_empty_title), style = MaterialTheme.typography.titleMedium)
         Text(
-            "Prueba con otra categoría o sé el primero en compartir un lugar.",
+            stringResource(R.string.feed_empty_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

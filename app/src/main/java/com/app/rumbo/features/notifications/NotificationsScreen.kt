@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -88,6 +89,9 @@ fun NotificationsScreen(
         return
     }
     val content = state.content
+    val sectionToday = stringResource(R.string.notifications_section_today)
+    val sectionWeek = stringResource(R.string.notifications_section_week)
+    val sectionEarlier = stringResource(R.string.notifications_section_earlier)
     LazyColumn(
         modifier = modifier.fillMaxSize().statusBarsPadding(),
         contentPadding = PaddingValues(top = 6.dp, bottom = 24.dp)
@@ -105,9 +109,9 @@ fun NotificationsScreen(
         if (content.isEmpty) {
             item { EmptyState(unreadOnly = state.filter == NotificationFilter.UNREAD) }
         }
-        section("HOY", content.today, onNotificationClick)
-        section("ESTA SEMANA", content.thisWeek, onNotificationClick)
-        section("ANTES", content.earlier, onNotificationClick)
+        section(sectionToday, content.today, onNotificationClick)
+        section(sectionWeek, content.thisWeek, onNotificationClick)
+        section(sectionEarlier, content.earlier, onNotificationClick)
     }
 }
 
@@ -137,10 +141,10 @@ private fun Header(canMarkAll: Boolean, onMarkAllRead: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("Notificaciones", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.notifications_title), style = MaterialTheme.typography.titleLarge)
         if (canMarkAll) {
             Text(
-                "Marcar todo leído",
+                stringResource(R.string.notifications_mark_all_read),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -161,8 +165,8 @@ private fun FilterChips(
     modifier: Modifier = Modifier
 ) {
     Row(modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        FilterChip("Todas · $totalCount", selected == NotificationFilter.ALL) { onSelected(NotificationFilter.ALL) }
-        FilterChip("No leídas · $unreadCount", selected == NotificationFilter.UNREAD) { onSelected(NotificationFilter.UNREAD) }
+        FilterChip(stringResource(R.string.notifications_filter_all, totalCount), selected == NotificationFilter.ALL) { onSelected(NotificationFilter.ALL) }
+        FilterChip(stringResource(R.string.notifications_filter_unread, unreadCount), selected == NotificationFilter.UNREAD) { onSelected(NotificationFilter.UNREAD) }
     }
 }
 
@@ -238,7 +242,7 @@ private fun NotificationCard(notification: Notification, onClick: () -> Unit, mo
 @Composable
 private fun ReadBadge(unread: Boolean) {
     Text(
-        if (unread) "NO LEÍDA" else "LEÍDA",
+        if (unread) stringResource(R.string.notifications_badge_unread) else stringResource(R.string.notifications_badge_read),
         style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.sp, fontWeight = FontWeight.Bold),
         color = if (unread) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
@@ -250,7 +254,7 @@ private fun ReadBadge(unread: Boolean) {
 @Composable
 private fun EmptyState(unreadOnly: Boolean) {
     Text(
-        if (unreadOnly) "No tienes avisos sin leer" else "Aún no tienes notificaciones",
+        if (unreadOnly) stringResource(R.string.notifications_empty_unread) else stringResource(R.string.notifications_empty),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.Center,

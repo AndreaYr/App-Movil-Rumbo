@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +43,7 @@ import com.app.rumbo.R
 import com.app.rumbo.core.component.ModeratorBottomBar
 import com.app.rumbo.core.component.ModeratorTab
 import com.app.rumbo.core.theme.RumboTheme
+import com.app.rumbo.core.util.toTimeAgo
 import com.app.rumbo.domain.model.Author
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -108,7 +110,7 @@ fun PendingPublicationsScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "Atrás",
+                        contentDescription = stringResource(R.string.common_back),
                         tint = TextDark,
                         modifier = Modifier.size(20.dp)
                     )
@@ -118,13 +120,13 @@ fun PendingPublicationsScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Pendientes",
+                        text = stringResource(R.string.pending_title),
                         color = TextDark,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
                     Text(
-                        text = "${state.pendingCount} por revisar • más antiguas primero",
+                        text = stringResource(R.string.pending_subtitle, state.pendingCount),
                         color = TextMeta,
                         fontSize = 13.sp
                     )
@@ -139,7 +141,7 @@ fun PendingPublicationsScreen(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_sort),
-                        contentDescription = "Filtrar",
+                        contentDescription = stringResource(R.string.pending_filter),
                         tint = TextDark,
                         modifier = Modifier.size(20.dp)
                     )
@@ -225,7 +227,7 @@ private fun PendingPublicationCard(
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = "PENDIENTE",
+                                text = stringResource(R.string.pending_badge),
                                 color = PendingBadgeText,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
@@ -233,7 +235,7 @@ private fun PendingPublicationCard(
                             )
                         }
                         Text(
-                            text = "hace 2 d",
+                            text = publication.publishedAt.toTimeAgo(),
                             color = TextMeta,
                             fontSize = 12.sp
                         )
@@ -249,7 +251,7 @@ private fun PendingPublicationCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "${publication.category.name} • ${publication.town}",
+                        text = stringResource(R.string.pending_place_line, publication.category.name, publication.town),
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -263,7 +265,7 @@ private fun PendingPublicationCard(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "${publication.author.name} • ${publication.author.levelName}",
+                            text = stringResource(R.string.pending_author_line, publication.author.name, publication.author.levelName),
                             color = TextMeta,
                             fontSize = 12.sp
                         )
@@ -292,7 +294,7 @@ private fun PendingPublicationCard(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "Rechazar",
+                            text = stringResource(R.string.pending_reject),
                             color = RejectOrange,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
@@ -314,7 +316,7 @@ private fun PendingPublicationCard(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "Verificar",
+                            text = stringResource(R.string.pending_verify),
                             color = White,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp

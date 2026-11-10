@@ -1,5 +1,6 @@
 package com.app.rumbo.features.editprofile
 
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.MAX_BIO_LENGTH
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.UpdateProfileUseCase
@@ -75,8 +76,8 @@ class EditProfileViewModelTest {
         viewModel.onSave()
 
         val state = viewModel.uiState.value
-        assertEquals("Escribe tu nombre", state.nameError)
-        assertEquals("Escribe tu ciudad base", state.cityError)
+        assertEquals(R.string.edit_profile_name_required, state.nameError)
+        assertEquals(R.string.edit_profile_city_required, state.cityError)
         assertFalse(state.isSaving)
         assertEquals(TestUsers.mariana, repository.observeCurrentUser().first())
     }

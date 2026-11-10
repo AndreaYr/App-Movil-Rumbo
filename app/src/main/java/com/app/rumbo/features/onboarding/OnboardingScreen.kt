@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -94,7 +95,7 @@ fun OnboardingScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_launcher_foreground),
-                    contentDescription = "Logo de Rumbo",
+                    contentDescription = stringResource(R.string.splash_logo_content_description),
                     tint = Color.Unspecified,
                     modifier = Modifier.size(140.dp)
                 )
@@ -103,7 +104,7 @@ fun OnboardingScreen(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Bienvenido a Rumbo",
+                text = stringResource(R.string.onboarding_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -111,7 +112,7 @@ fun OnboardingScreen(
             )
 
             Text(
-                text = "Descubre y comparte los mejores lugares del Quindío. Crea tu comunidad de viajeros.",
+                text = stringResource(R.string.onboarding_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -129,7 +130,7 @@ fun OnboardingScreen(
                     strokeWidth = 2.5.dp
                 )
                 Text(
-                    text = "Cargando…",
+                    text = stringResource(R.string.onboarding_loading),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -141,20 +142,20 @@ fun OnboardingScreen(
             ) {
                 OnboardingFeature(
                     icon = "🗺",
-                    title = "Explora lugares",
-                    description = "Descubre nuevos destinos y rutas en el Quindío"
+                    title = stringResource(R.string.onboarding_feature_explore_title),
+                    description = stringResource(R.string.onboarding_feature_explore_description)
                 )
 
                 OnboardingFeature(
                     icon = "👥",
-                    title = "Comparte experiencias",
-                    description = "Conecta con otros viajeros y comparte tus favoritos"
+                    title = stringResource(R.string.onboarding_feature_share_title),
+                    description = stringResource(R.string.onboarding_feature_share_description)
                 )
 
                 OnboardingFeature(
                     icon = "💬",
-                    title = "Deja comentarios",
-                    description = "Opina y ayuda a la comunidad con tus reseñas"
+                    title = stringResource(R.string.onboarding_feature_comment_title),
+                    description = stringResource(R.string.onboarding_feature_comment_description)
                 )
             }
 
@@ -169,7 +170,7 @@ fun OnboardingScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Teal)
             ) {
                 Text(
-                    text = "Continuar",
+                    text = stringResource(R.string.onboarding_continue),
                     style = MaterialTheme.typography.labelLarge,
                     color = White,
                     fontWeight = FontWeight.Bold
@@ -195,7 +196,7 @@ private fun OnboardingFeature(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = "$icon $title",
+            text = stringResource(R.string.onboarding_feature_title, icon, title),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface

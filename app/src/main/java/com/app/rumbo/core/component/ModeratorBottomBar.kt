@@ -1,6 +1,7 @@
 package com.app.rumbo.core.component
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,16 +17,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.rumbo.R
 
-enum class ModeratorTab(@param:DrawableRes val icon: Int, val label: String) {
-    PANEL(R.drawable.ic_home, "Panel"),
-    PENDING(R.drawable.ic_schedule, "Pendientes"),
-    HISTORY(R.drawable.ic_library_books, "Historial"),
-    ACCOUNT(R.drawable.ic_person, "Cuenta")
+enum class ModeratorTab(@param:DrawableRes val icon: Int, @param:StringRes val labelRes: Int) {
+    PANEL(R.drawable.ic_home, R.string.moderator_tab_panel),
+    PENDING(R.drawable.ic_schedule, R.string.moderator_tab_pending),
+    HISTORY(R.drawable.ic_library_books, R.string.moderator_tab_history),
+    ACCOUNT(R.drawable.ic_person, R.string.moderator_tab_account)
 }
 
 private val BarBackground = Color(0xFF0F1E1B)
@@ -83,6 +85,7 @@ private fun ModeratorBottomBarItem(
     onClick: () -> Unit
 ) {
     val tint = if (selected) ActiveNavGreen else InactiveNav
+    val label = stringResource(tab.labelRes)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(horizontal = 8.dp)
@@ -90,13 +93,13 @@ private fun ModeratorBottomBarItem(
         IconButton(onClick = onClick) {
             Icon(
                 painter = painterResource(tab.icon),
-                contentDescription = tab.label,
+                contentDescription = label,
                 tint = tint,
                 modifier = Modifier.size(24.dp)
             )
         }
         Text(
-            text = tab.label,
+            text = label,
             color = tint,
             fontSize = 11.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal

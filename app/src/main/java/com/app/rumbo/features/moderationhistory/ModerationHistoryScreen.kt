@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.ModeratorBottomBar
 import com.app.rumbo.core.component.ModeratorTab
 import com.app.rumbo.core.component.StatusChip
@@ -159,7 +161,7 @@ private fun HistoryHeader(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_back),
-                contentDescription = "Atrás",
+                contentDescription = stringResource(R.string.common_back),
                 tint = TextDark,
                 modifier = Modifier.size(20.dp)
             )
@@ -167,13 +169,13 @@ private fun HistoryHeader(
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Historial",
+                text = stringResource(R.string.history_title),
                 color = TextDark,
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
             Text(
-                text = "${state.approvedCount} aprobadas • ${state.rejectedCount} rechazadas",
+                text = stringResource(R.string.history_counts, state.approvedCount, state.rejectedCount),
                 color = TextMeta,
                 fontSize = 13.sp
             )
@@ -194,19 +196,19 @@ private fun HistoryFilters(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         HistoryFilterChip(
-            label = ModerationHistoryFilter.ALL.label,
+            label = stringResource(R.string.history_filter_all),
             count = state.approvedCount + state.rejectedCount,
             selected = state.filter == ModerationHistoryFilter.ALL,
             onClick = { onFilterSelected(ModerationHistoryFilter.ALL) }
         )
         HistoryFilterChip(
-            label = ModerationHistoryFilter.APPROVED.label,
+            label = stringResource(R.string.history_filter_approved),
             count = state.approvedCount,
             selected = state.filter == ModerationHistoryFilter.APPROVED,
             onClick = { onFilterSelected(ModerationHistoryFilter.APPROVED) }
         )
         HistoryFilterChip(
-            label = ModerationHistoryFilter.REJECTED.label,
+            label = stringResource(R.string.history_filter_rejected),
             count = state.rejectedCount,
             selected = state.filter == ModerationHistoryFilter.REJECTED,
             onClick = { onFilterSelected(ModerationHistoryFilter.REJECTED) }
@@ -325,7 +327,7 @@ private fun ModerationHistoryCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "${publication.category.label} • ${publication.town}",
+                        text = stringResource(R.string.history_category_town, publication.category.label, publication.town),
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -339,7 +341,7 @@ private fun ModerationHistoryCard(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "${publication.author.name} • ${publication.author.levelName}",
+                            text = stringResource(R.string.history_author_meta, publication.author.name, publication.author.levelName),
                             color = TextMeta,
                             fontSize = 12.sp
                         )
@@ -358,7 +360,7 @@ private fun ModerationHistoryCard(
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Motivo del rechazo",
+                        text = stringResource(R.string.history_rejection_reason),
                         color = RejectOrange,
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
@@ -382,9 +384,9 @@ private fun EmptyHistoryState(
     modifier: Modifier = Modifier
 ) {
     val message = when (filter) {
-        ModerationHistoryFilter.ALL -> "Todavía no hay publicaciones aprobadas ni rechazadas."
-        ModerationHistoryFilter.APPROVED -> "Todavía no hay publicaciones aprobadas."
-        ModerationHistoryFilter.REJECTED -> "Todavía no hay publicaciones rechazadas."
+        ModerationHistoryFilter.ALL -> stringResource(R.string.history_empty_all)
+        ModerationHistoryFilter.APPROVED -> stringResource(R.string.history_empty_approved)
+        ModerationHistoryFilter.REJECTED -> stringResource(R.string.history_empty_rejected)
     }
     Box(
         modifier = modifier,
@@ -411,7 +413,7 @@ private fun EmptyHistoryState(
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = "Sin publicaciones",
+                    text = stringResource(R.string.dashboard_no_publications),
                     color = TextDark,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp

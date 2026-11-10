@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -89,10 +90,10 @@ fun PublicationSubmittedScreen(
                     Icon(painterResource(R.drawable.ic_schedule), contentDescription = null, tint = TealDark, modifier = Modifier.size(48.dp))
                 }
 
-                Text("¡Publicación enviada!", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.submitted_title), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
 
                 Text(
-                    "\"$publicationTitle\" está en la cola de revisión. Te avisamos cuando un moderador la verifique.",
+                    stringResource(R.string.submitted_body, publicationTitle),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -110,7 +111,7 @@ fun PublicationSubmittedScreen(
                 ) {
                     Icon(painterResource(R.drawable.ic_schedule), contentDescription = null, tint = Gold, modifier = Modifier.size(22.dp))
                     Text(
-                        "PENDIENTE DE VERIFICACIÓN",
+                        stringResource(R.string.submitted_pending_badge),
                         style = MaterialTheme.typography.labelLarge,
                         color = Color(0xFF8A6A0B)
                     )
@@ -128,9 +129,11 @@ fun PublicationSubmittedScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.ic_award), contentDescription = null, tint = TealDark, modifier = Modifier.size(22.dp))
+                    val pointsPrefix = stringResource(R.string.submitted_points_prefix)
+                    val badgeUnlocked = stringResource(R.string.submitted_badge_unlocked)
                     val text = buildAnnotatedString {
-                        append("+25 puntos · ")
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Insignia \"Primera publicación\" desbloqueada") }
+                        append(pointsPrefix)
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(badgeUnlocked) }
                     }
                     Text(text, style = MaterialTheme.typography.bodyMedium, color = TealDark)
                 }
@@ -145,7 +148,7 @@ fun PublicationSubmittedScreen(
                         shape = MaterialTheme.shapes.medium,
                         colors = ButtonDefaults.buttonColors(containerColor = Coral, contentColor = Color.White)
                     ) {
-                        Text("Ver mis publicaciones", style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.submitted_my_publications), style = MaterialTheme.typography.titleSmall)
                     }
                     Button(
                         onClick = onGoHome,
@@ -156,7 +159,7 @@ fun PublicationSubmittedScreen(
                             contentColor = MaterialTheme.colorScheme.onSurface
                         )
                     ) {
-                        Text("Volver al inicio", style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.submitted_go_home), style = MaterialTheme.typography.titleSmall)
                     }
                 }
             }

@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.color
 import com.app.rumbo.core.component.iconRes
@@ -94,7 +97,7 @@ fun HomeScreen(
         item { SearchField(onSearchClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { PlanRouteBanner(onPlanRouteClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp)) }
 
-        item { SectionHeader("Cerca de ti", actionLabel = "Ver todo", onAction = onSearchClick) }
+        item { SectionHeader(stringResource(R.string.home_section_nearby), actionLabel = stringResource(R.string.home_see_all), onAction = onSearchClick) }
         item {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
@@ -105,12 +108,12 @@ fun HomeScreen(
             }
         }
 
-        item { SectionHeader("Más destacados") }
+        item { SectionHeader(stringResource(R.string.home_section_top_rated)) }
         items(state.content.topRated, key = { "top-${it.id}" }) {
             TopRatedRow(it, onClick = { onPublicationClick(it.id) }, Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp))
         }
 
-        item { SectionHeader("Tendencias", subtitle = "esta semana") }
+        item { SectionHeader(stringResource(R.string.home_section_trending), subtitle = stringResource(R.string.home_section_trending_subtitle)) }
         item {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
@@ -123,7 +126,7 @@ fun HomeScreen(
             }
         }
 
-        item { SectionHeader("Nuevos lugares") }
+        item { SectionHeader(stringResource(R.string.home_section_new)) }
         items(state.content.fresh, key = { "fresh-${it.id}" }) {
             FreshRow(it, onClick = { onPublicationClick(it.id) }, Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp))
         }
@@ -139,9 +142,9 @@ private fun HomeHeader(userName: String, city: String, hasUnread: Boolean, onNot
     ) {
         Column(Modifier.weight(1f)) {
             if (userName.isNotBlank()) {
-                Text("Hola, $userName", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.home_greeting, userName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("¿Hacia dónde\nvamos hoy?", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
+            Text(stringResource(R.string.home_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
             if (city.isNotBlank()) {
                 Row(
                     modifier = Modifier
@@ -169,10 +172,10 @@ private fun NotificationsButton(hasUnread: Boolean, onClick: () -> Unit) {
             .clip(shape)
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.outline, shape)
-            .clickable(role = Role.Button, onClickLabel = "Ver notificaciones", onClick = onClick),
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.home_notifications_action), onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(painterResource(R.drawable.ic_notifications), contentDescription = "Notificaciones", modifier = Modifier.size(21.dp))
+        Icon(painterResource(R.drawable.ic_notifications), contentDescription = stringResource(R.string.home_notifications_content_description), modifier = Modifier.size(21.dp))
         if (hasUnread) {
             Box(
                 Modifier
@@ -203,7 +206,7 @@ private fun SearchField(onClick: () -> Unit, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Icon(painterResource(R.drawable.ic_search), null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("Busca lugares, comida, miradores…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.home_search_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -226,9 +229,9 @@ private fun PlanRouteBanner(onClick: () -> Unit, modifier: Modifier = Modifier) 
             Icon(painterResource(R.drawable.ic_route), null, Modifier.size(24.dp), tint = Color.White)
         }
         Column(Modifier.weight(1f)) {
-            Text("Planifica tu ruta", style = MaterialTheme.typography.titleSmall, color = Color.White)
+            Text(stringResource(R.string.home_plan_route_title), style = MaterialTheme.typography.titleSmall, color = Color.White)
             Text(
-                "Dinos tu tiempo y presupuesto y armamos el recorrido",
+                stringResource(R.string.home_plan_route_subtitle),
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                 color = Color(0xFFB6D8D1),
                 modifier = Modifier.padding(top = 2.dp)
@@ -287,11 +290,11 @@ private fun CategoryPill(category: Category, modifier: Modifier = Modifier) {
 private fun InfoLine(publication: Publication, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Icon(painterResource(R.drawable.ic_near_me), null, Modifier.size(13.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(
-            "${publication.distanceKm.formatKm()} · ${publication.price.label}",
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+                Text(
+                    stringResource(R.string.home_info_line, publication.distanceKm.formatKm(), publication.price.label),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
     }
 }
 
@@ -299,7 +302,7 @@ private fun InfoLine(publication: Publication, modifier: Modifier = Modifier) {
 private fun Interested(votes: Int, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Icon(painterResource(R.drawable.ic_star), null, Modifier.size(14.dp), tint = Color(0xFFB4841A))
-        Text("${votes.formatThousands()} interesados", style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = Color(0xFFB4841A))
+        Text(pluralStringResource(R.plurals.home_interested, votes, votes.formatThousands()), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = Color(0xFFB4841A))
     }
 }
 
@@ -330,7 +333,7 @@ private fun NearbyCard(publication: Publication, onClick: () -> Unit) {
                     .background(Color.White.copy(alpha = 0.94f), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(painterResource(R.drawable.ic_verified), "Verificada", Modifier.size(15.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(painterResource(R.drawable.ic_verified), stringResource(R.string.home_verified), Modifier.size(15.dp), tint = MaterialTheme.colorScheme.primary)
             }
         }
         Column(Modifier.padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 13.dp)) {
@@ -368,7 +371,7 @@ private fun TopRatedRow(publication: Publication, onClick: () -> Unit, modifier:
             Text(publication.title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 5.dp), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "${publication.distanceKm.formatKm()} · ${publication.price.label}",
+            stringResource(R.string.home_info_line, publication.distanceKm.formatKm(), publication.price.label),
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -396,11 +399,11 @@ private fun TrendCard(trend: Trend, onClick: () -> Unit) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(painterResource(R.drawable.ic_trending_up), null, Modifier.size(15.dp), tint = MaterialTheme.colorScheme.secondary)
-            Text("+${trend.growthPercent}%", style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = MaterialTheme.colorScheme.secondary)
+            Text(stringResource(R.string.home_trend_growth, trend.growthPercent), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = MaterialTheme.colorScheme.secondary)
         }
         Text(publication.title, style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp), modifier = Modifier.padding(top = 8.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
         Text(
-            "${publication.category.label} · ${publication.distanceKm.formatKm()}",
+            stringResource(R.string.home_info_line, publication.category.label, publication.distanceKm.formatKm()),
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 6.dp)
@@ -432,7 +435,7 @@ private fun FreshRow(publication: Publication, onClick: () -> Unit, modifier: Mo
         Column(Modifier.weight(1f)) {
             Text(publication.title, style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                "Publicado por ${publication.author.name} · ${publication.publishedAt.toTimeAgo()}",
+                stringResource(R.string.home_published_by, publication.author.name, publication.publishedAt.toTimeAgo()),
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
@@ -448,7 +451,7 @@ private fun FreshRow(publication: Publication, onClick: () -> Unit, modifier: Mo
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(12.dp), tint = Color(0xFF8A6A0B))
-            Text("Nuevo", style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.5.sp), color = Color(0xFF8A6A0B))
+            Text(stringResource(R.string.home_new), style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.5.sp), color = Color(0xFF8A6A0B))
         }
     }
 }

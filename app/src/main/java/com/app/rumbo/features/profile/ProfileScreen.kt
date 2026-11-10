@@ -24,11 +24,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,11 +40,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.component.LanguageDialog
 import com.app.rumbo.core.theme.Coral
 import com.app.rumbo.core.theme.RumboTheme
+import com.app.rumbo.core.util.displayName
 import com.app.rumbo.core.util.formatThousands
 import com.app.rumbo.domain.model.Achievement
 import com.app.rumbo.domain.model.Badge
+import com.app.rumbo.domain.model.Level
 
 @Composable
 fun ProfileRoute(
@@ -74,6 +81,10 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    if (showLanguageDialog) {
+        LanguageDialog(onDismiss = { showLanguageDialog = false })
+    }
     if (state.isLoading) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         return
@@ -82,7 +93,7 @@ fun ProfileScreen(
         modifier = modifier.fillMaxSize().statusBarsPadding(),
         contentPadding = PaddingValues(top = 6.dp, bottom = 24.dp)
     ) {
-        item { ProfileHeader(onEditProfileClick) }
+        item { ProfileHeader(onEditProfileClick, onSettingsClick = { showLanguageDialog = true }) }
         item { LevelCard(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { StatsRow(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)) }
         item { BadgesHeader(state.totalBadges, onBadgesClick) }
@@ -91,16 +102,15 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileHeader(onEditClick: () -> Unit) {
+private fun ProfileHeader(onEditClick: () -> Unit, onSettingsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Mi perfil", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.profile_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            HeaderButton(R.drawable.ic_edit, "Editar perfil", onEditClick)
-            // Ajustes todavía no tiene pantalla
-            HeaderButton(R.drawable.ic_settings, "Ajustes")
+            HeaderButton(R.drawable.ic_edit, stringResource(R.string.profile_edit), onEditClick)
+            HeaderButton(R.drawable.ic_settings, stringResource(R.string.profile_settings), onSettingsClick)
         }
     }
 }
@@ -151,7 +161,7 @@ private fun LevelCard(state: ProfileUiState, modifier: Modifier = Modifier) {
                 ) {
                     Icon(painterResource(R.drawable.ic_compass), null, Modifier.size(13.dp), tint = Color.White)
                     Text(
-                        "NIVEL ${state.levelNumber} · ${state.levelName.uppercase()}",
+                        stringResource(R.string.profile_level_line, state.levelNumber, state.level.displayName.uppercase()),
                         style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.5.sp),
                         color = Color.White
                     )
@@ -160,14 +170,14 @@ private fun LevelCard(state: ProfileUiState, modifier: Modifier = Modifier) {
         }
         Row(Modifier.fillMaxWidth().padding(top = 16.dp), verticalAlignment = Alignment.Bottom) {
             Text(
-                "${state.points.formatThousands()} puntos",
+                stringResource(R.string.profile_points, state.points.formatThousands()),
                 style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp),
                 color = Color(0xFFB6D8D1),
                 modifier = Modifier.weight(1f)
             )
-            if (state.nextLevelName != null) {
+            if (state.nextLevel != null) {
                 Text(
-                    "Siguiente: ${state.nextLevelName} · ${state.nextLevelPoints.formatThousands()}",
+                    stringResource(R.string.profile_next_level, state.nextLevel?.displayName.orEmpty(), state.nextLevelPoints.formatThousands()),
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp),
                     color = Color(0xFFB6D8D1)
                 )
@@ -188,8 +198,8 @@ private fun LevelCard(state: ProfileUiState, modifier: Modifier = Modifier) {
             )
         }
         Text(
-            if (state.nextLevelName != null) "Te faltan ${state.pointsToNext.formatThousands()} puntos para subir de nivel"
-            else "¡Llegaste al nivel más alto!",
+            if (state.nextLevel != null) stringResource(R.string.profile_points_to_next, state.pointsToNext.formatThousands())
+            else stringResource(R.string.profile_max_level),
             style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.5.sp),
             color = Color(0xFF9FCCC4),
             modifier = Modifier.padding(top = 7.dp)
@@ -200,9 +210,9 @@ private fun LevelCard(state: ProfileUiState, modifier: Modifier = Modifier) {
 @Composable
 private fun StatsRow(state: ProfileUiState, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-        StatCard(R.drawable.ic_place, MaterialTheme.colorScheme.primary, state.publicationsCount, "Publicaciones", Modifier.weight(1f))
-        StatCard(R.drawable.ic_check_circle, Color(0xFF2B6B45), state.visitedCount, "Lugares visitados", Modifier.weight(1f))
-        StatCard(R.drawable.ic_route, Coral, state.routesCount, "Rutas creadas", Modifier.weight(1f))
+        StatCard(R.drawable.ic_place, MaterialTheme.colorScheme.primary, state.publicationsCount, stringResource(R.string.profile_stat_publications), Modifier.weight(1f))
+        StatCard(R.drawable.ic_check_circle, Color(0xFF2B6B45), state.visitedCount, stringResource(R.string.profile_stat_visited), Modifier.weight(1f))
+        StatCard(R.drawable.ic_route, Coral, state.routesCount, stringResource(R.string.profile_stat_routes), Modifier.weight(1f))
     }
 }
 
@@ -227,9 +237,9 @@ private fun BadgesHeader(totalBadges: Int, onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Insignias", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+        Text(stringResource(R.string.profile_badges), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
         Text(
-            "Ver las $totalBadges",
+            stringResource(R.string.profile_see_badges, totalBadges),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
@@ -243,26 +253,30 @@ private fun BadgesHeader(totalBadges: Int, onClick: () -> Unit) {
 @Composable
 private fun ProfileLinks(state: ProfileUiState, onMyPublicationsClick: () -> Unit, onMyRoutesClick: () -> Unit, onBadgesClick: () -> Unit, onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
     val publicationsSub = if (state.pendingPublicationsCount > 0) {
-        "${state.publicationsCount} · ${state.pendingPublicationsCount} pendientes de verificación"
+        stringResource(
+            R.string.profile_publications_pending_subtitle,
+            state.publicationsCount.formatThousands(),
+            state.pendingPublicationsCount.formatThousands()
+        )
     } else {
-        "${state.publicationsCount} publicaciones"
+        stringResource(R.string.profile_publications_subtitle, state.publicationsCount.formatThousands())
     }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(9.dp)) {
-        ProfileLink(R.drawable.ic_library_books, "Mis publicaciones", publicationsSub, onMyPublicationsClick)
+        ProfileLink(R.drawable.ic_library_books, stringResource(R.string.profile_my_publications), publicationsSub, onMyPublicationsClick)
         ProfileLink(
             R.drawable.ic_route,
-            "Mis rutas",
+            stringResource(R.string.profile_my_routes),
             when (state.routesCount) {
-                0 -> "Aún no has guardado rutas"
-                1 -> "1 guardada"
-                else -> "${state.routesCount} guardadas"
+                0 -> stringResource(R.string.profile_routes_none)
+                1 -> stringResource(R.string.profile_routes_one)
+                else -> stringResource(R.string.profile_routes_many, state.routesCount)
             },
             onMyRoutesClick
         )
         // Estadísticas aún no tiene pantalla: se muestra sin acción
-        ProfileLink(R.drawable.ic_military_tech, "Logros e insignias", "${state.unlockedBadges.size} de ${state.totalBadges} desbloqueadas", onBadgesClick)
-        ProfileLink(R.drawable.ic_bar_chart, "Mis estadísticas", "Tu actividad en Rumbo")
-        ProfileLink(R.drawable.ic_logout, "Cerrar sesión", "Salir de tu cuenta", onLogoutClick)
+        ProfileLink(R.drawable.ic_military_tech, stringResource(R.string.profile_achievements), stringResource(R.string.profile_badges_subtitle, state.unlockedBadges.size, state.totalBadges), onBadgesClick)
+        ProfileLink(R.drawable.ic_bar_chart, stringResource(R.string.profile_my_stats), stringResource(R.string.profile_my_stats_subtitle))
+        ProfileLink(R.drawable.ic_logout, stringResource(R.string.profile_logout), stringResource(R.string.profile_logout_subtitle), onLogoutClick)
     }
 }
 
@@ -300,9 +314,9 @@ private fun ProfileScreenPreview() {
                 name = "Mariana Ospina",
                 initials = "MO",
                 levelNumber = 2,
-                levelName = "Exploradora",
+                level = Level.EXPLORER,
                 points = 240,
-                nextLevelName = "Aventurera",
+                nextLevel = Level.ADVENTURER,
                 nextLevelPoints = 500,
                 pointsToNext = 260,
                 levelProgress = 0.26f,

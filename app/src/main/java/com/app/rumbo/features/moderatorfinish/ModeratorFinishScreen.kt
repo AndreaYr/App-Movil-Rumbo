@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.util.formatThousands
 
 private val BodyBg = Color(0xFF0F1E1B)
@@ -74,16 +77,16 @@ fun ModeratorFinishScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás", tint = White)
+                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text("Panel de moderación", color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.moderator_finish_title), color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             Box(Modifier.weight(1f).fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
                 when {
                     state.isLoading -> CircularProgressIndicator(color = White)
                     publication == null -> Text(
-                        "No hay publicaciones verificadas por finalizar.",
+                        stringResource(R.string.moderator_finish_empty),
                         color = TextSecondary,
                         textAlign = TextAlign.Center
                     )
@@ -98,19 +101,31 @@ fun ModeratorFinishScreen(
                             tint = TextSecondary,
                             modifier = Modifier.size(64.dp).background(Color(0xFF1F3B35), CircleShape).padding(16.dp)
                         )
-                        Text("Marcar como finalizada", color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                        Text(stringResource(R.string.moderator_finish_heading), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                        val bodyPrefix = stringResource(R.string.moderator_finish_body_prefix, publication.title)
+                        val bodyState = stringResource(R.string.moderator_finish_state)
+                        val bodySuffix = stringResource(R.string.moderator_finish_body_suffix)
                         Text(
                             buildAnnotatedString {
-                                append("“${publication.title}” pasará a estado ")
-                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = White)) { append("Finalizada") }
-                                append(": seguirá visible en el histórico pero no en el feed activo ni en el planificador de rutas.")
+                                append(bodyPrefix)
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = White)) { append(bodyState) }
+                                append(bodySuffix)
                             },
                             color = TextSecondary,
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            "${publication.category.label} · ${publication.town} · ${publication.votes.formatThousands()} interesados",
+                            stringResource(
+                                R.string.moderator_finish_info,
+                                publication.category.label,
+                                publication.town,
+                                pluralStringResource(
+                                    R.plurals.home_interested,
+                                    publication.votes,
+                                    publication.votes.formatThousands()
+                                )
+                            ),
                             color = White,
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center,
@@ -127,7 +142,7 @@ fun ModeratorFinishScreen(
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = SurfaceBg)
-                            ) { Text("Cancelar", color = White) }
+                            ) { Text(stringResource(R.string.moderator_finish_cancel), color = White) }
                             Button(
                                 onClick = onConfirm,
                                 enabled = !state.isFinishing,
@@ -137,7 +152,7 @@ fun ModeratorFinishScreen(
                             ) {
                                 Icon(painterResource(R.drawable.ic_task_alt), null, Modifier.size(18.dp), tint = White)
                                 Spacer(Modifier.width(6.dp))
-                                Text("Finalizar", color = White, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.moderator_finish_confirm), color = White, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }

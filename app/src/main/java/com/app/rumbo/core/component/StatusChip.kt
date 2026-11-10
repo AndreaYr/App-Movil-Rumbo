@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.domain.model.PublicationStatus
 
 private data class StatusStyle(

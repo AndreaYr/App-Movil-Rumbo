@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,10 +61,11 @@ fun PasswordRecoveryRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val statusMessage = state.messageRes?.let { stringResource(it) }
 
-    LaunchedEffect(state.status, state.message) {
-        if (state.message != null) {
-            snackbarHostState.showSnackbar(state.message.orEmpty())
+    LaunchedEffect(state.status, state.messageRes) {
+        if (statusMessage != null) {
+            snackbarHostState.showSnackbar(statusMessage)
             viewModel.clearMessage()
         }
     }
@@ -109,30 +111,30 @@ fun PasswordRecoveryScreen(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
-                    contentDescription = "Volver",
+                    contentDescription = stringResource(R.string.password_recovery_back),
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(18.dp)
                 )
             }
 
             Spacer(Modifier.height(16.dp))
-            Text("Recupera tu acceso", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.password_recovery_title), style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(4.dp))
             Text(
-                "Escribe el correo con el que te registraste y te enviamos un enlace para crear una contraseña nueva.",
+                stringResource(R.string.password_recovery_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(16.dp))
 
-            Text("Correo electrónico", style = MaterialTheme.typography.labelSmall)
+            Text(stringResource(R.string.password_recovery_email_label), style = MaterialTheme.typography.labelSmall)
             Spacer(Modifier.height(5.dp))
             RecoveryEmailField(
                 email = state.email,
-                error = state.emailError,
+                error = state.emailError?.let { stringResource(it) },
                 onEmailChange = onEmailChange
             )
-            state.emailError?.let { RecoveryErrorText(it) }
+            state.emailError?.let { RecoveryErrorText(stringResource(it)) }
             Spacer(Modifier.height(14.dp))
 
             Button(
@@ -144,17 +146,17 @@ fun PasswordRecoveryScreen(
             ) {
                 if (state.status == PasswordRecoveryStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = White, strokeWidth = 2.dp)
-                    Text("  Enviando…", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.password_recovery_sending), style = MaterialTheme.typography.labelLarge)
                 } else {
                     Text("▷", style = MaterialTheme.typography.labelLarge)
                     Spacer(Modifier.width(8.dp))
-                    Text("Enviar enlace", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.password_recovery_send_link), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
-            state.message?.let { message ->
+            state.messageRes?.let { messageRes ->
                 RecoveryStatusMessage(
-                    message = message,
+                    message = stringResource(messageRes),
                     isError = state.status == PasswordRecoveryStatus.ERROR
                 )
             }
@@ -165,7 +167,7 @@ fun PasswordRecoveryScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    "Ver estado de error",
+                    stringResource(R.string.password_recovery_show_error),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -204,7 +206,7 @@ private fun RecoveryEmailField(
             decorationBox = { inner ->
                 Box {
                     if (email.isEmpty()) {
-                        Text("Correo electrónico", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.password_recovery_email_label), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                     }
                     inner()
                 }

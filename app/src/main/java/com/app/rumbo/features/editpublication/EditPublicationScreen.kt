@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -97,10 +98,10 @@ fun EditPublicationScreen(
         CenterAlignedTopAppBar(
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Editar publicación", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.edit_publication_title), style = MaterialTheme.typography.titleLarge)
                     if (!state.isLoading) {
                         Text(
-                            "Creada ${state.createdAt.toTimeAgo()}",
+                            stringResource(R.string.edit_publication_created, state.createdAt.toTimeAgo()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -109,7 +110,7 @@ fun EditPublicationScreen(
             },
             navigationIcon = {
                 IconButton(onClick = onClose) {
-                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás")
+                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -130,37 +131,37 @@ fun EditPublicationScreen(
         ) {
             RejectionNotice(state.rejectionReason, state.rejectionDetail)
 
-            FormField("Título") {
+            FormField(stringResource(R.string.create_title_label)) {
                 RumboTextField(
                     value = state.title,
                     onValueChange = onTitleChange,
-                    placeholder = "Mirador de la Vereda Cruces",
+                    placeholder = stringResource(R.string.create_title_placeholder),
                     isError = state.titleError != null,
-                    supportingText = state.titleError
+                    supportingText = state.titleError?.let { stringResource(it) }
                 )
             }
-            FormField("Categoría") {
+            FormField(stringResource(R.string.create_category)) {
                 CategoryPicker(selected = state.category, onSelected = onCategorySelected)
             }
-            FormField("Descripción") {
+            FormField(stringResource(R.string.create_description)) {
                 DescriptionField(
                     value = state.description,
                     onValueChange = onDescriptionChange,
-                    error = state.descriptionError
+                    error = state.descriptionError?.let { stringResource(it) }
                 )
             }
-            FormField("Horario sugerido") {
+            FormField(stringResource(R.string.create_schedule)) {
                 RumboTextField(
                     value = state.schedule,
                     onValueChange = onScheduleChange,
-                    placeholder = "7:00 - 18:00",
+                    placeholder = stringResource(R.string.create_schedule_placeholder),
                     leadingIcon = R.drawable.ic_schedule
                 )
             }
-            FormField("Rango de precio") {
+            FormField(stringResource(R.string.create_price)) {
                 PriceField(price = state.price, onSelected = onPriceSelected)
             }
-            FormField("Ubicación · toca el mapa o arrastra el marcador") {
+            FormField(stringResource(R.string.create_location)) {
                 LocationMap(
                     latitude = state.latitude,
                     longitude = state.longitude,
@@ -178,6 +179,9 @@ fun EditPublicationScreen(
 @Composable
 private fun RejectionNotice(reason: String?, detail: String?) {
     val shape = MaterialTheme.shapes.large
+    val reasonPrefix = stringResource(R.string.edit_publication_reason_prefix)
+    val noReason = stringResource(R.string.my_publications_no_reason)
+    val detailSuffix = if (detail.isNullOrBlank()) "" else stringResource(R.string.my_publications_rejection_detail, detail)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,16 +193,16 @@ private fun RejectionNotice(reason: String?, detail: String?) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(painterResource(R.drawable.ic_cancel), null, Modifier.size(16.dp), tint = RejectedContent)
             Text(
-                "ESTADO ACTUAL: RECHAZADA",
+                stringResource(R.string.edit_publication_rejected_state),
                 style = MaterialTheme.typography.labelMedium,
                 color = RejectedContent
             )
         }
         Text(
             buildAnnotatedString {
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Motivo del moderador: ") }
-                append(reason ?: "Sin motivo registrado")
-                if (!detail.isNullOrBlank()) append(" — $detail")
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(reasonPrefix) }
+                append(reason ?: noReason)
+                append(detailSuffix)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = RejectedContent
@@ -223,7 +227,7 @@ private fun ActionBar(isSaving: Boolean, onCancel: () -> Unit, onResubmit: () ->
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                Text("Cancelar", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.common_cancel), style = MaterialTheme.typography.titleSmall)
             }
             Button(
                 onClick = onResubmit,
@@ -242,7 +246,7 @@ private fun ActionBar(isSaving: Boolean, onCancel: () -> Unit, onResubmit: () ->
                 } else {
                     Icon(painterResource(R.drawable.ic_send), contentDescription = null, modifier = Modifier.size(18.dp))
                     Text(
-                        "Reenviar a revisión",
+                        stringResource(R.string.edit_publication_resubmit),
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         modifier = Modifier.padding(start = 8.dp)

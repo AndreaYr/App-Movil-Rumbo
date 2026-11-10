@@ -1,8 +1,10 @@
 package com.app.rumbo.features.passwordrecovery
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
@@ -16,9 +18,9 @@ enum class PasswordRecoveryStatus { IDLE, LOADING, SUCCESS, ERROR }
 
 data class PasswordRecoveryUiState(
     val email: String = "",
-    val emailError: String? = null,
+    @StringRes val emailError: Int? = null,
     val status: PasswordRecoveryStatus = PasswordRecoveryStatus.IDLE,
-    val message: String? = null
+    @StringRes val messageRes: Int? = null
 )
 
 @HiltViewModel
@@ -37,7 +39,7 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
                 } else {
                     PasswordRecoveryStatus.IDLE
                 },
-                message = null
+                messageRes = null
             )
         }
     }
@@ -46,18 +48,18 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
         val state = _uiState.value
         val error = validateEmail(state.email)
         if (error != null) {
-            _uiState.update { it.copy(emailError = error, status = PasswordRecoveryStatus.IDLE, message = null) }
+            _uiState.update { it.copy(emailError = error, status = PasswordRecoveryStatus.IDLE, messageRes = null) }
             return
         }
         if (state.status == PasswordRecoveryStatus.LOADING) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = PasswordRecoveryStatus.LOADING, message = null) }
+            _uiState.update { it.copy(status = PasswordRecoveryStatus.LOADING, messageRes = null) }
             delay(SIMULATED_REQUEST_DELAY_MS)
             _uiState.update {
                 it.copy(
                     status = PasswordRecoveryStatus.SUCCESS,
-                    message = SUCCESS_MESSAGE
+                    messageRes = R.string.password_recovery_success_message
                 )
             }
         }
@@ -65,25 +67,27 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
 
     /** Activa un error visible de demostración, incluso si no se ingresó correo. */
     fun clearMessage() {
-        _uiState.update { it.copy(message = null) }
+        _uiState.update { it.copy(messageRes = null) }
     }
 
     fun showErrorDemo() {
         if (_uiState.value.status == PasswordRecoveryStatus.LOADING) return
         _uiState.update {
-            it.copy(status = PasswordRecoveryStatus.ERROR, message = DEMO_ERROR_MESSAGE)
+            it.copy(
+                status = PasswordRecoveryStatus.ERROR,
+                messageRes = R.string.password_recovery_demo_error_message
+            )
         }
     }
 
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "El correo electrónico es obligatorio."
-        !Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() -> "Ingresa un correo electrónico válido."
+    @StringRes
+    private fun validateEmail(email: String): Int? = when {
+        email.isBlank() -> R.string.validation_email_required
+        !Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() -> R.string.validation_email_invalid
         else -> null
     }
 
     private companion object {
         const val SIMULATED_REQUEST_DELAY_MS = 800L
-        const val SUCCESS_MESSAGE = "Solicitud simulada correctamente. No se envió ningún correo."
-        const val DEMO_ERROR_MESSAGE = "Error de prueba: no se pudo completar la solicitud. Intenta de nuevo."
     }
 }

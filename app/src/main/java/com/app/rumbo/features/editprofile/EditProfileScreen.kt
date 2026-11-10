@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.ImeAction
@@ -117,38 +118,38 @@ fun EditProfileScreen(
         ) {
             AvatarSection(state.initials, Modifier.align(Alignment.CenterHorizontally).padding(top = 22.dp))
             Column(Modifier.padding(top = 22.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                FormField("Nombre") {
+                FormField(stringResource(R.string.edit_profile_name)) {
                     ProfileTextField(
                         value = state.name,
                         onValueChange = onNameChange,
-                        error = state.nameError,
+                        error = state.nameError?.let { stringResource(it) },
                         singleLine = true,
                         capitalization = KeyboardCapitalization.Words
                     )
                 }
-                FormField("Correo electrónico") {
+                FormField(stringResource(R.string.login_email_label)) {
                     ReadOnlyEmail(state.email)
                     Text(
-                        "Para cambiarlo debes verificar el correo nuevo.",
+                        stringResource(R.string.edit_profile_email_hint),
                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.5.sp),
                         color = HintColor
                     )
                 }
-                FormField("Sobre mí") {
+                FormField(stringResource(R.string.edit_profile_bio)) {
                     ProfileTextField(
                         value = state.bio,
                         onValueChange = onBioChange,
                         singleLine = false,
                         minLines = 3,
-                        counter = "${state.bioLength} / $MAX_BIO_LENGTH",
+                        counter = stringResource(R.string.edit_profile_bio_counter, state.bioLength, MAX_BIO_LENGTH),
                         capitalization = KeyboardCapitalization.Sentences
                     )
                 }
-                FormField("Ciudad base") {
+                FormField(stringResource(R.string.edit_profile_city)) {
                     ProfileTextField(
                         value = state.city,
                         onValueChange = onCityChange,
-                        error = state.cityError,
+                        error = state.cityError?.let { stringResource(it) },
                         singleLine = true,
                         leadingIcon = R.drawable.ic_near_me,
                         capitalization = KeyboardCapitalization.Words
@@ -175,12 +176,12 @@ private fun TopRow(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MaterialTheme.colorScheme.outline, shape)
-                .clickable(role = Role.Button, onClickLabel = "Volver", onClick = onBack),
+                .clickable(role = Role.Button, onClickLabel = stringResource(R.string.common_back), onClick = onBack),
             contentAlignment = Alignment.Center
         ) {
             Icon(painterResource(R.drawable.ic_arrow_back), null, Modifier.size(20.dp))
         }
-        Text("Editar perfil", style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
+        Text(stringResource(R.string.profile_edit), style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
     }
 }
 
@@ -210,7 +211,7 @@ private fun AvatarSection(initials: String, modifier: Modifier = Modifier) {
             }
         }
         Text(
-            "Cambiar fotografía",
+            stringResource(R.string.edit_profile_change_photo),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 12.dp)
@@ -308,7 +309,7 @@ private fun SaveButton(isSaving: Boolean, onClick: () -> Unit, modifier: Modifie
         if (isSaving) {
             CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
         } else {
-            Text("Guardar cambios", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.edit_profile_save), style = MaterialTheme.typography.titleSmall)
         }
     }
 }
@@ -325,10 +326,10 @@ private fun SensitiveZone(onDeleteClick: () -> Unit, modifier: Modifier = Modifi
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(painterResource(R.drawable.ic_warning), null, Modifier.size(18.dp), tint = DangerText)
-            Text("Zona sensible", style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.5.sp), color = DangerText)
+            Text(stringResource(R.string.edit_profile_danger_zone), style = MaterialTheme.typography.labelLarge.copy(fontSize = 12.5.sp), color = DangerText)
         }
         Text(
-            "Al eliminar tu cuenta se borran tus rutas y tu progreso. Tus publicaciones verificadas permanecen en el mapa de forma anónima.",
+            stringResource(R.string.edit_profile_delete_warning),
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 17.sp),
             color = DangerBody,
             modifier = Modifier.padding(top = 8.dp)
@@ -341,7 +342,7 @@ private fun SensitiveZone(onDeleteClick: () -> Unit, modifier: Modifier = Modifi
             modifier = Modifier.padding(top = 13.dp).fillMaxWidth().height(46.dp)
         ) {
             Icon(painterResource(R.drawable.ic_delete_forever), null, Modifier.size(17.dp))
-            Text("Eliminar mi cuenta", style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp), modifier = Modifier.padding(start = 7.dp))
+            Text(stringResource(R.string.edit_profile_delete_account), style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp), modifier = Modifier.padding(start = 7.dp))
         }
     }
 }
@@ -350,18 +351,18 @@ private fun SensitiveZone(onDeleteClick: () -> Unit, modifier: Modifier = Modifi
 private fun DeleteAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("¿Eliminar tu cuenta?", style = MaterialTheme.typography.titleMedium) },
+        title = { Text(stringResource(R.string.edit_profile_delete_dialog_title), style = MaterialTheme.typography.titleMedium) },
         text = {
             Text(
-                "Se borrarán tus rutas y tu progreso. Esta acción no se puede deshacer.",
+                stringResource(R.string.edit_profile_delete_dialog_body),
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("Eliminar", color = DangerBorder) }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.edit_profile_delete_confirm), color = DangerBorder) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         }
     )
 }

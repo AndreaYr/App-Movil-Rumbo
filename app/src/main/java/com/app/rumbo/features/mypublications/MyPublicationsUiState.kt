@@ -2,14 +2,16 @@ package com.app.rumbo.features.mypublications
 
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
+import androidx.annotation.StringRes
+import com.app.rumbo.R
 
 /** Pestañas de "Mis publicaciones": todas o filtradas por estado. */
-enum class MyPublicationsTab(val label: String, val status: PublicationStatus?) {
-    ALL("Todas", null),
-    PENDING("Pendientes", PublicationStatus.PENDING),
-    VERIFIED("Verificadas", PublicationStatus.VERIFIED),
-    REJECTED("Rechazadas", PublicationStatus.REJECTED),
-    FINISHED("Finalizadas", PublicationStatus.FINISHED)
+enum class MyPublicationsTab(@param:StringRes val labelRes: Int, val status: PublicationStatus?) {
+    ALL(R.string.my_publications_tab_all, null),
+    PENDING(R.string.my_publications_tab_pending, PublicationStatus.PENDING),
+    VERIFIED(R.string.my_publications_tab_verified, PublicationStatus.VERIFIED),
+    REJECTED(R.string.my_publications_tab_rejected, PublicationStatus.REJECTED),
+    FINISHED(R.string.my_publications_tab_finished, PublicationStatus.FINISHED)
 }
 
 data class MyPublicationsUiState(

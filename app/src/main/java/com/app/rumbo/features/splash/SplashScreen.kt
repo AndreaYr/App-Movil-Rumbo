@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.app.rumbo.R
@@ -51,12 +52,12 @@ private fun SplashScreen() {
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = "Logo de Rumbo",
+                contentDescription = stringResource(R.string.splash_logo_content_description),
                 tint = Color.Unspecified,
                 modifier = Modifier.size(140.dp)
             )
             Text(
-                text = "Rumbo",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Teal

@@ -1,0 +1,586 @@
+<resources>
+    <string name="app_name">Rumbo</string>
+    <string name="moderation_action_failed">Moderation could not be completed. The publication is no longer pending or does not exist.</string>
+    <string name="moderation_approved_title">Publication approved</string>
+    <string name="moderation_approved_message">The publication is now verified and appears in public views.</string>
+    <string name="moderation_rejected_title">Publication rejected</string>
+    <string name="moderation_rejected_message">The publication was rejected. Reason kept: %1$s</string>
+    <string name="moderation_back_to_panel">Back to panel</string>
+    <string name="register_success_message">Registration complete.</string>
+    <string name="register_success_login_message">Registration complete. You can now sign in.</string>
+    <string name="register_error_message">Could not create the user. Please try again.</string>
+
+    <!-- Form validations and messages -->
+    <string name="validation_name_required">Name is required.</string>
+    <string name="validation_email_required">Email is required.</string>
+    <string name="validation_email_invalid">Enter a valid email address.</string>
+    <string name="validation_password_required">Password is required.</string>
+    <string name="validation_password_min_length_6">Password must be at least 6 characters.</string>
+    <string name="validation_password_min_length_10">Password must be at least 10 characters.</string>
+    <string name="validation_password_uppercase">Add at least one uppercase letter.</string>
+    <string name="validation_password_number">Add at least one number.</string>
+    <string name="validation_confirm_password_required">Confirm your password.</string>
+    <string name="validation_passwords_mismatch">Passwords do not match.</string>
+    <string name="validation_terms_required">You must accept the terms and data processing policy.</string>
+    <string name="login_success_message">Signed in successfully.</string>
+    <string name="login_error_invalid_credentials">Incorrect email or password.</string>
+    <string name="moderator_login_success_message">Access granted.</string>
+    <string name="moderator_login_error_generic">Could not sign in.</string>
+    <string name="password_recovery_success_message">Request simulated successfully. No email was sent.</string>
+    <string name="password_recovery_demo_error_message">Test error: the request could not be completed. Try again.</string>
+    <string name="create_title_required">Write a title</string>
+    <string name="create_description_required">Tell us about the place</string>
+    <string name="edit_profile_name_required">Enter your name</string>
+    <string name="edit_profile_city_required">Enter your base city</string>
+
+    <!-- Common -->
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_finish">Finish</string>
+    <string name="splash_logo_content_description">Rumbo logo</string>
+
+    <!-- Language -->
+    <string name="language_title">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">English</string>
+    <string name="language_change">Change language</string>
+
+    <!-- User navigation bar -->
+    <string name="tab_home">Home</string>
+    <string name="tab_explore">Explore</string>
+    <string name="tab_create">Create</string>
+    <string name="tab_alerts">Alerts</string>
+    <string name="tab_profile">Profile</string>
+
+    <!-- Moderation navigation bar -->
+    <string name="moderator_tab_panel">Panel</string>
+    <string name="moderator_tab_pending">Pending</string>
+    <string name="moderator_tab_history">History</string>
+    <string name="moderator_tab_account">Account</string>
+
+    <!-- Photos -->
+    <string name="photo_placeholder">photo · %1$s</string>
+    <string name="photo_credit">Photo: %1$s</string>
+
+    <!-- Login -->
+    <string name="login_welcome_title">Welcome back</string>
+    <string name="login_welcome_subtitle">Your saved places and routes are waiting for you.</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_email_placeholder">Email</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_password_placeholder">Password</string>
+    <string name="login_forgot_password">Forgot your password?</string>
+    <string name="login_signing_in">"  Signing in…"</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_or_continue">OR CONTINUE AS</string>
+    <string name="login_guest">Guest</string>
+    <string name="login_moderator">Moderator</string>
+    <string name="login_first_time">"First time here? "</string>
+    <string name="login_register">Sign up</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Welcome to Rumbo</string>
+    <string name="onboarding_subtitle">Discover and share the best places in Quindío. Build your community of travelers.</string>
+    <string name="onboarding_loading">Loading…</string>
+    <string name="onboarding_feature_explore_title">Explore places</string>
+    <string name="onboarding_feature_explore_description">Discover new destinations and routes in Quindío</string>
+    <string name="onboarding_feature_share_title">Share experiences</string>
+    <string name="onboarding_feature_share_description">Connect with other travelers and share your favorites</string>
+    <string name="onboarding_feature_comment_title">Leave comments</string>
+    <string name="onboarding_feature_comment_description">Share your opinion and help the community with your reviews</string>
+    <string name="onboarding_feature_title">%1$s %2$s</string>
+    <string name="onboarding_continue">Continue</string>
+
+    <!-- Registration -->
+    <string name="register_back_content_description">Back to sign in</string>
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">Join the community that is mapping Quindío.</string>
+    <string name="register_name_label">Name</string>
+    <string name="register_name_placeholder">Your name</string>
+    <string name="register_email_label">Email</string>
+    <string name="register_email_placeholder">Email</string>
+    <string name="register_password_label">Password</string>
+    <string name="register_password_placeholder">Password</string>
+    <string name="register_confirm_password_label">Confirm password</string>
+    <string name="register_confirm_password_placeholder">Confirm your password</string>
+    <string name="register_terms">I accept the terms of use and the data processing policy.</string>
+    <string name="register_creating_account">"  Creating account…"</string>
+    <string name="register_button">Create account</string>
+    <string name="register_already_have_account">"Already have an account? "</string>
+    <string name="register_sign_in">Sign in</string>
+    <string name="register_field_invalid">Invalid field</string>
+    <string name="register_field_valid">Valid field</string>
+    <string name="register_password_secure">Strong · 10 characters, uppercase letter and number</string>
+    <string name="register_password_rules">10 characters, uppercase letter and number</string>
+
+    <!-- Password recovery -->
+    <string name="password_recovery_back">Back</string>
+    <string name="password_recovery_title">Recover your access</string>
+    <string name="password_recovery_subtitle">Enter the email you registered with and we will send you a link to create a new password.</string>
+    <string name="password_recovery_email_label">Email</string>
+    <string name="password_recovery_sending">"  Sending…"</string>
+    <string name="password_recovery_send_link">Send link</string>
+    <string name="password_recovery_show_error">Show error state</string>
+
+    <!-- Moderator login -->
+    <string name="moderator_login_console">MODERATION CONSOLE</string>
+    <string name="moderator_login_restricted">RESTRICTED ACCESS</string>
+    <string name="moderator_login_title">Sign in with your institutional account</string>
+    <string name="moderator_login_subtitle">Moderation accounts require institutional credentials to access the management panel.</string>
+    <string name="moderator_login_email_label">Institutional email</string>
+    <string name="moderator_login_email_placeholder">email@institution.edu</string>
+    <string name="moderator_login_password_label">Password</string>
+    <string name="moderator_login_password_placeholder">Enter your password</string>
+    <string name="moderator_login_verifying">"  Verifying..."</string>
+    <string name="moderator_login_enter">Enter panel</string>
+    <string name="moderator_login_back_to_users">Back to user sign in</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hi, %1$s</string>
+    <string name="home_title">Where are we\ngoing today?</string>
+    <string name="home_notifications_action">View notifications</string>
+    <string name="home_notifications_content_description">Notifications</string>
+    <string name="home_search_hint">Search places, food, viewpoints…</string>
+    <string name="home_plan_route_title">Plan your route</string>
+    <string name="home_plan_route_subtitle">Tell us your time and budget and we will build the itinerary</string>
+    <string name="home_section_nearby">Near you</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_section_top_rated">Top rated</string>
+    <string name="home_section_trending">Trending</string>
+    <string name="home_section_trending_subtitle">this week</string>
+    <string name="home_section_new">New places</string>
+    <string name="home_verified">Verified</string>
+    <string name="home_published_by">Published by %1$s · %2$s</string>
+    <string name="home_new">New</string>
+    <string name="home_info_line">%1$s · %2$s</string>
+    <string name="home_trend_growth">+%1$d%%</string>
+    <plurals name="home_interested">
+        <item quantity="one">%1$s interested</item>
+        <item quantity="other">%1$s interested</item>
+    </plurals>
+
+    <!-- Explore -->
+    <string name="feed_title">Explore</string>
+    <string name="feed_subtitle">Places recommended by the Quindío community</string>
+    <string name="feed_all_categories">All</string>
+    <string name="feed_sort_content_description">Sort</string>
+    <string name="feed_empty_title">No publications yet</string>
+    <string name="feed_empty_subtitle">Try another category or be the first to share a place.</string>
+    <plurals name="feed_publications_count">
+        <item quantity="one">%d publication</item>
+        <item quantity="other">%d publications</item>
+    </plurals>
+    <string name="feed_map_search_hint">Search on the map</string>
+    <string name="feed_view_list">List</string>
+    <string name="feed_view_map">Map</string>
+    <string name="feed_view_detail">View detail</string>
+    <string name="feed_map_info_line">%1$s · %2$s · %3$s</string>
+
+    <!-- Publication card -->
+    <string name="publication_author_line">%1$s · %2$s</string>
+    <string name="publication_place_line">%1$s · %2$s · %3$s</string>
+    <string name="publication_vote_remove_interest">Remove interest</string>
+    <string name="publication_vote_interest">Interested</string>
+    <string name="publication_visited">Visited</string>
+    <string name="publication_not_visited">Not visited</string>
+
+    <!-- Moderation: account and finish -->
+    <string name="moderator_account_title">Account</string>
+    <string name="moderator_account_access">Moderation access</string>
+    <string name="moderator_account_logout">Sign out</string>
+    <string name="moderator_finish_title">Moderation panel</string>
+    <string name="moderator_finish_empty">There are no verified publications to finish.</string>
+    <string name="moderator_finish_heading">Mark as finished</string>
+    <string name="moderator_finish_body_prefix">"“%1$s” will change to status "</string>
+    <string name="moderator_finish_state">Finished</string>
+    <string name="moderator_finish_body_suffix">": it will remain visible in the history but not in the active feed or the route planner."</string>
+    <string name="moderator_finish_info">%1$s · %2$s · %3$s</string>
+    <string name="moderator_finish_cancel">Cancel</string>
+    <string name="moderator_finish_confirm">Finish</string>
+
+    <!-- Maps -->
+    <string name="map_location_permission_rationale">Enable location permission to see your position on the map</string>
+    <string name="map_my_location">My location</string>
+    <string name="map_unavailable">Map unavailable: missing MAPBOX_ACCESS_TOKEN in local.properties</string>
+
+    <!-- Notifications -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all as read</string>
+    <string name="notifications_filter_all">All · %1$d</string>
+    <string name="notifications_filter_unread">Unread · %1$d</string>
+    <string name="notifications_section_today">TODAY</string>
+    <string name="notifications_section_week">THIS WEEK</string>
+    <string name="notifications_section_earlier">EARLIER</string>
+    <string name="notifications_badge_unread">UNREAD</string>
+    <string name="notifications_badge_read">READ</string>
+    <string name="notifications_empty_unread">You have no unread alerts</string>
+    <string name="notifications_empty">You have no notifications yet</string>
+
+    <!-- Saved routes -->
+    <string name="routes_title">My routes</string>
+    <plurals name="routes_saved_count">
+        <item quantity="one">%d saved</item>
+        <item quantity="other">%d saved</item>
+    </plurals>
+    <string name="routes_plan_new">Plan a new route</string>
+    <string name="routes_empty">You have not saved any routes yet. Plan one and tap \"Save route\".</string>
+    <plurals name="routes_stops_count">
+        <item quantity="one">%d stop</item>
+        <item quantity="other">%d stops</item>
+    </plurals>
+    <string name="routes_card_info">%1$s · %2$s · %3$s · %4$s</string>
+    <string name="routes_saved_at">Saved %1$s</string>
+
+    <!-- Achievements -->
+    <string name="achievements_title">Achievements and badges</string>
+    <string name="achievements_section_unlocked">UNLOCKED · %1$d</string>
+    <string name="achievements_section_locked">TO UNLOCK · %1$d</string>
+    <string name="achievements_summary">%1$d of %2$d unlocked</string>
+    <string name="achievements_points">%1$d points earned with badges</string>
+    <string name="achievements_unlocked">Unlocked</string>
+    <string name="achievements_points_badge">+%1$d pts</string>
+    <string name="achievements_locked_badge">LOCKED</string>
+
+    <!-- My publications -->
+    <string name="my_publications_title">My publications</string>
+    <string name="my_publications_empty">You have no publications yet.</string>
+    <string name="my_publications_empty_filter">There are no publications in this status.</string>
+    <string name="my_publications_edit_resend">Edit and resubmit</string>
+    <string name="my_publications_rejection_reason">"Rejection reason: "</string>
+    <string name="my_publications_no_reason">No reason recorded</string>
+    <string name="my_publications_rejection_detail">" — %1$s"</string>
+    <string name="my_publications_finish_title">Mark as finished?</string>
+    <string name="my_publications_finish_body_prefix">"“%1$s” will stop receiving new votes and comments and will be shown as "</string>
+    <string name="my_publications_finish_body_suffix">". You can consult it in your history, but you will not be able to reopen it."</string>
+    <string name="my_publications_finish_confirm">Yes, finish</string>
+
+    <!-- Moderation: pending -->
+    <string name="pending_title">Pending</string>
+    <string name="pending_subtitle">%1$d to review • oldest first</string>
+    <string name="pending_filter">Filter</string>
+    <string name="pending_badge">PENDING</string>
+    <string name="pending_place_line">%1$s • %2$s</string>
+    <string name="pending_author_line">%1$s • %2$s</string>
+    <string name="pending_reject">Reject</string>
+    <string name="pending_verify">Verify</string>
+
+    <!-- Profile -->
+    <string name="profile_title">My profile</string>
+    <string name="profile_edit">Edit profile</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_level_line">LEVEL %1$d · %2$s</string>
+    <string name="profile_points">%1$s points</string>
+    <string name="profile_next_level">Next: %1$s · %2$s</string>
+    <string name="profile_points_to_next">You need %1$s more points to level up</string>
+    <string name="profile_max_level">You reached the highest level!</string>
+    <string name="profile_stat_publications">Publications</string>
+    <string name="profile_stat_visited">Places visited</string>
+    <string name="profile_stat_routes">Routes created</string>
+    <string name="profile_badges">Badges</string>
+    <string name="profile_see_badges">See all %1$d</string>
+    <string name="profile_publications_pending_subtitle">%1$s · %2$s pending verification</string>
+    <string name="profile_publications_subtitle">%1$s publications</string>
+    <string name="profile_routes_none">You have not saved any routes yet</string>
+    <string name="profile_routes_one">1 saved</string>
+    <string name="profile_routes_many">%1$d saved</string>
+    <string name="profile_badges_subtitle">%1$d of %2$d unlocked</string>
+    <string name="profile_my_publications">My publications</string>
+    <string name="profile_my_routes">My routes</string>
+    <string name="profile_achievements">Achievements and badges</string>
+    <string name="profile_my_stats">My statistics</string>
+    <string name="profile_my_stats_subtitle">Your activity on Rumbo</string>
+    <string name="profile_logout">Sign out</string>
+    <string name="profile_logout_subtitle">Sign out of your account</string>
+
+    <!-- Edit profile -->
+    <string name="edit_profile_name">Name</string>
+    <string name="edit_profile_email_hint">To change it you must verify the new email.</string>
+    <string name="edit_profile_bio">About me</string>
+    <string name="edit_profile_city">Home city</string>
+    <string name="edit_profile_bio_counter">%1$d / %2$d</string>
+    <string name="edit_profile_change_photo">Change photo</string>
+    <string name="edit_profile_save">Save changes</string>
+    <string name="edit_profile_danger_zone">Danger zone</string>
+    <string name="edit_profile_delete_warning">Deleting your account erases your routes and progress. Your verified publications remain on the map anonymously.</string>
+    <string name="edit_profile_delete_account">Delete my account</string>
+    <string name="edit_profile_delete_dialog_title">Delete your account?</string>
+    <string name="edit_profile_delete_dialog_body">Your routes and progress will be deleted. This action cannot be undone.</string>
+    <string name="edit_profile_delete_confirm">Delete</string>
+
+    <!-- Create publication -->
+    <string name="create_draft_saved">Draft saved</string>
+    <string name="create_photos_label">Photos · optional, maximum %1$d</string>
+    <string name="create_title_label">Title</string>
+    <string name="create_title_placeholder">Mirador de la Vereda Cruces</string>
+    <string name="create_category">Category</string>
+    <string name="create_description">Description</string>
+    <string name="create_schedule">Suggested schedule</string>
+    <string name="create_schedule_placeholder">7:00 - 18:00</string>
+    <string name="create_price">Price range</string>
+    <string name="create_location">Location · tap the map or drag the marker</string>
+    <string name="create_use_my_location">Use my location</string>
+    <string name="create_title_bar">New point of interest</string>
+    <string name="create_moderation_prefix">"Your publication will be reviewed by a moderator before appearing publicly. It will remain as "</string>
+    <string name="create_moderation_state">Pending verification</string>
+    <string name="create_moderation_suffix">.</string>
+    <string name="create_add_photo">Add</string>
+    <string name="create_photo_main">main photo 1</string>
+    <string name="create_photo">photo</string>
+    <string name="create_remove_photo">Remove photo</string>
+    <string name="create_description_placeholder">Describe the place to visit.</string>
+    <string name="create_description_counter">%1$d / %2$d</string>
+    <string name="create_coordinates">Lat %1$.4f · Lng %2$.4f</string>
+    <string name="create_save_draft">Save</string>
+    <string name="create_publish">Publish for review</string>
+
+    <!-- Edit publication -->
+    <string name="edit_publication_title">Edit publication</string>
+    <string name="edit_publication_created">Created %1$s</string>
+    <string name="edit_publication_rejected_state">CURRENT STATUS: REJECTED</string>
+    <string name="edit_publication_reason_prefix">"Moderator reason: "</string>
+    <string name="edit_publication_resubmit">Resubmit for review</string>
+
+    <!-- Plan route -->
+    <string name="plan_start">Starting point</string>
+    <string name="plan_budget">Budget per person</string>
+    <string name="plan_categories">Categories of interest</string>
+    <string name="plan_transport">Means of transport</string>
+    <string name="plan_priority">Prioritize</string>
+    <string name="plan_title">Plan your route</string>
+    <string name="plan_subtitle">Adjust and the route recalculates instantly</string>
+    <string name="plan_time">Available time</string>
+    <plurals name="plan_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <string name="plan_min_hours">%1$d h</string>
+    <string name="plan_all_day">All day</string>
+    <string name="plan_no_stops">No stops with these parameters</string>
+    <string name="plan_ready">Route ready: %1$s · %2$s</string>
+    <string name="plan_no_stops_hint">Try more time, another budget or more categories</string>
+    <string name="plan_recalc_hint">Recalculates every time you change a parameter</string>
+    <string name="plan_view_route">View my route</string>
+
+    <!-- Generated route -->
+    <string name="route_saved_snackbar">Route saved in My routes</string>
+    <string name="route_save_failed">Could not save the route</string>
+    <string name="route_saved">Saved</string>
+    <string name="route_save">Save</string>
+    <string name="route_share_unavailable">Share route (unavailable)</string>
+    <string name="route_saved_full">Route saved</string>
+    <string name="route_save_full">Save route</string>
+    <string name="route_start_navigation">Start route</string>
+    <string name="route_kpi_distance">Distance</string>
+    <string name="route_kpi_time">Total time</string>
+    <string name="route_kpi_stops">Stops</string>
+    <string name="route_order">Route order</string>
+    <string name="route_no_stops">No stops with these parameters.</string>
+    <string name="route_header_line">%1$s · %2$s · %3$s</string>
+    <string name="route_stop_line">%1$s · %2$s · %3$s</string>
+    <string name="route_no_navigation_app">There is no app to open the route</string>
+
+    <!-- Durations and relative time -->
+    <string name="duration_minutes">%1$d min</string>
+    <string name="duration_hours">%1$d h</string>
+    <string name="duration_hours_minutes">%1$d h %2$d</string>
+    <string name="time_ago_now">now</string>
+    <string name="time_ago_minutes">%1$d min ago</string>
+    <string name="time_ago_hours">%1$d h ago</string>
+    <string name="time_ago_yesterday">yesterday</string>
+    <string name="time_ago_days">%1$d d ago</string>
+    <string name="time_ago_weeks">%1$d wk ago</string>
+
+    <!-- Publication submitted -->
+    <string name="submitted_title">Publication submitted!</string>
+    <string name="submitted_body">\"%1$s\" is in the review queue. We will let you know when a moderator verifies it.</string>
+    <string name="submitted_pending_badge">PENDING VERIFICATION</string>
+    <string name="submitted_points_prefix">"+25 points · "</string>
+    <string name="submitted_badge_unlocked">Badge \"First publication\" unlocked</string>
+    <string name="submitted_my_publications">View my publications</string>
+    <string name="submitted_go_home">Back to home</string>
+
+    <!-- Reject publication -->
+    <string name="reject_title">Reject publication</string>
+    <string name="reject_header_line">%1$s · %2$s</string>
+    <string name="reject_warning">The reason is required and is shown to the user. The rejected publication will not appear in the public feed.</string>
+    <string name="reject_reason_label">Rejection reason *</string>
+    <string name="reject_reason_insufficient">Insufficient information</string>
+    <string name="reject_reason_location">Incorrect location</string>
+    <string name="reject_reason_photos">Invalid photographs</string>
+    <string name="reject_reason_not_found">Point of interest not found</string>
+    <string name="reject_reason_inconsistent">Inconsistent information</string>
+    <string name="reject_detail_label">Detail for the user</string>
+
+    <!-- Review publication -->
+    <plurals name="review_photos">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="review_badge">PENDING REVIEW</string>
+    <string name="review_section_category">DECLARED CATEGORY</string>
+    <string name="review_section_description">DESCRIPTION</string>
+    <string name="review_section_schedule">SUGGESTED SCHEDULE</string>
+    <string name="review_section_price">PRICE RANGE</string>
+    <string name="review_section_location">LOCATION</string>
+    <string name="review_section_coordinates">Declared location</string>
+    <string name="review_coordinates">%1$s, %2$s</string>
+    <string name="review_street_view">Verify in Street View</string>
+
+    <!-- Moderation dashboard -->
+    <plurals name="dashboard_pending_headline">
+        <item quantity="one">%d publication is awaiting review</item>
+        <item quantity="other">%d publications are awaiting review</item>
+    </plurals>
+    <string name="dashboard_start_review">Start reviewing</string>
+    <string name="dashboard_kpi_pending">PENDING</string>
+    <string name="dashboard_pending_subtext">2 older than 3 days</string>
+    <string name="dashboard_no_pending">No pending items</string>
+    <string name="dashboard_kpi_verified">VERIFIED</string>
+    <string name="dashboard_verified_subtext">+14 this week</string>
+    <string name="dashboard_kpi_rejected">REJECTED</string>
+    <string name="dashboard_rejected_subtext">most common reason: photos</string>
+    <string name="dashboard_kpi_finished">FINISHED</string>
+    <string name="dashboard_finished_subtext">events and temporary</string>
+    <string name="dashboard_total">Total publications</string>
+    <string name="dashboard_breakdown">Breakdown by status</string>
+    <string name="dashboard_legend_verified">Verified</string>
+    <string name="dashboard_legend_pending">Pending</string>
+    <string name="dashboard_legend_rejected">Rejected</string>
+    <string name="dashboard_legend_finished">Finished</string>
+    <string name="dashboard_legend_item">%1$s: %2$d</string>
+    <string name="dashboard_no_publications">No publications</string>
+    <string name="dashboard_recent_activity">Recent activity</string>
+    <string name="dashboard_no_activity">No recent activity</string>
+    <string name="dashboard_verified_action">You verified \"%1$s\"</string>
+    <string name="dashboard_rejected_action">You rejected \"%1$s\" · Invalid photographs</string>
+    <string name="dashboard_activity_meta">%1$s · %2$s</string>
+
+    <!-- Moderation history -->
+    <string name="history_title">History</string>
+    <string name="history_counts">%1$d approved • %2$d rejected</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_approved">Approved</string>
+    <string name="history_filter_rejected">Rejected</string>
+    <string name="history_category_town">%1$s • %2$s</string>
+    <string name="history_author_meta">%1$s • %2$s</string>
+    <string name="history_rejection_reason">Rejection reason</string>
+    <string name="history_empty_all">There are no approved or rejected publications yet.</string>
+    <string name="history_empty_approved">There are no approved publications yet.</string>
+    <string name="history_empty_rejected">There are no rejected publications yet.</string>
+
+    <!-- Publication detail -->
+    <string name="detail_title">Detail</string>
+    <string name="detail_not_found">We could not find this publication.</string>
+    <string name="detail_interested">You are interested</string>
+    <string name="detail_interest_cta">Interested</string>
+    <string name="detail_interest_count">%1$s · %2$s</string>
+    <string name="detail_visited">Visited</string>
+    <string name="detail_not_visited">Not visited</string>
+    <string name="detail_address">Address</string>
+    <string name="detail_address_line">%1$s · %2$s</string>
+    <string name="detail_photo_page">%1$d / %2$d</string>
+    <string name="detail_schedule">Schedule</string>
+    <string name="detail_distance">Distance</string>
+    <string name="detail_price">Price</string>
+    <string name="detail_distance_from_you">%1$s from your location</string>
+    <string name="detail_published_by">Published by %1$s</string>
+    <string name="detail_author_meta">%1$s · %2$s</string>
+    <string name="detail_pending_notice">A moderator has not verified this publication yet. The information may change.</string>
+    <string name="detail_directions">Directions</string>
+    <string name="detail_no_maps_app">No maps app is installed</string>
+    <string name="detail_comments_title">Comments (%1$d)</string>
+    <string name="detail_no_comments">There are no comments yet. Be the first to share your experience!</string>
+    <string name="detail_comments_pending">Comments are enabled when a moderator verifies the publication.</string>
+    <string name="detail_comments_closed">This publication no longer accepts comments.</string>
+    <string name="detail_comment_placeholder">Share your experience</string>
+    <string name="detail_send_comment">Send comment</string>
+    <string name="detail_unlike">Remove like</string>
+    <string name="detail_like">Like</string>
+
+    <!-- Categories -->
+    <string name="category_gastronomy">Gastronomy</string>
+    <string name="category_culture">Culture</string>
+    <string name="category_nature">Nature</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_history">History</string>
+
+    <!-- Price range -->
+    <string name="price_free">Free</string>
+    <string name="price_cheap">Cheap</string>
+    <string name="price_moderate">Moderate</string>
+    <string name="price_expensive">Expensive</string>
+
+    <!-- Feed sort -->
+    <string name="sort_recent">Most recent</string>
+    <string name="sort_most_voted">Most voted</string>
+    <string name="sort_nearest">Nearest</string>
+
+    <!-- Transport -->
+    <string name="transport_walk">Walking</string>
+    <string name="transport_bike">Bike</string>
+    <string name="transport_car">Car</string>
+    <string name="transport_jeep">Jeep</string>
+
+    <!-- Route priority -->
+    <string name="priority_relevant">Most relevant</string>
+    <string name="priority_nearest">Nearest</string>
+
+    <!-- Publication status -->
+    <string name="status_pending">Pending</string>
+    <string name="status_verified">Verified</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_finished">Finished</string>
+
+    <!-- Levels -->
+    <string name="level_tourist">Tourist</string>
+    <string name="level_explorer">Explorer</string>
+    <string name="level_adventurer">Adventurer</string>
+    <string name="level_local_ambassador">Local Ambassador</string>
+
+    <!-- Achievements -->
+    <string name="achievement_first_publication_name">First publication</string>
+    <string name="achievement_first_publication_desc">Share your first point of interest.</string>
+    <string name="achievement_ten_verified_name">10 verified publications</string>
+    <string name="achievement_ten_verified_desc">Get a moderator to approve 10 of your publications.</string>
+    <string name="achievement_local_guide_name">Local guide</string>
+    <string name="achievement_local_guide_desc">Reach 25 verified publications.</string>
+    <string name="achievement_first_visit_name">First visit</string>
+    <string name="achievement_first_visit_desc">Mark your first place as visited.</string>
+    <string name="achievement_walker_name">Walker</string>
+    <string name="achievement_walker_desc">Mark 10 different places as visited.</string>
+    <string name="achievement_city_explorer_name">City explorer</string>
+    <string name="achievement_city_explorer_desc">Mark 50 different places in Quindío as visited.</string>
+    <string name="achievement_ten_comments_name">10 comments</string>
+    <string name="achievement_ten_comments_desc">Comment on 10 publications.</string>
+    <string name="achievement_community_voice_name">Community voice</string>
+    <string name="achievement_community_voice_desc">Reach 50 comments.</string>
+    <string name="achievement_fifty_votes_name">50 votes received</string>
+    <string name="achievement_fifty_votes_desc">Receive 50 \"Interested\" votes on your publications.</string>
+    <string name="achievement_community_favorite_name">Community favorite</string>
+    <string name="achievement_community_favorite_desc">Receive 200 \"Interested\" votes.</string>
+    <string name="achievement_route_creator_name">Route creator</string>
+    <string name="achievement_route_creator_desc">Create your first route.</string>
+    <string name="achievement_route_master_name">Route tracer</string>
+    <string name="achievement_route_master_desc">Create 5 routes.</string>
+    <string name="achievement_route_completed_name">Route completed</string>
+    <string name="achievement_route_completed_desc">Complete one of your routes.</string>
+    <string name="achievement_month_highlight_name">Top place of the month</string>
+    <string name="achievement_month_highlight_desc">Have the most voted publication of the month in any category.</string>
+
+    <!-- Moderation outcome -->
+    <string name="outcome_approved_title">Publication approved</string>
+    <string name="outcome_approved_message">The publication is now visible in the public feed.</string>
+    <string name="outcome_rejected_title">Publication rejected</string>
+    <string name="outcome_rejected_message">The author will see the rejection reason in My publications.</string>
+    <string name="outcome_finished_title">Publication finished</string>
+    <string name="outcome_finished_message">It no longer appears in the active feed or the route planner.</string>
+
+    <!-- My publications tabs -->
+    <string name="my_publications_tab_all">All</string>
+    <string name="my_publications_tab_pending">Pending</string>
+    <string name="my_publications_tab_verified">Verified</string>
+    <string name="my_publications_tab_rejected">Rejected</string>
+    <string name="my_publications_tab_finished">Finished</string>
+</resources>

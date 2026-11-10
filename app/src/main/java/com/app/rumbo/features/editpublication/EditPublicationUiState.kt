@@ -1,5 +1,7 @@
 package com.app.rumbo.features.editpublication
 
+import androidx.annotation.StringRes
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
 import com.app.rumbo.domain.model.PriceLevel
@@ -22,8 +24,15 @@ data class EditPublicationUiState(
     val isSaving: Boolean = false,
     val showValidationErrors: Boolean = false
 ) {
-    val titleError: String? get() = if (showValidationErrors && title.isBlank()) "Escribe un título" else null
-    val descriptionError: String? get() = if (showValidationErrors && description.isBlank()) "Cuenta algo sobre el lugar" else null
+    @get:StringRes
+    val titleError: Int? get() = if (showValidationErrors && title.isBlank()) {
+        R.string.create_title_required
+    } else null
+
+    @get:StringRes
+    val descriptionError: Int? get() = if (showValidationErrors && description.isBlank()) {
+        R.string.create_description_required
+    } else null
 
     val isValid: Boolean get() = title.isNotBlank() && description.isNotBlank()
 }

@@ -30,12 +30,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.util.formatKm
 import com.app.rumbo.core.util.toTimeAgo
 import com.app.rumbo.domain.model.SavedRoute
@@ -66,10 +69,10 @@ fun MyRoutesScreen(
         CenterAlignedTopAppBar(
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Mis rutas", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.routes_title), style = MaterialTheme.typography.titleLarge)
                     if (!state.isLoading) {
                         Text(
-                            "${state.routes.size} ${if (state.routes.size == 1) "guardada" else "guardadas"}",
+                            pluralStringResource(R.plurals.routes_saved_count, state.routes.size, state.routes.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -78,7 +81,7 @@ fun MyRoutesScreen(
             },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Atrás")
+                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -99,7 +102,7 @@ fun MyRoutesScreen(
                 ) {
                     Icon(painterResource(R.drawable.ic_add), null, Modifier.size(18.dp))
                     Text(
-                        "Planificar una ruta nueva",
+                        stringResource(R.string.routes_plan_new),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -108,7 +111,7 @@ fun MyRoutesScreen(
             if (state.routes.isEmpty()) {
                 item {
                     Text(
-                        "Aún no has guardado rutas. Planifica una y toca \"Guardar ruta\".",
+                        stringResource(R.string.routes_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -141,13 +144,18 @@ private fun SavedRouteCard(route: SavedRoute, onClick: () -> Unit) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(route.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                "${route.stops.size} ${if (route.stops.size == 1) "parada" else "paradas"} · " +
-                    "${route.distanceKm.formatKm()} · ${route.totalMinutes.formatDuration()} · ${route.budget.label}",
+                stringResource(
+                    R.string.routes_card_info,
+                    pluralStringResource(R.plurals.routes_stops_count, route.stops.size, route.stops.size),
+                    route.distanceKm.formatKm(),
+                    route.totalMinutes.formatDuration(),
+                    route.budget.label
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                "Guardada ${route.savedAt.toTimeAgo()}",
+                stringResource(R.string.routes_saved_at, route.savedAt.toTimeAgo()),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -30,10 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.app.rumbo.R
+import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.MapBox
 import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.color
@@ -122,7 +124,7 @@ private fun MapSearchField(query: String, onQueryChange: (String) -> Unit, modif
             decorationBox = { field ->
                 if (query.isEmpty()) {
                     Text(
-                        "Buscar en el mapa",
+                        stringResource(R.string.feed_map_search_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -144,8 +146,8 @@ internal fun FeedViewToggle(showMap: Boolean, onChange: (Boolean) -> Unit, modif
             .border(1.dp, MaterialTheme.colorScheme.outline, shape)
             .padding(3.dp)
     ) {
-        ToggleOption(R.drawable.ic_library_books, "Lista", selected = !showMap) { onChange(false) }
-        ToggleOption(R.drawable.ic_map, "Mapa", selected = showMap) { onChange(true) }
+        ToggleOption(R.drawable.ic_library_books, stringResource(R.string.feed_view_list), selected = !showMap) { onChange(false) }
+        ToggleOption(R.drawable.ic_map, stringResource(R.string.feed_view_map), selected = showMap) { onChange(true) }
     }
 }
 
@@ -195,7 +197,7 @@ private fun MapPublicationCard(publication: Publication, onClick: () -> Unit, mo
             )
             Text(publication.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
-                "${publication.town} · ${publication.distanceKm.formatKm()} · ${publication.price.label}",
+                stringResource(R.string.feed_map_info_line, publication.town, publication.distanceKm.formatKm(), publication.price.label),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -205,7 +207,7 @@ private fun MapPublicationCard(publication: Publication, onClick: () -> Unit, mo
                 Icon(painterResource(R.drawable.ic_star), null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.tertiary)
                 Text(publication.votes.formatThousands(), style = MaterialTheme.typography.labelMedium)
                 Text(
-                    "Ver detalle",
+                    stringResource(R.string.feed_view_detail),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f).padding(start = 8.dp),

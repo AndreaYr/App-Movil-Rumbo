@@ -1,5 +1,6 @@
 package com.app.rumbo.features.register
 
+import com.app.rumbo.R
 import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
 import org.junit.Assert.assertEquals
@@ -16,10 +17,10 @@ class RegisterViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.hasSubmitted)
-        assertEquals("El nombre es obligatorio.", state.nameError)
-        assertEquals("El correo electrónico es obligatorio.", state.emailError)
-        assertEquals("La contraseña es obligatoria.", state.passwordError)
-        assertEquals("Confirma tu contraseña.", state.confirmPasswordError)
+        assertEquals(R.string.validation_name_required, state.nameError)
+        assertEquals(R.string.validation_email_required, state.emailError)
+        assertEquals(R.string.validation_password_required, state.passwordError)
+        assertEquals(R.string.validation_confirm_password_required, state.confirmPasswordError)
         assertEquals(RegisterStatus.IDLE, state.status)
     }
 }

@@ -2,10 +2,10 @@ package com.app.rumbo.features.moderationhistory
 
 import com.app.rumbo.domain.model.Publication
 
-enum class ModerationHistoryFilter(val label: String) {
-    ALL("Todas"),
-    APPROVED("Aprobadas"),
-    REJECTED("Rechazadas")
+enum class ModerationHistoryFilter {
+    ALL,
+    APPROVED,
+    REJECTED
 }
 
 data class ModerationHistoryUiState(

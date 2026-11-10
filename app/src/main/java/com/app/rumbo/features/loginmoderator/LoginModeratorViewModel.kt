@@ -1,8 +1,11 @@
 ﻿package com.app.rumbo.features.loginmoderator
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
+import com.app.rumbo.domain.usecase.LoginModeratorException
 import com.app.rumbo.domain.usecase.LoginModeratorUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,11 +20,11 @@ enum class LoginModeratorStatus { IDLE, LOADING, SUCCESS, ERROR }
 data class LoginModeratorUiState(
     val email: String = "",
     val password: String = "",
-    val emailError: String? = null,
-    val passwordError: String? = null,
+    @StringRes val emailError: Int? = null,
+    @StringRes val passwordError: Int? = null,
     val isPasswordVisible: Boolean = false,
     val status: LoginModeratorStatus = LoginModeratorStatus.IDLE,
-    val message: String? = null
+    @StringRes val messageRes: Int? = null
 ) {
     val isFormValid: Boolean
         get() = emailError == null && passwordError == null &&
@@ -46,7 +49,7 @@ class LoginModeratorViewModel @Inject constructor(
                 email = email,
                 emailError = if (email.isBlank()) null else validateEmail(email),
                 status = if (state.status == LoginModeratorStatus.LOADING) LoginModeratorStatus.LOADING else LoginModeratorStatus.IDLE,
-                message = null
+                messageRes = null
             )
         }
     }
@@ -57,7 +60,7 @@ class LoginModeratorViewModel @Inject constructor(
                 password = password,
                 passwordError = if (password.isEmpty()) null else validatePassword(password),
                 status = if (state.status == LoginModeratorStatus.LOADING) LoginModeratorStatus.LOADING else LoginModeratorStatus.IDLE,
-                message = null
+                messageRes = null
             )
         }
     }
@@ -79,21 +82,23 @@ class LoginModeratorViewModel @Inject constructor(
         val submittedPassword = current.password
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = LoginModeratorStatus.LOADING, message = null) }
+            _uiState.update { it.copy(status = LoginModeratorStatus.LOADING, messageRes = null) }
             loginModeratorUseCase(submittedEmail, submittedPassword)
                 .onSuccess {
                     _uiState.update {
                         it.copy(
                             status = LoginModeratorStatus.SUCCESS,
-                            message = "Acceso concedido."
+                            messageRes = R.string.moderator_login_success_message
                         )
                     }
                 }
                 .onFailure { error ->
+                    val messageRes = (error as? LoginModeratorException)?.messageRes
+                        ?: R.string.moderator_login_error_generic
                     _uiState.update {
                         it.copy(
                             status = LoginModeratorStatus.ERROR,
-                            message = error.message ?: "Error al iniciar sesión."
+                            messageRes = messageRes
                         )
                     }
                 }
@@ -101,18 +106,20 @@ class LoginModeratorViewModel @Inject constructor(
     }
 
     fun resetResult() {
-        _uiState.update { it.copy(status = LoginModeratorStatus.IDLE, message = null) }
+        _uiState.update { it.copy(status = LoginModeratorStatus.IDLE, messageRes = null) }
     }
 
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "El correo electrónico es obligatorio."
-        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Ingresa un correo electrónico válido."
+    @StringRes
+    private fun validateEmail(email: String): Int? = when {
+        email.isBlank() -> R.string.validation_email_required
+        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> R.string.validation_email_invalid
         else -> null
     }
 
-    private fun validatePassword(password: String): String? = when {
-        password.isBlank() -> "La contraseña es obligatoria."
-        password.length < MIN_PASSWORD_LENGTH -> "La contraseña debe tener al menos 6 caracteres."
+    @StringRes
+    private fun validatePassword(password: String): Int? = when {
+        password.isBlank() -> R.string.validation_password_required
+        password.length < MIN_PASSWORD_LENGTH -> R.string.validation_password_min_length_6
         else -> null
     }
 

@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -148,7 +150,7 @@ fun ModeratorDashboardScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_arrow_forward),
-                                    contentDescription = "Cerrar sesión",
+                                    contentDescription = stringResource(R.string.profile_logout),
                                     tint = Color.White,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -159,7 +161,7 @@ fun ModeratorDashboardScreen(
                     Spacer(Modifier.height(20.dp))
                     
                     Text(
-                        text = "${state.stats.pending} publicaciones esperan revisión",
+                        text = pluralStringResource(R.plurals.dashboard_pending_headline, state.stats.pending, state.stats.pending),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
@@ -184,7 +186,7 @@ fun ModeratorDashboardScreen(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Empezar a revisar",
+                            text = stringResource(R.string.dashboard_start_review),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
@@ -207,16 +209,16 @@ fun ModeratorDashboardScreen(
                 ) {
                     StatCard(
                         modifier = Modifier.weight(1f).clickable { onNavigateToPending() },
-                        label = "PENDIENTES",
+                        label = stringResource(R.string.dashboard_kpi_pending),
                         value = state.stats.pending.toString(),
-                        subtext = if (state.stats.pending > 0) "2 con más de 3 días" else "Sin pendientes",
+                        subtext = if (state.stats.pending > 0) stringResource(R.string.dashboard_pending_subtext) else stringResource(R.string.dashboard_no_pending),
                         iconColor = PendingYellow
                     )
                     StatCard(
                         modifier = Modifier.weight(1f).clickable { onNavigateToVerified() },
-                        label = "VERIFICADAS",
+                        label = stringResource(R.string.dashboard_kpi_verified),
                         value = state.stats.verified.toString(),
-                        subtext = "+14 esta semana",
+                        subtext = stringResource(R.string.dashboard_verified_subtext),
                         iconColor = EmeraldGreen
                     )
                 }
@@ -226,16 +228,16 @@ fun ModeratorDashboardScreen(
                 ) {
                     StatCard(
                         modifier = Modifier.weight(1f).clickable { onNavigateToRejected() },
-                        label = "RECHAZADAS",
+                        label = stringResource(R.string.dashboard_kpi_rejected),
                         value = state.stats.rejected.toString(),
-                        subtext = "motivo más común: fotos",
+                        subtext = stringResource(R.string.dashboard_rejected_subtext),
                         iconColor = RejectedOrange
                     )
                     StatCard(
                         modifier = Modifier.weight(1f).clickable { onNavigateToFinished() },
-                        label = "FINALIZADAS",
+                        label = stringResource(R.string.dashboard_kpi_finished),
                         value = state.stats.finished.toString(),
-                        subtext = "eventos y temporales",
+                        subtext = stringResource(R.string.dashboard_finished_subtext),
                         iconColor = FinishedGray
                     )
                 }
@@ -255,7 +257,7 @@ fun ModeratorDashboardScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Total de publicaciones",
+                            text = stringResource(R.string.dashboard_total),
                             color = TextDark,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
@@ -282,7 +284,7 @@ fun ModeratorDashboardScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "Desglose por estado",
+                            text = stringResource(R.string.dashboard_breakdown),
                             color = TextDark,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
@@ -337,17 +339,17 @@ fun ModeratorDashboardScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    LegendItem(color = EmeraldGreen, label = "Verificadas", count = state.stats.verified)
-                                    LegendItem(color = PendingYellow, label = "Pendientes", count = state.stats.pending)
+                                    LegendItem(color = EmeraldGreen, label = stringResource(R.string.dashboard_legend_verified), count = state.stats.verified)
+                                    LegendItem(color = PendingYellow, label = stringResource(R.string.dashboard_legend_pending), count = state.stats.pending)
                                 }
                                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    LegendItem(color = RejectedOrange, label = "Rechazadas", count = state.stats.rejected)
-                                    LegendItem(color = FinishedGray, label = "Finalizadas", count = state.stats.finished)
+                                    LegendItem(color = RejectedOrange, label = stringResource(R.string.dashboard_legend_rejected), count = state.stats.rejected)
+                                    LegendItem(color = FinishedGray, label = stringResource(R.string.dashboard_legend_finished), count = state.stats.finished)
                                 }
                             }
                         } else {
                             Text(
-                                text = "Sin publicaciones",
+                                text = stringResource(R.string.dashboard_no_publications),
                                 color = TextSecondary,
                                 fontSize = 12.sp
                             )
@@ -357,7 +359,7 @@ fun ModeratorDashboardScreen(
                 
                 // Actividad reciente
                 Text(
-                    text = "Actividad reciente",
+                    text = stringResource(R.string.dashboard_recent_activity),
                     color = TextDark,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
@@ -376,7 +378,7 @@ fun ModeratorDashboardScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Text(
-                            text = "Sin actividad reciente",
+                            text = stringResource(R.string.dashboard_no_activity),
                             color = TextSecondary,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(16.dp)
@@ -453,7 +455,7 @@ private fun LegendItem(color: Color, label: String, count: Int) {
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            text = "$label: $count",
+            text = stringResource(R.string.dashboard_legend_item, label, count),
             color = Color(0xFF4F4F4F),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
@@ -463,6 +465,7 @@ private fun LegendItem(color: Color, label: String, count: Int) {
 
 @Composable
 private fun ActivityItem(activity: ModerationActivity) {
+    val cleanTitle = activity.publicationTitle.replace("Verificaste ", "").replace("Rechazaste ", "")
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -498,16 +501,16 @@ private fun ActivityItem(activity: ModerationActivity) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (activity.actionType == ModerationActionType.VERIFIED) {
-                        "Verificaste \"${activity.publicationTitle.replace("Verificaste ", "").replace("Rechazaste ", "")}\""
+                        stringResource(R.string.dashboard_verified_action, cleanTitle)
                     } else {
-                        "Rechazaste \"${activity.publicationTitle.replace("Verificaste ", "").replace("Rechazaste ", "")}\" · Fotografías no válidas"
+                        stringResource(R.string.dashboard_rejected_action, cleanTitle)
                     },
                     color = TextDark,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp
                 )
                 Text(
-                    text = "${activity.timeAgo} · ${activity.authorName}",
+                    text = stringResource(R.string.dashboard_activity_meta, activity.timeAgo, activity.authorName),
                     color = TextSecondary,
                     fontSize = 12.sp
                 )
