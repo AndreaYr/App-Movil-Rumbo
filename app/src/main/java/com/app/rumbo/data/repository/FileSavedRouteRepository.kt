@@ -30,7 +30,11 @@ class FileSavedRouteRepository @Inject constructor(
 ) : SavedRouteRepository {
 
     private val file by lazy { AtomicFile(File(context.filesDir, FILE_NAME)) }
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        // Rutas guardadas con un transporte que ya no existe (Jeep) se leen con el valor por defecto
+        coerceInputValues = true
+    }
     private val mutex = Mutex()
     private val routes = MutableStateFlow<List<SavedRoute>?>(null)
 

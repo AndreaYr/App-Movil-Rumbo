@@ -49,6 +49,7 @@ import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.RoutePreferences
 import com.app.rumbo.domain.model.RoutePriority
+import com.app.rumbo.domain.model.StartPoint
 import com.app.rumbo.domain.model.Transport
 
 @Composable
@@ -68,7 +69,18 @@ fun PlanRouteRoute(
         onTransportChange = viewModel::onTransportChange,
         onPriorityChange = viewModel::onPriorityChange,
         onViewRouteClick = onViewRouteClick,
+        onStartClick = viewModel::onOpenStartPicker,
         modifier = modifier
+    )
+    val picker by viewModel.pickerState.collectAsStateWithLifecycle()
+    StartPointPicker(
+        state = picker,
+        onQueryChange = viewModel::onStartQueryChange,
+        onSuggestionPicked = viewModel::onStartSuggestionPicked,
+        onMapPoint = viewModel::onStartMapPoint,
+        onConfirm = viewModel::onConfirmStart,
+        onUseMyLocation = viewModel::onUseMyLocationAsStart,
+        onDismiss = viewModel::onCloseStartPicker
     )
 }
 
@@ -82,7 +94,8 @@ fun PlanRouteScreen(
     onTransportChange: (Transport) -> Unit,
     onPriorityChange: (RoutePriority) -> Unit,
     onViewRouteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartClick: () -> Unit = {}
 ) {
     if (state.isLoading) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
@@ -99,7 +112,7 @@ fun PlanRouteScreen(
     ) {
         Header(onBack)
         SectionLabel("Punto de inicio", Modifier.padding(top = 20.dp))
-        StartCard(state.city)
+        StartCard(state.city, preferences.start, onStartClick)
 
         TimeSection(preferences.hours, onHoursChange)
 
@@ -186,30 +199,38 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier, value: Str
 }
 
 @Composable
-private fun StartCard(city: String) {
+private fun StartCard(city: String, start: StartPoint?, onClick: () -> Unit) {
     val shape = MaterialTheme.shapes.medium
     Row(
         modifier = Modifier
             .padding(top = 8.dp)
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface, shape)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.5.dp, MaterialTheme.colorScheme.outline, shape)
+            .clickable(role = Role.Button, onClickLabel = "Cambiar punto de inicio", onClick = onClick)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp)
     ) {
         Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
-        Column {
-            Text("Mi ubicación", style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp))
-            if (city.isNotBlank()) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                if (start == null) "Mi ubicación" else "Punto elegido",
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp)
+            )
+            val subtitle = start?.label ?: city
+            if (subtitle.isNotBlank()) {
                 Text(
-                    city,
+                    subtitle,
+                    maxLines = 2,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.5.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
+        Text("Cambiar", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -372,7 +393,7 @@ private val Transport.iconRes: Int
         Transport.WALK -> R.drawable.ic_directions_walk
         Transport.BIKE -> R.drawable.ic_pedal_bike
         Transport.CAR -> R.drawable.ic_directions_car
-        Transport.JEEP -> R.drawable.ic_local_taxi
+        Transport.MOTO -> R.drawable.ic_two_wheeler
     }
 
 @Preview(showBackground = true, heightDp = 1000)

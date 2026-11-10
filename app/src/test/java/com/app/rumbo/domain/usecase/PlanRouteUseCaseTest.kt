@@ -7,6 +7,7 @@ import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.model.RoutePreferences
 import com.app.rumbo.domain.model.RoutePriority
+import com.app.rumbo.domain.model.StartPoint
 import com.app.rumbo.domain.model.Transport
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -127,5 +128,26 @@ class PlanRouteUseCaseTest {
         val plan = plan(preferences)
 
         assertTrue(plan.distanceKm >= plan.stops.first().distanceKm)
+    }
+
+    @Test
+    fun `un punto de inicio lejano aumenta la distancia de la ruta`() {
+        // En carro y con todo el día, para que un primer tramo largo siga cabiendo
+        val base = RoutePreferences(
+            hours = 12, budget = PriceLevel.EXPENSIVE, categories = Category.entries.toSet(), transport = Transport.CAR
+        )
+        val origin = plan(base)
+        // Salir desde Bogotá deja el primer tramo muy por encima del original
+        val far = plan(base.copy(start = StartPoint("Bogotá", 4.711, -74.0721)))
+
+        assertTrue(far.stops.isNotEmpty())
+        assertTrue(far.distanceKm > origin.distanceKm)
+    }
+
+    @Test
+    fun `la moto es mas rapida que la bici y mas lenta que el carro`() {
+        assertTrue(Transport.BIKE.speedKmh < Transport.MOTO.speedKmh)
+        assertTrue(Transport.MOTO.speedKmh < Transport.CAR.speedKmh)
+        assertEquals(listOf(Transport.WALK, Transport.BIKE, Transport.MOTO, Transport.CAR), Transport.entries)
     }
 }

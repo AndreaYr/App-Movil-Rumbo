@@ -3,7 +3,6 @@ package com.app.rumbo.features.planroute
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
@@ -42,6 +41,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import com.app.rumbo.domain.model.StartPoint
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.draw.clip
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -94,6 +100,7 @@ fun GeneratedRouteRoute(
             }
         },
         onStopClick = onStopClick,
+        start = state.preferences.start,
         modifier = modifier
     )
 }
@@ -107,9 +114,11 @@ fun RouteScreen(
     onSave: () -> Unit,
     onStopClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    start: StartPoint? = null
 ) {
     val context = LocalContext.current
+    var showShare by remember { mutableStateOf(false) }
     val markers = remember(route.stops) {
         route.stops.mapIndexed { index, stop ->
             MapMarker(
@@ -126,6 +135,16 @@ fun RouteScreen(
         route.stops.map { Point.fromLngLat(it.longitude, it.latitude) }
     }
 
+    if (showShare) {
+        ShareRouteSheet(
+            onTarget = { target ->
+                showShare = false
+                context.shareRoute(route, start, target)
+            },
+            onDismiss = { showShare = false }
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
@@ -135,7 +154,7 @@ fun RouteScreen(
                 isSaved = isSaved,
                 canNavigate = route.stops.isNotEmpty(),
                 onSave = onSave,
-                onNavigate = { context.openRouteNavigation(route) }
+                onNavigate = { context.openRouteNavigation(route, start) }
             )
         }
     ) { padding ->
@@ -152,7 +171,13 @@ fun RouteScreen(
                     showMyLocationButton = false,
                     onMarkerClick = { onStopClick(it.id) }
                 )
-                TopActions(isSaved = isSaved, onBack = onBack, onSave = onSave)
+                TopActions(
+                    isSaved = isSaved,
+                    canShare = route.stops.isNotEmpty(),
+                    onBack = onBack,
+                    onSave = onSave,
+                    onShare = { showShare = true }
+                )
             }
 
             Column(
@@ -198,7 +223,7 @@ fun RouteScreen(
 }
 
 @Composable
-private fun TopActions(isSaved: Boolean, onBack: () -> Unit, onSave: () -> Unit) {
+private fun TopActions(isSaved: Boolean, canShare: Boolean, onBack: () -> Unit, onSave: () -> Unit, onShare: () -> Unit) {
     val colors = IconButtonDefaults.iconButtonColors(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -232,14 +257,13 @@ private fun TopActions(isSaved: Boolean, onBack: () -> Unit, onSave: () -> Unit)
                 modifier = Modifier.padding(start = 6.dp)
             )
         }
-        // Compartir aún no está disponible
         IconButton(
-            onClick = {},
-            enabled = false,
+            onClick = onShare,
+            enabled = canShare,
             modifier = Modifier.padding(start = 8.dp),
             colors = colors
         ) {
-            Icon(painterResource(R.drawable.ic_share), contentDescription = "Compartir ruta (no disponible)")
+            Icon(painterResource(R.drawable.ic_share), contentDescription = "Compartir ruta")
         }
     }
 }
@@ -346,24 +370,56 @@ internal fun Int.formatDuration(): String {
 }
 
 /** Abre las indicaciones de la ruta completa en la app de mapas o en el navegador. */
-private fun Context.openRouteNavigation(route: SavedRoute) {
-    val coordinates = route.stops.map { "${it.latitude},${it.longitude}" }
-    val mode = when (route.transport) {
-        Transport.WALK -> "walking"
-        Transport.BIKE -> "bicycling"
-        Transport.CAR, Transport.JEEP -> "driving"
-    }
-    val uri = buildString {
-        append("https://www.google.com/maps/dir/?api=1")
-        append("&destination=").append(coordinates.last())
-        append("&travelmode=").append(mode)
-        if (coordinates.size > 1) {
-            append("&waypoints=").append(Uri.encode(coordinates.dropLast(1).joinToString("|")))
-        }
-    }.toUri()
+private fun Context.openRouteNavigation(route: SavedRoute, start: StartPoint?) {
     try {
-        startActivity(Intent(Intent.ACTION_VIEW, uri))
+        startActivity(Intent(Intent.ACTION_VIEW, directionsUrl(route, start).toUri()))
     } catch (_: ActivityNotFoundException) {
         Toast.makeText(this, "No hay una app para abrir el recorrido", Toast.LENGTH_SHORT).show()
     }
 }
+
+/** Hoja inferior con las formas de compartir la ruta, cada una con su icono. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShareRouteSheet(onTarget: (ShareTarget) -> Unit, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp).padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text("Compartir ruta", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 8.dp))
+            ShareTarget.entries.forEach { target ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable(role = Role.Button) { onTarget(target) }
+                        .padding(vertical = 12.dp, horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        painterResource(target.icon),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(target.color.copy(alpha = 0.12f), CircleShape)
+                            .padding(10.dp),
+                        tint = target.color
+                    )
+                    Text(target.label, style = MaterialTheme.typography.titleSmall)
+                }
+            }
+        }
+    }
+}
+
+/** Color de cada red, para reconocerla de un vistazo. */
+private val ShareTarget.color: Color
+    get() = when (this) {
+        ShareTarget.LINK -> Color(0xFF0E6E62)
+        ShareTarget.WHATSAPP -> Color(0xFF25D366)
+        ShareTarget.FACEBOOK -> Color(0xFF1877F2)
+        ShareTarget.INSTAGRAM -> Color(0xFFE1306C)
+        ShareTarget.EMAIL -> Color(0xFFD93025)
+    }

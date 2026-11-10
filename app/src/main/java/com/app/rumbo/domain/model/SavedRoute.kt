@@ -17,7 +17,7 @@ data class SavedRoute(
     val hours: Int,
     val budget: PriceLevel,
     val categories: Set<Category>,
-    val transport: Transport,
+    val transport: Transport = Transport.CAR,
     val priority: RoutePriority
 ) {
     /** Dos rutas son la misma si recorren las mismas paradas, en el mismo orden y con el mismo transporte. */

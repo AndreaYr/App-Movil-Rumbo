@@ -7,7 +7,15 @@ import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationDraft
+import com.app.rumbo.domain.model.PlaceResult
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
+import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
+import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +28,7 @@ import javax.inject.Inject
 
 const val MAX_PHOTOS = 6
 const val MAX_DESCRIPTION_LENGTH = 500
+private const val ADDRESS_SEARCH_DELAY_MS = 400L
 
 /** Centro aproximado del Quindío: punto de partida del marcador del mapa. */
 private const val DEFAULT_LATITUDE = 4.5871
@@ -32,6 +41,11 @@ data class CreatePublicationUiState(
     val description: String = "",
     val department: String? = null,
     val town: String? = null,
+    val address: String = "",
+    val addressSuggestions: List<PlaceResult> = emptyList(),
+    /** Punto al que debe volar la cámara tras elegir una dirección; null = no mover la cámara. */
+    val focusLatitude: Double? = null,
+    val focusLongitude: Double? = null,
     val schedule: String = "7:00 - 18:00",
     val price: PriceLevel = PriceLevel.CHEAP,
     val latitude: Double = DEFAULT_LATITUDE,
@@ -57,11 +71,28 @@ sealed interface CreatePublicationEvent {
 
 @HiltViewModel
 class CreatePublicationViewModel @Inject constructor(
-    private val publishPublication: PublishPublicationUseCase
+    private val publishPublication: PublishPublicationUseCase,
+    private val searchPlaces: SearchPlacesUseCase,
+    private val reverseGeocode: ReverseGeocodeUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePublicationUiState())
     val uiState: StateFlow<CreatePublicationUiState> = _uiState.asStateFlow()
+
+    private val addressQuery = MutableStateFlow("")
+    private var reverseJob: Job? = null
+
+    init {
+        // Espera a que termine de escribir y descarta las búsquedas que ya no valen
+        viewModelScope.launch {
+            @OptIn(FlowPreview::class)
+            addressQuery.debounce(ADDRESS_SEARCH_DELAY_MS).distinctUntilChanged().collectLatest { query ->
+                val state = _uiState.value
+                val results = searchPlaces(query, state.latitude, state.longitude)
+                _uiState.update { it.copy(addressSuggestions = results) }
+            }
+        }
+    }
 
     private val _events = Channel<CreatePublicationEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
@@ -103,9 +134,41 @@ class CreatePublicationViewModel @Inject constructor(
 
     fun onPriceSelected(price: PriceLevel) = _uiState.update { it.copy(price = price) }
 
-    /** El marcador del mapa se movió: se actualizan las coordenadas de la publicación. */
-    fun onMarkerMoved(latitude: Double, longitude: Double) = _uiState.update {
-        it.copy(latitude = latitude, longitude = longitude)
+    /** El usuario escribe la dirección: se buscan coincidencias reales con Mapbox. */
+    fun onAddressChange(value: String) {
+        _uiState.update { it.copy(address = value, addressSuggestions = if (value.isBlank()) emptyList() else it.addressSuggestions) }
+        addressQuery.value = value
+    }
+
+    /** Elegir una sugerencia pone el marcador en el punto exacto y lleva la cámara hasta allí. */
+    fun onAddressSuggestionSelected(place: PlaceResult) {
+        reverseJob?.cancel()
+        addressQuery.value = ""
+        _uiState.update {
+            it.copy(
+                address = place.fullAddress,
+                addressSuggestions = emptyList(),
+                latitude = place.latitude,
+                longitude = place.longitude,
+                focusLatitude = place.latitude,
+                focusLongitude = place.longitude
+            )
+        }
+    }
+
+    /**
+     * El marcador del mapa se movió (toque, arrastre o "Usar mi ubicación"): se actualizan las coordenadas
+     * y se detecta la dirección de ese punto.
+     */
+    fun onMarkerMoved(latitude: Double, longitude: Double) {
+        _uiState.update { it.copy(latitude = latitude, longitude = longitude, addressSuggestions = emptyList()) }
+        addressQuery.value = ""
+        reverseJob?.cancel()
+        reverseJob = viewModelScope.launch {
+            reverseGeocode(latitude, longitude)?.let { place ->
+                _uiState.update { it.copy(address = place.fullAddress) }
+            }
+        }
     }
 
     /** Guarda un borrador local mientras la pantalla siga abierta. */
@@ -133,6 +196,7 @@ private fun CreatePublicationUiState.toDraft() = PublicationDraft(
     title = title.trim(),
     description = description.trim(),
     category = category,
+    address = address.trim(),
     department = department.orEmpty(),
     town = town.orEmpty(),
     schedule = schedule.trim(),

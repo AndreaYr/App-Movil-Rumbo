@@ -7,7 +7,9 @@ data class RoutePreferences(
     val budget: PriceLevel = PriceLevel.MODERATE,
     val categories: Set<Category> = setOf(Category.NATURE, Category.GASTRONOMY),
     val transport: Transport = Transport.WALK,
-    val priority: RoutePriority = RoutePriority.RELEVANT
+    val priority: RoutePriority = RoutePriority.RELEVANT,
+    /** Punto de inicio personalizado; null = la ubicación del usuario. */
+    val start: StartPoint? = null
 ) {
     companion object {
         const val MIN_HOURS = 2

@@ -2,6 +2,7 @@ package com.app.rumbo.features.planroute
 
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
+import com.app.rumbo.domain.model.PlaceResult
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.RoutePreferences
 import com.app.rumbo.domain.model.RoutePriority
@@ -9,7 +10,10 @@ import com.app.rumbo.domain.model.Transport
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.GetSavedRoutesUseCase
 import com.app.rumbo.domain.usecase.PlanRouteUseCase
+import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
 import com.app.rumbo.domain.usecase.SaveRouteUseCase
+import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import com.app.rumbo.testutil.FakePlaceSearchRepository
 import com.app.rumbo.testutil.FakeSavedRouteRepository
 import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
@@ -18,6 +22,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -35,6 +40,9 @@ class PlanRouteViewModelTest {
     private lateinit var viewModel: PlanRouteViewModel
 
     private val savedRoutes = FakeSavedRouteRepository()
+    private val places = FakePlaceSearchRepository(
+        reverseResult = PlaceResult("1", "Carrera 24 #40-15", "Calarcá, Quindío", 4.52, -75.64)
+    )
 
     @Before
     fun setUp() {
@@ -42,7 +50,9 @@ class PlanRouteViewModelTest {
             PlanRouteUseCase(InMemoryPublicationRepository()),
             GetCurrentUserUseCase(FakeUserRepository()),
             GetSavedRoutesUseCase(savedRoutes),
-            SaveRouteUseCase(savedRoutes)
+            SaveRouteUseCase(savedRoutes),
+            SearchPlacesUseCase(places),
+            ReverseGeocodeUseCase(places)
         )
     }
 
@@ -81,12 +91,12 @@ class PlanRouteViewModelTest {
         loadedState()
 
         viewModel.onBudgetChange(PriceLevel.FREE)
-        viewModel.onTransportChange(Transport.JEEP)
+        viewModel.onTransportChange(Transport.MOTO)
         viewModel.onPriorityChange(RoutePriority.NEAREST)
 
         val preferences = viewModel.uiState.value.preferences
         assertEquals(PriceLevel.FREE, preferences.budget)
-        assertEquals(Transport.JEEP, preferences.transport)
+        assertEquals(Transport.MOTO, preferences.transport)
         assertEquals(RoutePriority.NEAREST, preferences.priority)
     }
 
@@ -116,5 +126,47 @@ class PlanRouteViewModelTest {
 
         assertTrue(full > 0)
         assertTrue(viewModel.uiState.value.plan.stops.isEmpty())
+    }
+
+    @Test
+    fun `elegir un punto en el mapa detecta su direccion y se confirma como inicio`() = runTest {
+        loadedState()
+
+        viewModel.onOpenStartPicker()
+        viewModel.onStartMapPoint(4.52, -75.64)
+        advanceUntilIdle()
+
+        val picker = viewModel.pickerState.value
+        assertTrue(picker.isOpen)
+        assertEquals("Carrera 24 #40-15, Calarcá, Quindío", picker.point?.label)
+
+        viewModel.onConfirmStart()
+
+        assertFalse(viewModel.pickerState.value.isOpen)
+        assertEquals(4.52, viewModel.uiState.value.preferences.start?.latitude ?: 0.0, 0.0)
+    }
+
+    @Test
+    fun `volver a mi ubicacion quita el punto de inicio elegido`() = runTest {
+        loadedState()
+        viewModel.onOpenStartPicker()
+        viewModel.onStartMapPoint(4.52, -75.64)
+        viewModel.onConfirmStart()
+
+        viewModel.onUseMyLocationAsStart()
+
+        assertEquals(null, viewModel.uiState.value.preferences.start)
+    }
+
+    @Test
+    fun `cerrar la ventana sin confirmar no cambia el inicio`() = runTest {
+        loadedState()
+        viewModel.onOpenStartPicker()
+        viewModel.onStartMapPoint(4.52, -75.64)
+
+        viewModel.onCloseStartPicker()
+
+        assertEquals(null, viewModel.uiState.value.preferences.start)
+        assertFalse(viewModel.pickerState.value.isOpen)
     }
 }

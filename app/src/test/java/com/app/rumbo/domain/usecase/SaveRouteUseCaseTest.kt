@@ -21,7 +21,7 @@ class SaveRouteUseCaseTest {
 
     @Test
     fun `guarda paradas distancia tiempo y parametros`() = runTest {
-        saveRoute(plan, RoutePreferences(hours = 8, transport = Transport.JEEP), now = 1_000L)
+        saveRoute(plan, RoutePreferences(hours = 8, transport = Transport.MOTO), now = 1_000L)
 
         val route = repository.routes.value.single()
         assertEquals(stops.map { it.id }, route.stops.map { it.publicationId })
@@ -29,7 +29,7 @@ class SaveRouteUseCaseTest {
         assertEquals(12.5, route.distanceKm, 0.0)
         assertEquals(287, route.totalMinutes)
         assertEquals(8, route.hours)
-        assertEquals(Transport.JEEP, route.transport)
+        assertEquals(Transport.MOTO, route.transport)
         assertEquals(1_000L, route.savedAt)
     }
 

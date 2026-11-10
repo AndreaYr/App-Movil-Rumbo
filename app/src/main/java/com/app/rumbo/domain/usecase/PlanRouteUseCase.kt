@@ -38,7 +38,7 @@ class PlanRouteUseCase @Inject constructor(
             .let { candidates ->
                 when (preferences.priority) {
                     RoutePriority.RELEVANT -> candidates.sortedByDescending { it.votes }
-                    RoutePriority.NEAREST -> candidates.sortedBy { it.distanceKm }
+                    RoutePriority.NEAREST -> candidates.sortedBy { distanceFromStart(it, preferences) }
                 }
             }
 
@@ -53,9 +53,9 @@ class PlanRouteUseCase @Inject constructor(
 
     /** Ordena las paradas por cercanía y calcula distancia y tiempo. El primer tramo sale de la posición del usuario. */
     private fun route(stops: List<Publication>, preferences: RoutePreferences): RoutePlan {
-        val remaining = stops.sortedBy { it.distanceKm }.toMutableList()
+        val remaining = stops.sortedBy { distanceFromStart(it, preferences) }.toMutableList()
         val ordered = mutableListOf(remaining.removeAt(0))
-        var distanceKm = ordered.first().distanceKm
+        var distanceKm = distanceFromStart(ordered.first(), preferences)
         while (remaining.isNotEmpty()) {
             val last = ordered.last()
             val next = remaining.minBy { kmBetween(last, it) }
@@ -71,12 +71,24 @@ class PlanRouteUseCase @Inject constructor(
         )
     }
 
+    /**
+     * Distancia desde donde sale la ruta hasta una parada. Con un punto de inicio elegido se mide en línea recta
+     * desde él; si no, se usa la distancia al usuario que ya trae la publicación.
+     */
+    private fun distanceFromStart(publication: Publication, preferences: RoutePreferences): Double =
+        preferences.start?.let {
+            kmBetween(it.latitude, it.longitude, publication.latitude, publication.longitude)
+        } ?: publication.distanceKm
+
+    private fun kmBetween(a: Publication, b: Publication): Double =
+        kmBetween(a.latitude, a.longitude, b.latitude, b.longitude)
+
     /** Distancia en línea recta entre dos puntos (fórmula del haversine). */
-    private fun kmBetween(a: Publication, b: Publication): Double {
-        val dLat = Math.toRadians(b.latitude - a.latitude)
-        val dLon = Math.toRadians(b.longitude - a.longitude)
+    private fun kmBetween(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
         val h = sin(dLat / 2) * sin(dLat / 2) +
-            cos(Math.toRadians(a.latitude)) * cos(Math.toRadians(b.latitude)) * sin(dLon / 2) * sin(dLon / 2)
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2)
         return 2 * EARTH_RADIUS_KM * asin(sqrt(h))
     }
 

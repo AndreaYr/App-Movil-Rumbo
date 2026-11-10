@@ -5,6 +5,9 @@ import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
+import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
+import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import com.app.rumbo.testutil.FakePlaceSearchRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -22,8 +25,13 @@ class CreatePublicationViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = InMemoryPublicationRepository()
+    private val places = FakePlaceSearchRepository()
 
-    private fun createViewModel() = CreatePublicationViewModel(PublishPublicationUseCase(repository))
+    private fun createViewModel() = CreatePublicationViewModel(
+        PublishPublicationUseCase(repository),
+        SearchPlacesUseCase(places),
+        ReverseGeocodeUseCase(places)
+    )
 
     @Test
     fun `el formulario inicia con los valores del prototipo`() {

@@ -49,6 +49,28 @@ class MapboxPlaceSearchRepository @Inject constructor(
         }
     }
 
+    override suspend fun reverse(latitude: Double, longitude: Double): PlaceResult? {
+        val token = context.getString(R.string.mapbox_access_token)
+        if (token.isBlank()) return null
+        val url = "https://api.mapbox.com/search/geocode/v6/reverse".toHttpUrl().newBuilder()
+            .addQueryParameter("longitude", longitude.toString())
+            .addQueryParameter("latitude", latitude.toString())
+            .addQueryParameter("access_token", token)
+            .addQueryParameter("language", "es")
+            .addQueryParameter("limit", "1")
+            .build()
+        return withContext(Dispatchers.IO) {
+            try {
+                client.newCall(Request.Builder().url(url).build()).execute().use { response ->
+                    if (!response.isSuccessful) return@use null
+                    parse(response.body?.string().orEmpty()).firstOrNull()
+                }
+            } catch (_: IOException) {
+                null
+            }
+        }
+    }
+
     private fun parse(json: String): List<PlaceResult> = runCatching {
         val features = JSONObject(json).optJSONArray("features") ?: return emptyList()
         (0 until features.length()).mapNotNull { index ->

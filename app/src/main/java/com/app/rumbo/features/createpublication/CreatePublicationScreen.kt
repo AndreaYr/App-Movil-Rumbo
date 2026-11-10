@@ -71,7 +71,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.app.rumbo.R
+import androidx.compose.ui.text.style.TextOverflow
 import com.app.rumbo.core.component.MapBox
+import com.app.rumbo.domain.model.PlaceResult
 import com.app.rumbo.core.component.SelectField
 import com.app.rumbo.data.local.ColombiaDivisions
 import androidx.compose.ui.platform.LocalContext
@@ -116,6 +118,8 @@ fun CreatePublicationRoute(
         onDepartmentSelected = viewModel::onDepartmentSelected,
         onTownSelected = viewModel::onTownSelected,
         onMarkerMoved = viewModel::onMarkerMoved,
+        onAddressChange = viewModel::onAddressChange,
+        onAddressSuggestionSelected = viewModel::onAddressSuggestionSelected,
         onSaveDraft = viewModel::onSaveDraft,
         onPublish = viewModel::onPublish,
         modifier = modifier
@@ -139,6 +143,8 @@ fun CreatePublicationScreen(
     onDepartmentSelected: (String?) -> Unit,
     onTownSelected: (String?) -> Unit,
     onMarkerMoved: (Double, Double) -> Unit,
+    onAddressChange: (String) -> Unit,
+    onAddressSuggestionSelected: (PlaceResult) -> Unit,
     onSaveDraft: () -> Unit,
     onPublish: () -> Unit,
     modifier: Modifier = Modifier
@@ -229,6 +235,18 @@ fun CreatePublicationScreen(
                     )
                 }
 
+                FormField("Dirección · escríbela o toca el mapa y se detecta sola") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        RumboTextField(
+                            value = state.address,
+                            onValueChange = onAddressChange,
+                            placeholder = "Calle, carrera o nombre del lugar",
+                            leadingIcon = R.drawable.ic_place
+                        )
+                        AddressSuggestions(state.addressSuggestions, onAddressSuggestionSelected)
+                    }
+                }
+
                 FormField("Ubicación · toca el mapa o arrastra el marcador") {
                     var locateUserRequest by remember { mutableIntStateOf(0) }
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -239,7 +257,10 @@ fun CreatePublicationScreen(
                             onMarkerMoved = onMarkerMoved,
                             modifier = Modifier.fillMaxWidth().height(190.dp),
                             showMyLocationButton = false,
-                            locateUserRequest = locateUserRequest
+                            locateUserRequest = locateUserRequest,
+                            focusPoint = state.focusLatitude?.let { lat ->
+                                state.focusLongitude?.let { lng -> Point.fromLngLat(lng, lat) }
+                            }
                         )
                         OutlinedButton(
                             onClick = { locateUserRequest++ },
@@ -565,7 +586,8 @@ internal fun LocationMap(
     onMarkerMoved: (Double, Double) -> Unit,
     modifier: Modifier = Modifier,
     showMyLocationButton: Boolean = true,
-    locateUserRequest: Int = 0
+    locateUserRequest: Int = 0,
+    focusPoint: Point? = null
 ) {
     val onPointSelected = { point: Point -> onMarkerMoved(point.latitude(), point.longitude()) }
     Box(modifier.clip(MaterialTheme.shapes.large)) {
@@ -576,6 +598,7 @@ internal fun LocationMap(
             selectedPoint = Point.fromLngLat(longitude, latitude),
             selectedPointColor = markerColor,
             draggableSelectedPoint = true,
+            focusPoint = focusPoint,
             showMyLocationButton = showMyLocationButton,
             locateUserRequest = locateUserRequest,
             onMapClick = onPointSelected,
@@ -660,6 +683,8 @@ private fun CreatePublicationScreenPreview() {
             onDepartmentSelected = {},
             onTownSelected = {},
             onMarkerMoved = { _, _ -> },
+            onAddressChange = {},
+            onAddressSuggestionSelected = {},
             onSaveDraft = {},
             onPublish = {}
         )
@@ -693,5 +718,39 @@ internal fun DepartmentTownFields(
             enabled = department != null,
             onSelected = onTownSelected
         )
+    }
+}
+
+/** Direcciones reales que coinciden con lo escrito; al tocar una se coloca el marcador en su punto exacto. */
+@Composable
+private fun AddressSuggestions(places: List<PlaceResult>, onPick: (PlaceResult) -> Unit) {
+    if (places.isEmpty()) return
+    val shape = MaterialTheme.shapes.medium
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
+    ) {
+        places.forEach { place ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPick(place) }
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
+            ) {
+                Text(place.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (place.address.isNotBlank()) {
+                    Text(
+                        place.address,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
     }
 }
