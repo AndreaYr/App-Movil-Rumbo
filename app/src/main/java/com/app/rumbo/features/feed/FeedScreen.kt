@@ -45,6 +45,7 @@ import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.FeedSort
+import com.app.rumbo.domain.model.PlaceResult
 
 @Composable
 fun FeedRoute(
@@ -54,12 +55,18 @@ fun FeedRoute(
 ) {
     Log.d("RUMBO_NAV", "Composing FeedRoute")
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val places by viewModel.places.collectAsStateWithLifecycle()
+    val mapFilters by viewModel.mapFilters.collectAsStateWithLifecycle()
     FeedScreen(
         state = state,
         onCategorySelected = viewModel::onCategorySelected,
         onSortSelected = viewModel::onSortSelected,
         onPublicationClick = onPublicationClick,
         onToggleInterest = viewModel::onToggleInterest,
+        places = places,
+        onPlaceQueryChange = viewModel::onPlaceQueryChange,
+        mapFilters = mapFilters,
+        onMapFiltersChange = viewModel::onMapFiltersChange,
         modifier = modifier
     )
 }
@@ -71,7 +78,11 @@ fun FeedScreen(
     onSortSelected: (FeedSort) -> Unit,
     onPublicationClick: (String) -> Unit,
     onToggleInterest: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    places: List<PlaceResult> = emptyList(),
+    onPlaceQueryChange: (String) -> Unit = {},
+    mapFilters: MapFilters = MapFilters(),
+    onMapFiltersChange: (MapFilters) -> Unit = {}
 ) {
     var showMap by rememberSaveable { mutableStateOf(false) }
     if (showMap) {
@@ -80,6 +91,10 @@ fun FeedScreen(
             onCategorySelected = onCategorySelected,
             onPublicationClick = onPublicationClick,
             onShowList = { showMap = false },
+            places = places,
+            onPlaceQueryChange = onPlaceQueryChange,
+            filters = mapFilters,
+            onFiltersChange = onMapFiltersChange,
             modifier = modifier
         )
         return

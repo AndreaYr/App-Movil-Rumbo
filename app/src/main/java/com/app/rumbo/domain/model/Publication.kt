@@ -6,6 +6,8 @@ data class Publication(
     val title: String,
     val description: String,
     val category: Category,
+    /** Departamento de Colombia donde está el lugar; vacío si la publicación no lo indica. */
+    val department: String = "",
     val town: String,
     val address: String,
     val schedule: String,

@@ -19,6 +19,8 @@ class ResubmitPublicationUseCase @Inject constructor(
                 title = draft.title,
                 description = draft.description,
                 category = draft.category,
+                department = draft.department.ifBlank { publication.department },
+                town = draft.town.ifBlank { publication.town },
                 schedule = draft.schedule.ifBlank { "Sin horario" },
                 price = draft.price,
                 latitude = draft.latitude,

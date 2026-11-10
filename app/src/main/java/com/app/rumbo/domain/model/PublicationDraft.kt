@@ -14,6 +14,7 @@ data class PublicationDraft(
     val latitude: Double,
     val longitude: Double,
     val photos: List<Photo>,
+    val department: String = "",
     val town: String = "",
     val address: String = "",
     val distanceKm: Double = 0.0

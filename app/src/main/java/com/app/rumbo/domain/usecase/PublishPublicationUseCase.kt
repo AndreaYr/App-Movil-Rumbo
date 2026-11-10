@@ -26,6 +26,7 @@ class PublishPublicationUseCase @Inject constructor(
             title = draft.title,
             description = draft.description,
             category = draft.category,
+            department = draft.department,
             town = draft.town,
             address = draft.address,
             schedule = draft.schedule.ifBlank { "Sin horario" },

@@ -15,10 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,8 +48,11 @@ import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.color
 import com.app.rumbo.core.component.toMapMarker
 import com.app.rumbo.core.util.formatKm
+import com.app.rumbo.data.local.ColombiaDivisions
 import com.app.rumbo.core.util.formatThousands
 import com.app.rumbo.domain.model.Category
+import com.app.rumbo.domain.model.PlaceResult
+import com.mapbox.geojson.Point
 import com.app.rumbo.domain.model.Publication
 
 /** Vista de mapa de Explorar: marcadores por categoría, búsqueda y tarjeta del lugar seleccionado. */
@@ -52,14 +62,36 @@ internal fun FeedMap(
     onCategorySelected: (Category?) -> Unit,
     onPublicationClick: (String) -> Unit,
     onShowList: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    places: List<PlaceResult> = emptyList(),
+    onPlaceQueryChange: (String) -> Unit = {},
+    filters: MapFilters = MapFilters(),
+    onFiltersChange: (MapFilters) -> Unit = {}
 ) {
+    val focusManager = LocalFocusManager.current
+    var focusedPlace by remember { mutableStateOf<PlaceResult?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
-    val publications = remember(state.publications, query) {
-        val text = query.trim()
+    val context = LocalContext.current
+    val departments = remember { ColombiaDivisions.load(context) }
+    // Con filtros ya aplicados (por ejemplo al volver de una tarjeta) la cámara encuadra los resultados
+    val locateOnOpen = remember { if (filters.isActive) 0 else 1 }
+    var showFilters by remember { mutableStateOf(false) }
+    // El mapa tiene sus propios filtros: si venían de la lista con una categoría activa, se quita
+    LaunchedEffect(Unit) { state.selectedCategory?.let(onCategorySelected) }
+    val departmentTowns = remember(filters.department, departments) {
+        departments.firstOrNull { it.name == filters.department }?.municipalities.orEmpty().map(::normalizeName).toSet()
+    }
+    val text = query.trim()
+    // Sin filtros ni texto el mapa no muestra publicaciones, solo la ubicación del usuario
+    val publications = remember(state.publications, query, filters, departmentTowns) {
+        if (!filters.isActive && text.isEmpty()) return@remember emptyList()
         state.publications.filter {
-            it.title.contains(text, ignoreCase = true) || it.town.contains(text, ignoreCase = true)
+            filters.matches(it, departmentTowns) && (text.isEmpty() ||
+                it.title.contains(text, ignoreCase = true) ||
+                it.town.contains(text, ignoreCase = true) ||
+                it.address.contains(text, ignoreCase = true) ||
+                it.category.label.contains(text, ignoreCase = true))
         }
     }
     val markers = remember(publications) { publications.map { it.toMapMarker() } }
@@ -68,8 +100,14 @@ internal fun FeedMap(
     Box(modifier.fillMaxSize()) {
         MapBox(
             modifier = Modifier.fillMaxSize(),
-            zoom = 9.5,
+            zoom = 14.0,
             markers = markers,
+            // La cámara se mueve a los resultados cada vez que cambia la búsqueda o el filtro
+            fitToMarkers = true,
+            // Al abrir el mapa pide el permiso de ubicación y centra la cámara en el usuario
+            locateUserRequest = if (filters.isActive) locateOnOpen else 1,
+            selectedPoint = focusedPlace?.let { Point.fromLngLat(it.longitude, it.latitude) },
+            focusPoint = focusedPlace?.let { Point.fromLngLat(it.longitude, it.latitude) },
             myLocationButtonAlignment = Alignment.CenterEnd,
             onMarkerClick = { selectedId = it.id },
             onMapClick = { selectedId = null }
@@ -83,10 +121,56 @@ internal fun FeedMap(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                MapSearchField(query, { query = it }, Modifier.weight(1f))
+                MapSearchField(
+                    query = query,
+                    onQueryChange = {
+                        query = it
+                        focusedPlace = null
+                        onPlaceQueryChange(it)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                MapFilterButton(count = filters.count, onClick = { showFilters = true })
                 FeedViewToggle(showMap = true, onChange = { if (!it) onShowList() })
             }
-            CategoryFilters(state.selectedCategory, onCategorySelected)
+            if (query.trim().length >= 3 && focusedPlace == null && places.isNotEmpty()) {
+                PlaceSuggestions(
+                    places = places,
+                    onPick = {
+                        focusManager.clearFocus()
+                        focusedPlace = it
+                        selectedId = null
+                        query = ""
+                        onPlaceQueryChange("")
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            } else if ((filters.isActive || text.isNotEmpty()) && publications.isEmpty() && places.isEmpty()) {
+                Text(
+                    "Sin resultados para esta búsqueda",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                )
+            }
+        }
+        if (showFilters) {
+            MapFilterSheet(
+                current = filters,
+                departments = departments,
+                onApply = {
+                    onFiltersChange(it)
+                    // Se quita el lugar elegido para que la cámara encuadre los resultados del filtro
+                    focusedPlace = null
+                    selectedId = null
+                    showFilters = false
+                },
+                onDismiss = { showFilters = false }
+            )
         }
         selected?.let { publication ->
             // El margen inferior deja visibles el logo y la atribución de Mapbox
@@ -101,9 +185,66 @@ internal fun FeedMap(
     }
 }
 
+/** Botón de filtros junto al buscador; la insignia indica cuántos criterios hay activos. */
+@Composable
+private fun MapFilterButton(count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = MaterialTheme.shapes.medium
+    val active = count > 0
+    Box(
+        modifier = modifier
+            .size(44.dp)
+            .clip(shape)
+            .background(if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface, shape)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_filter_list),
+            contentDescription = if (active) "Filtros ($count activos)" else "Filtros",
+            modifier = Modifier.size(22.dp),
+            tint = if (active) Color.White else MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/** Lugares y direcciones reales que devuelve Mapbox para lo que se escribe. */
+@Composable
+private fun PlaceSuggestions(places: List<PlaceResult>, onPick: (PlaceResult) -> Unit, modifier: Modifier = Modifier) {
+    val shape = MaterialTheme.shapes.medium
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, shape)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
+            .clip(shape)
+    ) {
+        places.forEach { place ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPick(place) }
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
+            ) {
+                Text(place.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (place.address.isNotBlank()) {
+                    Text(
+                        place.address,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun MapSearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val shape = MaterialTheme.shapes.medium
+    val keyboard = LocalSoftwareKeyboardController.current
     Row(
         modifier = modifier
             .height(44.dp)
@@ -118,6 +259,8 @@ private fun MapSearchField(query: String, onQueryChange: (String) -> Unit, modif
             value = query,
             onValueChange = onQueryChange,
             singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = Modifier.weight(1f),
@@ -132,6 +275,16 @@ private fun MapSearchField(query: String, onQueryChange: (String) -> Unit, modif
                 field()
             }
         )
+        if (query.isNotEmpty()) {
+            Icon(
+                painterResource(R.drawable.ic_close),
+                contentDescription = "Borrar búsqueda",
+                modifier = Modifier
+                    .size(18.dp)
+                    .clickable(role = Role.Button) { onQueryChange("") },
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
