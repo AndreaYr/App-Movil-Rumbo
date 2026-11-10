@@ -91,7 +91,7 @@ internal fun FeedMap(
                 it.title.contains(text, ignoreCase = true) ||
                 it.town.contains(text, ignoreCase = true) ||
                 it.address.contains(text, ignoreCase = true) ||
-                context.getString(it.category.labelRes).contains(text, ignoreCase = true))
+                stringResource(it.category.labelRes).contains(text, ignoreCase = true))
         }
     }
     val markers = remember(publications) { publications.map { it.toMapMarker() } }
