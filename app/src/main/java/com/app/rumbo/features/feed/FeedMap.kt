@@ -84,14 +84,14 @@ internal fun FeedMap(
     }
     val text = query.trim()
     // Sin filtros ni texto el mapa no muestra publicaciones, solo la ubicación del usuario
-    val publications = remember(state.publications, query, filters, departmentTowns) {
+    val publications = remember(state.publications, query, filters, departmentTowns, context) {
         if (!filters.isActive && text.isEmpty()) return@remember emptyList()
         state.publications.filter {
             filters.matches(it, departmentTowns) && (text.isEmpty() ||
                 it.title.contains(text, ignoreCase = true) ||
                 it.town.contains(text, ignoreCase = true) ||
                 it.address.contains(text, ignoreCase = true) ||
-                stringResource(it.category.labelRes).contains(text, ignoreCase = true))
+                context.getString(it.category.labelRes).contains(text, ignoreCase = true))
         }
     }
     val markers = remember(publications) { publications.map { it.toMapMarker() } }
