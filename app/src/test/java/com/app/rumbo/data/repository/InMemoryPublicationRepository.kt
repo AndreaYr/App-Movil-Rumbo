@@ -1,9 +1,9 @@
 package com.app.rumbo.data.repository
 
-import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.domain.model.Comment
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.domain.repository.CommentRepository
 import com.app.rumbo.domain.repository.PublicationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +15,13 @@ import javax.inject.Singleton
 
 /** Repositorio en memoria: los cambios duran mientras la app esté abierta. */
 @Singleton
-class InMemoryPublicationRepository @Inject constructor() : PublicationRepository {
+class InMemoryPublicationRepository @Inject constructor() : PublicationRepository, CommentRepository {
 
-    private val publications = MutableStateFlow(SamplePublications.create())
+    private val publications = MutableStateFlow<List<Publication>>(emptyList())
+
+    constructor(initialPublications: List<Publication>) : this() {
+        publications.value = initialPublications
+    }
 
     override fun observePublications(): Flow<List<Publication>> = publications.asStateFlow()
 
@@ -48,6 +52,9 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
     }
 
     override suspend fun toggleVisited(id: String) = update(id) { it.copy(visited = !it.visited) }
+
+    override fun observeComments(publicationId: String): Flow<List<Comment>> =
+        observePublication(publicationId).map { it?.comments ?: emptyList() }
 
     override suspend fun addComment(publicationId: String, comment: Comment) =
         update(publicationId) { it.copy(comments = listOf(comment) + it.comments) }

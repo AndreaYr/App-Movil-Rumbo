@@ -66,7 +66,10 @@ fun ProfileRoute(
         onMyRoutesClick = onMyRoutesClick,
         onBadgesClick = onBadgesClick,
         onEditProfileClick = onEditProfileClick,
-        onLogoutClick = onLogoutClick,
+        onLogoutClick = {
+            viewModel.logout()
+            onLogoutClick()
+        },
         modifier = modifier
     )
 }
@@ -311,8 +314,8 @@ private fun ProfileScreenPreview() {
         ProfileScreen(
             state = ProfileUiState(
                 isLoading = false,
-                name = "Mariana Ospina",
-                initials = "MO",
+                name = "Usuario de prueba",
+                initials = "UP",
                 levelNumber = 2,
                 level = Level.EXPLORER,
                 points = 240,

@@ -4,6 +4,7 @@ import com.app.rumbo.domain.model.Author
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationDraft
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.domain.repository.PhotoRepository
 import com.app.rumbo.domain.repository.PublicationRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -14,15 +15,17 @@ import javax.inject.Inject
  * de que se publique oficialmente.
  */
 class PublishPublicationUseCase @Inject constructor(
-    private val repository: PublicationRepository
+    private val repository: PublicationRepository,
+    private val photoRepository: PhotoRepository
 ) {
     suspend operator fun invoke(
         draft: PublicationDraft,
         author: Author,
         now: Long = System.currentTimeMillis()
     ): Publication {
+        val id = UUID.randomUUID().toString()
         val publication = Publication(
-            id = UUID.randomUUID().toString(),
+            id = id,
             title = draft.title,
             description = draft.description,
             category = draft.category,
@@ -40,7 +43,7 @@ class PublishPublicationUseCase @Inject constructor(
             visited = false,
             latitude = draft.latitude,
             longitude = draft.longitude,
-            photos = draft.photos,
+            photos = photoRepository.uploadPublicationPhotos(id, draft.photos),
             comments = emptyList()
         )
         repository.addPublication(publication)

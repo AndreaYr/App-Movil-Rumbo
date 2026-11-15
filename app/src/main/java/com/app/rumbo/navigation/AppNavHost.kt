@@ -2,12 +2,16 @@ package com.app.rumbo.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,6 +20,9 @@ import androidx.navigation.toRoute
 import com.app.rumbo.R
 import com.app.rumbo.core.component.RumboScaffold
 import com.app.rumbo.core.component.RumboTab
+import com.app.rumbo.domain.model.UserRole
+import com.app.rumbo.features.session.SessionState
+import com.app.rumbo.features.session.SessionViewModel
 import com.app.rumbo.features.achievements.AchievementsRoute
 import com.app.rumbo.features.createpublication.CreatePublicationRoute
 import com.app.rumbo.features.editprofile.EditProfileRoute
@@ -50,23 +57,53 @@ private const val REGISTER_SUCCESS_RESULT_KEY = "register_success_message"
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    sessionViewModel: SessionViewModel = hiltViewModel()
 ) {
     val registerSuccessMessage = stringResource(R.string.register_success_login_message)
+    val sessionState by sessionViewModel.sessionState.collectAsStateWithLifecycle()
+    var splashFinished by remember { mutableStateOf(false) }
+
+    LaunchedEffect(splashFinished, sessionState) {
+        if (!splashFinished) return@LaunchedEffect
+        val destination = navController.currentDestination
+        when (val state = sessionState) {
+            SessionState.Loading -> Unit
+            SessionState.NotAuthenticated -> {
+                val stayingInAuth = destination != null &&
+                    destination.isAuthScreen() &&
+                    !destination.isDestination(SplashDestination)
+                if (!stayingInAuth) {
+                    navController.navigate(LoginDestination) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            }
+            is SessionState.Authenticated -> {
+                val onSplash = destination == null || destination.isDestination(SplashDestination)
+                if (onSplash) {
+                    val target = if (state.user.role == UserRole.MODERATOR) {
+                        ModeratorDashboardDestination
+                    } else {
+                        HomeDestination
+                    }
+                    navController.navigate(target) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = SplashDestination,
         modifier = modifier
     ) {
         composable<SplashDestination> {
-            SplashRoute(
-                onFinished = {
-                    navController.navigate(LoginDestination) {
-                        popUpTo(SplashDestination) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            )
+            SplashRoute(onFinished = { splashFinished = true })
         }
         composable<HomeDestination> {
             RumboScaffold(
@@ -353,6 +390,18 @@ fun AppNavHost(
         }
     }
 }
+
+/** Compara la ruta actual con una ruta tipada (objeto serializable). */
+private fun NavDestination.isDestination(destination: Any): Boolean =
+    route == destination::class.qualifiedName
+
+/** Pantallas que forman el flujo de autenticación (no requieren sesión). */
+private fun NavDestination.isAuthScreen(): Boolean =
+    isDestination(SplashDestination) ||
+        isDestination(LoginDestination) ||
+        isDestination(RegisterDestination) ||
+        isDestination(LoginModeratorDestination) ||
+        isDestination(PasswordRecoveryDestination)
 
 private fun navigateToTab(navController: NavHostController, tab: RumboTab) {
     when (tab) {

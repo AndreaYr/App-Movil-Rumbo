@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
+import com.app.rumbo.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,14 +16,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 data class ModeratorAccountUiState(
-    val name: String = "Moderador",
-    val email: String = "moderador@rumbo.app",
+    val name: String = "",
+    val email: String = "",
     val role: String = "MODERADOR"
 )
 
 @HiltViewModel
 class ModeratorAccountViewModel @Inject constructor(
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ModeratorAccountUiState())
     val uiState: StateFlow<ModeratorAccountUiState> = _uiState.asStateFlow()
@@ -41,6 +43,10 @@ class ModeratorAccountViewModel @Inject constructor(
             }
         }
     }
+
+    fun logout() {
+        viewModelScope.launch { logoutUseCase() }
+    }
 }
 
 @Composable
@@ -50,5 +56,12 @@ fun ModeratorAccountRoute(
     viewModel: ModeratorAccountViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
-    ModeratorAccountScreen(state = state.value, onBack = onBack, onLogout = onLogout)
+    ModeratorAccountScreen(
+        state = state.value,
+        onBack = onBack,
+        onLogout = {
+            viewModel.logout()
+            onLogout()
+        }
+    )
 }

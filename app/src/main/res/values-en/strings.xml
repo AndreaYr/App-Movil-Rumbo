@@ -9,6 +9,7 @@
     <string name="register_success_message">Registration complete.</string>
     <string name="register_success_login_message">Registration complete. You can now sign in.</string>
     <string name="register_error_message">Could not create the user. Please try again.</string>
+    <string name="register_error_email_in_use">That email is already registered. Sign in or use another one.</string>
 
     <!-- Form validations and messages -->
     <string name="validation_name_required">Name is required.</string>
@@ -24,12 +25,15 @@
     <string name="validation_terms_required">You must accept the terms and data processing policy.</string>
     <string name="login_success_message">Signed in successfully.</string>
     <string name="login_error_invalid_credentials">Incorrect email or password.</string>
+    <string name="login_error_generic">Could not sign in. Check your connection and try again.</string>
     <string name="moderator_login_success_message">Access granted.</string>
     <string name="moderator_login_error_generic">Could not sign in.</string>
+    <string name="moderator_login_error_not_moderator">This account does not have moderator permissions.</string>
     <string name="password_recovery_success_message">Request simulated successfully. No email was sent.</string>
     <string name="password_recovery_demo_error_message">Test error: the request could not be completed. Try again.</string>
     <string name="create_title_required">Write a title</string>
     <string name="create_description_required">Tell us about the place</string>
+    <string name="create_publish_error">Could not submit the publication. Check your connection and make sure Firebase Storage is enabled if you added photos.</string>
     <string name="edit_profile_name_required">Enter your name</string>
     <string name="edit_profile_city_required">Enter your base city</string>
 

@@ -3,9 +3,10 @@ package com.app.rumbo.features.publicationdetail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.rumbo.data.local.CurrentUser
+import com.app.rumbo.domain.model.Author
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.usecase.AddCommentUseCase
+import com.app.rumbo.domain.usecase.GetCurrentAuthorUseCase
 import com.app.rumbo.domain.usecase.MAX_COMMENT_LENGTH
 import com.app.rumbo.domain.usecase.ToggleCommentLikeUseCase
 import com.app.rumbo.domain.usecase.GetPublicationDetailUseCase
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -35,7 +37,8 @@ class PublicationDetailViewModel @Inject constructor(
     private val toggleInterest: ToggleInterestUseCase,
     private val toggleVisited: ToggleVisitedUseCase,
     private val addComment: AddCommentUseCase,
-    private val toggleCommentLike: ToggleCommentLikeUseCase
+    private val toggleCommentLike: ToggleCommentLikeUseCase,
+    private val getCurrentAuthor: GetCurrentAuthorUseCase
 ) : ViewModel() {
 
     // Navigation guarda los argumentos de la ruta con el nombre de cada propiedad
@@ -60,7 +63,9 @@ class PublicationDetailViewModel @Inject constructor(
     fun onSendComment() {
         val text = _commentText.value
         viewModelScope.launch {
-            if (addComment(publicationId, text, CurrentUser.author)) _commentText.value = ""
+            val author = getCurrentAuthor().first()
+                ?: Author(id = "me", name = "Tú", levelName = "Explorador")
+            if (addComment(publicationId, text, author)) _commentText.value = ""
         }
     }
 

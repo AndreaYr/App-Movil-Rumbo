@@ -8,7 +8,13 @@ data class User(
     val city: String,
     val levelName: String,
     /** Presentación breve del usuario ("Sobre mí"); puede estar vacía. */
-    val bio: String = ""
+    val bio: String = "",
+    /**
+     * Contraseña usada solo para crear la cuenta en Firebase Authentication.
+     * Nunca se guarda en Firestore: el DTO la deja vacía al leer un documento.
+     */
+    val password: String = "",
+    val role: UserRole = UserRole.USER
 ) {
     /** "Mariana Ospina" -> "Mariana" */
     val firstName: String

@@ -152,6 +152,7 @@ fun CreatePublicationScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val draftSavedMessage = stringResource(R.string.create_draft_saved)
+    val publishErrorMessage = stringResource(R.string.create_publish_error)
     val pickPhotos = rememberLauncherForActivityResult(
         ActivityResultContracts.PickMultipleVisualMedia(MAX_PHOTOS)
     ) { uris -> onPhotosAdded(uris.map { it.toString() }) }
@@ -161,6 +162,7 @@ fun CreatePublicationScreen(
             when (event) {
                 CreatePublicationEvent.DraftSaved -> snackbarHostState.showSnackbar(draftSavedMessage)
                 is CreatePublicationEvent.Published -> onPublished(state.title)
+                is CreatePublicationEvent.PublishFailed -> snackbarHostState.showSnackbar(publishErrorMessage)
             }
         }
     }

@@ -27,6 +27,9 @@ fun ModeratorDashboardRoute(
         onNavigateToFinished = onNavigateToFinished,
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToAccount = onNavigateToAccount,
-        onLogout = onLogout
+        onLogout = {
+            viewModel.logout()
+            onLogout()
+        }
     )
 }

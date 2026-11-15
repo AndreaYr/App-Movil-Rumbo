@@ -69,7 +69,7 @@ fun RegisterRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val successMessage = stringResource(R.string.register_success_message)
-    val errorMessage = stringResource(R.string.register_error_message)
+    val errorMessage = stringResource(state.errorMessageRes ?: R.string.register_error_message)
 
     LaunchedEffect(state.status) {
         when (state.status) {

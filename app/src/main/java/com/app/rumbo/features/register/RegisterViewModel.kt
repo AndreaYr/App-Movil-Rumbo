@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
+import com.app.rumbo.domain.exception.EmailAlreadyInUseException
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -34,7 +35,8 @@ data class RegisterUiState(
     val acceptedTerms: Boolean = false,
     @StringRes val termsError: Int? = null,
     val hasSubmitted: Boolean = false,
-    val status: RegisterStatus = RegisterStatus.IDLE
+    val status: RegisterStatus = RegisterStatus.IDLE,
+    @StringRes val errorMessageRes: Int? = null
 ) {
     val hasMinimumLength: Boolean get() = password.length >= MIN_PASSWORD_LENGTH
     val hasUppercase: Boolean get() = password.any(Char::isUpperCase)
@@ -59,7 +61,8 @@ class RegisterViewModel @Inject constructor(
             state.copy(
                 name = name,
                 nameError = if (state.hasSubmitted || name.isNotBlank()) validateName(name) else null,
-                status = state.nextStatus()
+                status = state.nextStatus(),
+                errorMessageRes = null
             )
         }
     }
@@ -69,7 +72,8 @@ class RegisterViewModel @Inject constructor(
             state.copy(
                 email = email,
                 emailError = if (state.hasSubmitted || email.isNotBlank()) validateEmail(email) else null,
-                status = state.nextStatus()
+                status = state.nextStatus(),
+                errorMessageRes = null
             )
         }
     }
@@ -82,7 +86,8 @@ class RegisterViewModel @Inject constructor(
                 confirmPasswordError = if (state.hasSubmitted || state.confirmPassword.isNotEmpty()) {
                     validateConfirmation(state.confirmPassword, password)
                 } else null,
-                status = state.nextStatus()
+                status = state.nextStatus(),
+                errorMessageRes = null
             )
         }
     }
@@ -94,7 +99,8 @@ class RegisterViewModel @Inject constructor(
                 confirmPasswordError = if (state.hasSubmitted || password.isNotEmpty()) {
                     validateConfirmation(password, state.password)
                 } else null,
-                status = state.nextStatus()
+                status = state.nextStatus(),
+                errorMessageRes = null
             )
         }
     }
@@ -114,7 +120,8 @@ class RegisterViewModel @Inject constructor(
                 termsError = if (accepted) null else if (state.hasSubmitted) {
                     R.string.validation_terms_required
                 } else null,
-                status = state.nextStatus()
+                status = state.nextStatus(),
+                errorMessageRes = null
             )
         }
     }
@@ -129,14 +136,19 @@ class RegisterViewModel @Inject constructor(
         if (current.status == RegisterStatus.LOADING) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = RegisterStatus.LOADING) }
+            _uiState.update { it.copy(status = RegisterStatus.LOADING, errorMessageRes = null) }
             try {
-                registerUser(current.name, current.email)
+                registerUser(current.name, current.email, current.password)
                 _uiState.update { it.copy(status = RegisterStatus.SUCCESS) }
             } catch (cancellation: CancellationException) {
                 throw cancellation
-            } catch (_: Exception) {
-                _uiState.update { it.copy(status = RegisterStatus.ERROR) }
+            } catch (error: Exception) {
+                val messageRes = if (error is EmailAlreadyInUseException) {
+                    R.string.register_error_email_in_use
+                } else {
+                    R.string.register_error_message
+                }
+                _uiState.update { it.copy(status = RegisterStatus.ERROR, errorMessageRes = messageRes) }
             }
         }
     }

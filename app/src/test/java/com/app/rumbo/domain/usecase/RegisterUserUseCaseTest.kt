@@ -14,7 +14,7 @@ class RegisterUserUseCaseTest {
     @Test
     fun `registra un usuario con id propio, nombre y correo y lo selecciona como actual`() = runTest {
         val repository = InMemoryUserRepository()
-        val registered = RegisterUserUseCase(repository)("  Ana Gómez  ", "  ana@example.com  ")
+        val registered = RegisterUserUseCase(repository)("  Ana Gómez  ", "  ana@example.com  ", "secreto123")
 
         assertNotEquals("me", registered.id)
         assertEquals("Ana Gómez", registered.name)
@@ -27,8 +27,8 @@ class RegisterUserUseCaseTest {
         val repository = InMemoryUserRepository()
         val register = RegisterUserUseCase(repository)
 
-        val first = register("Ana Gómez", "ana@example.com")
-        val second = register("Luis Pérez", "luis@example.com")
+        val first = register("Ana Gómez", "ana@example.com", "secreto123")
+        val second = register("Luis Pérez", "luis@example.com", "secreto123")
 
         assertNotEquals(first.id, second.id)
         assertEquals(second, repository.observeCurrentUser().first())
@@ -37,7 +37,7 @@ class RegisterUserUseCaseTest {
     @Test
     fun `la edicion de perfil sigue actualizando al usuario registrado`() = runTest {
         val repository = InMemoryUserRepository()
-        val registered = RegisterUserUseCase(repository)("Ana Gómez", "ana@example.com")
+        val registered = RegisterUserUseCase(repository)("Ana Gómez", "ana@example.com", "secreto123")
 
         val result = UpdateProfileUseCase(repository)(
             ProfileUpdate(name = "Ana G.", bio = "Me gustan los miradores", city = "Salento")

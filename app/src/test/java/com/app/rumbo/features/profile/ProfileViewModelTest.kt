@@ -3,6 +3,7 @@ package com.app.rumbo.features.profile
 import com.app.rumbo.domain.model.ActivityStats
 import com.app.rumbo.domain.model.Level
 import com.app.rumbo.domain.usecase.GetProfileUseCase
+import com.app.rumbo.domain.usecase.LogoutUseCase
 import com.app.rumbo.testutil.FakeActivityRepository
 import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
@@ -28,7 +29,7 @@ class ProfileViewModelTest {
     private val activity = FakeActivityRepository()
 
     private fun createViewModel(user: FakeUserRepository = FakeUserRepository()) =
-        ProfileViewModel(GetProfileUseCase(user, activity))
+        ProfileViewModel(GetProfileUseCase(user, activity), LogoutUseCase(user))
 
     private fun TestScope.loadedState(viewModel: ProfileViewModel): ProfileUiState {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }

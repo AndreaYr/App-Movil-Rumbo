@@ -1,6 +1,5 @@
 package com.app.rumbo.domain.usecase
 
-import com.app.rumbo.data.local.CurrentUser
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -8,6 +7,9 @@ import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationDraft
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.testutil.FakePhotoRepository
+import com.app.rumbo.testutil.TestUsers
+import com.app.rumbo.testutil.toAuthor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -36,7 +38,7 @@ class ModerationUseCasesTest {
     )
 
     private suspend fun publish(title: String = "Mirador"): Publication =
-        PublishPublicationUseCase(repository).invoke(draft(title), CurrentUser.author)
+        PublishPublicationUseCase(repository, FakePhotoRepository()).invoke(draft(title), TestUsers.mariana.toAuthor())
 
     private suspend fun find(id: String): Publication = repository.observePublication(id).first()!!
 

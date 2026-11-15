@@ -1,13 +1,17 @@
 package com.app.rumbo.features.publicationdetail
 
 import androidx.lifecycle.SavedStateHandle
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.usecase.AddCommentUseCase
+import com.app.rumbo.domain.usecase.GetCurrentAuthorUseCase
 import com.app.rumbo.domain.usecase.GetPublicationDetailUseCase
 import com.app.rumbo.domain.usecase.ToggleCommentLikeUseCase
 import com.app.rumbo.domain.usecase.ToggleInterestUseCase
 import com.app.rumbo.domain.usecase.ToggleVisitedUseCase
 import com.app.rumbo.navigation.PublicationDetailDestination
+import com.app.rumbo.testutil.FakeAuthorRepository
+import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import com.app.rumbo.domain.model.Comment
@@ -28,14 +32,15 @@ class PublicationDetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private fun viewModelFor(id: String): PublicationDetailViewModel {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         return PublicationDetailViewModel(
             savedStateHandle = SavedStateHandle(mapOf(PublicationDetailDestination.ARG_ID to id)),
             getPublicationDetail = GetPublicationDetailUseCase(repository),
             toggleInterest = ToggleInterestUseCase(repository),
             toggleVisited = ToggleVisitedUseCase(repository),
-            addComment = AddCommentUseCase(repository),
-            toggleCommentLike = ToggleCommentLikeUseCase(repository)
+            addComment = AddCommentUseCase(repository, repository),
+            toggleCommentLike = ToggleCommentLikeUseCase(repository, repository),
+            getCurrentAuthor = GetCurrentAuthorUseCase(FakeUserRepository(), FakeAuthorRepository())
         )
     }
 
@@ -138,12 +143,12 @@ class PublicationDetailViewModelTest {
 
     @Test
     fun `no se da me gusta en publicaciones que no estan verificadas`() = runTest {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         val pending = repository.observePublication("murales-filandia").first()!!
         val comment = Comment("c1", pending.author, "Texto", 0L, 2)
         repository.addComment(pending.id, comment)
 
-        assertEquals(false, ToggleCommentLikeUseCase(repository)(pending.id, comment.id))
+        assertEquals(false, ToggleCommentLikeUseCase(repository, repository)(pending.id, comment.id))
         assertEquals(2, repository.observePublication(pending.id).first()!!.comments.first().likes)
     }
 }

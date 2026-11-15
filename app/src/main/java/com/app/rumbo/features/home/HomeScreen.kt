@@ -464,7 +464,7 @@ private fun HomeScreenPreview() {
         HomeScreen(
             state = HomeUiState(
                 isLoading = false,
-                userName = "Mariana",
+                userName = "Usuario",
                 city = "Armenia, Quindío",
                 hasUnreadNotifications = true,
                 content = HomeContent(

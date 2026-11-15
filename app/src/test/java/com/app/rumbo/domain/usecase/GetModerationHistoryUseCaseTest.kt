@@ -1,5 +1,6 @@
 package com.app.rumbo.domain.usecase
 
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import kotlinx.coroutines.flow.first
@@ -12,7 +13,7 @@ class GetModerationHistoryUseCaseTest {
 
     @Test
     fun `incluye solo publicaciones aprobadas y rechazadas ordenadas por fecha`() = runTest {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         val base = repository.observePublication("murales-filandia").first()!!
         val now = System.currentTimeMillis()
 

@@ -1,21 +1,23 @@
 package com.app.rumbo.domain.usecase
 
 import com.app.rumbo.domain.model.User
+import com.app.rumbo.domain.model.UserRole
 import com.app.rumbo.domain.repository.UserRepository
-import java.util.UUID
 import javax.inject.Inject
 
-/** Crea un usuario en memoria y lo establece como usuario actual. */
+/** Crea la cuenta en Firebase Authentication y guarda su perfil en Firestore. */
 class RegisterUserUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    suspend operator fun invoke(name: String, email: String): User {
+    suspend operator fun invoke(name: String, email: String, password: String): User {
         val user = User(
-            id = UUID.randomUUID().toString(),
+            id = "",
             name = name.trim(),
             email = email.trim(),
             city = "",
-            levelName = "Explorador"
+            levelName = "Explorador",
+            password = password,
+            role = UserRole.USER
         )
         return userRepository.createUser(user)
     }

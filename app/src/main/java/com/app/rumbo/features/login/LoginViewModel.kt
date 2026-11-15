@@ -5,11 +5,12 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
+import com.app.rumbo.domain.usecase.LoginUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,7 +36,9 @@ data class LoginUiState(
 }
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val loginUserUseCase: LoginUserUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -80,18 +83,28 @@ class LoginViewModel @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             _uiState.update { it.copy(status = LoginStatus.LOADING, messageRes = null) }
-            delay(SIMULATED_REQUEST_DELAY_MS)
-            val successful = submittedEmail.equals(TEST_EMAIL, ignoreCase = true) &&
-                submittedPassword == TEST_PASSWORD
-            _uiState.update {
-                it.copy(
-                    status = if (successful) LoginStatus.SUCCESS else LoginStatus.ERROR,
-                    messageRes = if (successful) {
-                        R.string.login_success_message
-                    } else {
-                        R.string.login_error_invalid_credentials
-                    }
-                )
+
+            try {
+                val user = loginUserUseCase(submittedEmail, submittedPassword)
+                _uiState.update {
+                    it.copy(
+                        status = if (user != null) LoginStatus.SUCCESS else LoginStatus.ERROR,
+                        messageRes = if (user != null) {
+                            R.string.login_success_message
+                        } else {
+                            R.string.login_error_invalid_credentials
+                        }
+                    )
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update {
+                    it.copy(
+                        status = LoginStatus.ERROR,
+                        messageRes = R.string.login_error_generic
+                    )
+                }
             }
         }
     }
@@ -115,9 +128,6 @@ class LoginViewModel @Inject constructor() : ViewModel() {
     }
 
     private companion object {
-        const val TEST_EMAIL = "prueba@rumbo.app"
-        const val TEST_PASSWORD = "rumbo123"
         const val MIN_PASSWORD_LENGTH = 6
-        const val SIMULATED_REQUEST_DELAY_MS = 800L
     }
 }

@@ -9,6 +9,7 @@
     <string name="register_success_message">Registro completado.</string>
     <string name="register_success_login_message">Registro completado. Ya puedes iniciar sesión.</string>
     <string name="register_error_message">No se pudo crear el usuario. Inténtalo de nuevo.</string>
+    <string name="register_error_email_in_use">Ese correo ya está registrado. Inicia sesión o usa otro.</string>
 
     <!-- Validaciones y mensajes de formularios -->
     <string name="validation_name_required">El nombre es obligatorio.</string>
@@ -24,12 +25,15 @@
     <string name="validation_terms_required">Debes aceptar los términos y la política de tratamiento de datos.</string>
     <string name="login_success_message">Inicio de sesión exitoso.</string>
     <string name="login_error_invalid_credentials">Correo o contraseña incorrectos.</string>
+    <string name="login_error_generic">No se pudo iniciar sesión. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="moderator_login_success_message">Acceso concedido.</string>
     <string name="moderator_login_error_generic">Error al iniciar sesión.</string>
+    <string name="moderator_login_error_not_moderator">Esta cuenta no tiene permisos de moderador.</string>
     <string name="password_recovery_success_message">Solicitud simulada correctamente. No se envió ningún correo.</string>
     <string name="password_recovery_demo_error_message">Error de prueba: no se pudo completar la solicitud. Intenta de nuevo.</string>
     <string name="create_title_required">Escribe un título</string>
     <string name="create_description_required">Cuenta algo sobre el lugar</string>
+    <string name="create_publish_error">No se pudo enviar la publicación. Revisa tu conexión y que Firebase Storage esté habilitado si agregaste fotos.</string>
     <string name="edit_profile_name_required">Escribe tu nombre</string>
     <string name="edit_profile_city_required">Escribe tu ciudad base</string>
 

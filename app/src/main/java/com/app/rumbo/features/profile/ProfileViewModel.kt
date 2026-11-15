@@ -6,11 +6,13 @@ import com.app.rumbo.domain.model.Badge
 import com.app.rumbo.domain.model.Level
 import com.app.rumbo.domain.model.UserProfile
 import com.app.rumbo.domain.usecase.GetProfileUseCase
+import com.app.rumbo.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ProfileUiState(
@@ -37,12 +39,17 @@ data class ProfileUiState(
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    getProfile: GetProfileUseCase
+    getProfile: GetProfileUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = getProfile()
         .map { profile -> profile?.toUiState() ?: ProfileUiState(isLoading = false) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProfileUiState())
+
+    fun logout() {
+        viewModelScope.launch { logoutUseCase() }
+    }
 }
 
 private fun UserProfile.toUiState() = ProfileUiState(

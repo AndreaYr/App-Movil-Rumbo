@@ -1,5 +1,6 @@
 package com.app.rumbo.domain.usecase
 
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.model.FeedSort
@@ -15,7 +16,7 @@ class PublicationModerationUseCasesTest {
 
     @Test
     fun `aprobar actualiza estado compartido, quita de pendientes y publica en Feed y Home`() = runTest {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         val pending = GetPendingPublicationsUseCase(repository)
         val feed = GetFeedUseCase(repository)
         val home = GetHomeUseCase(repository)
@@ -38,7 +39,7 @@ class PublicationModerationUseCasesTest {
 
     @Test
     fun `rechazar conserva el motivo, quita de pendientes y excluye de Feed y Home`() = runTest {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         val publicationId = "murales-filandia"
         val reason = "Ubicación incorrecta: el marcador está sobre la vía principal."
 
@@ -57,7 +58,7 @@ class PublicationModerationUseCasesTest {
 
     @Test
     fun `solo se pueden moderar publicaciones pendientes y el rechazo exige motivo`() = runTest {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
 
         assertFalse(ApprovePublicationUseCase(repository)("valle-cocora"))
         assertFalse(RejectPublicationUseCase(repository)("murales-filandia", " "))
