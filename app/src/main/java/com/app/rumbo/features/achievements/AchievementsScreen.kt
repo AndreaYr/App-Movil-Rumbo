@@ -1,5 +1,8 @@
 package com.app.rumbo.features.achievements
 
+import com.app.rumbo.core.theme.DarkGoldText
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,13 +56,13 @@ import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.domain.model.Achievement
 import com.app.rumbo.domain.model.Badge
 
-private val GoldDark = Color(0xFF6B5510)
-private val GoldMid = Color(0xFFB4841A)
-private val GoldBorder = Color(0xFFEFDFB4)
-private val LockedBackground = Color(0xFFF6F2EA)
-private val LockedBorder = Color(0xFFD8D1C4)
-private val LockedChip = Color(0xFFE9E4D9)
-private val LockedText = Color(0xFF4A5652)
+private val GoldDark: Color @Composable get() = adaptiveColor(Color(0xFF6B5510), Color(0xFFE3C26A))
+private val GoldMid: Color @Composable get() = adaptiveColor(Color(0xFFB4841A), DarkGoldText)
+private val GoldBorder: Color @Composable get() = adaptiveColor(Color(0xFFEFDFB4), Color(0xFF5A4A1E))
+private val LockedBackground: Color @Composable get() = adaptiveColor(Color(0xFFF6F2EA), Color(0xFF1F2A27))
+private val LockedBorder: Color @Composable get() = adaptiveColor(Color(0xFFD8D1C4), Color(0xFF3A4642))
+private val LockedChip: Color @Composable get() = adaptiveColor(Color(0xFFE9E4D9), Color(0xFF2E3B38))
+private val LockedText: Color @Composable get() = adaptiveColor(Color(0xFF4A5652), Color(0xFFB7C2BE))
 
 @Composable
 fun AchievementsRoute(
@@ -131,7 +134,7 @@ private fun SummaryCard(state: AchievementsUiState) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFFDF7E7), shape)
+            .background(adaptiveColor(Color(0xFFFDF7E7), Color(0xFF3A3010)), shape)
             .border(1.dp, GoldBorder, shape)
             .padding(15.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -159,7 +162,7 @@ private fun SummaryCard(state: AchievementsUiState) {
             Text(
                 stringResource(R.string.achievements_points, state.pointsEarned),
                 style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.5.sp),
-                color = Color(0xFF8A6A0B),
+                color = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)),
                 modifier = Modifier.padding(top = 7.dp)
             )
         }
@@ -216,13 +219,14 @@ private fun UnlockedCard(badge: Badge) {
 private fun LockedCard(badge: Badge) {
     val shape = MaterialTheme.shapes.medium
     val dash = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))
+    val lockedBorder = LockedBorder
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(LockedBackground, shape)
             .drawBehind {
                 drawRoundRect(
-                    color = LockedBorder,
+                    color = lockedBorder,
                     size = Size(size.width, size.height),
                     cornerRadius = CornerRadius(16.dp.toPx()),
                     style = Stroke(width = 1.dp.toPx(), pathEffect = dash)
@@ -261,7 +265,7 @@ private fun LockedCard(badge: Badge) {
             Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ProgressBar(
                     progress = badge.progress,
-                    track = Color(0xFFE2DCCF),
+                    track = adaptiveColor(Color(0xFFE2DCCF), Color(0xFF2E3B38)),
                     fill = MaterialTheme.colorScheme.primary,
                     height = 6.dp,
                     modifier = Modifier.weight(1f)
@@ -269,7 +273,7 @@ private fun LockedCard(badge: Badge) {
                 Text(
                     "${badge.current.coerceAtMost(badge.achievement.target)}/${badge.achievement.target}",
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.sp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = accentTeal()
                 )
             }
         }

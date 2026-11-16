@@ -2,6 +2,7 @@ package com.app.rumbo.features.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.core.util.currentAiLanguage
 import com.app.rumbo.domain.model.AiRecommendation
 import com.app.rumbo.domain.model.HomeContent
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
@@ -44,11 +45,20 @@ class HomeViewModel @Inject constructor(
 
     /** Pide de nuevo las recomendaciones; mientras responde la IA se muestra el estado de carga. */
     fun refreshRecommendations() {
+        val language = currentAiLanguage()
+        recommendationsLanguage = language
         viewModelScope.launch {
             recommendations.value = null
-            recommendations.value = recommendPlaces(AI_LANGUAGE)
+            recommendations.value = recommendPlaces(language)
         }
     }
+
+    /** Si el usuario cambió el idioma de la app, vuelve a pedir las frases de la IA en el nuevo idioma. */
+    fun refreshIfLanguageChanged() {
+        if (currentAiLanguage() != recommendationsLanguage) refreshRecommendations()
+    }
+
+    private var recommendationsLanguage = currentAiLanguage()
 
     val uiState: StateFlow<HomeUiState> = combine(getHome(), getCurrentUser(), hasUnreadNotifications(), recommendations) { content, user, hasUnread, picks ->
         HomeUiState(
@@ -62,6 +72,3 @@ class HomeViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 }
-
-/** Idioma de las frases de la IA: fijo en español mientras no se internacionalice. */
-const val AI_LANGUAGE = "es"

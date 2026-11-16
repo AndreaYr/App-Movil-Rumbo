@@ -1,5 +1,8 @@
 package com.app.rumbo.core.component
 
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.LocalDarkTheme
+import com.app.rumbo.core.theme.adaptiveColor
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -82,6 +85,7 @@ private const val FOCUS_ZOOM = 16.0
 
 // Estilo claro con relieve y zonas verdes, acorde con el prototipo
 private const val MAP_STYLE = Style.OUTDOORS
+private const val MAP_STYLE_DARK = Style.DARK
 
 /**
  * Marcador del mapa. El mapa no conoce el dominio: cada pantalla convierte sus datos a este modelo.
@@ -210,11 +214,12 @@ fun MapBox(
         }
     }
 
+    val mapStyle = if (LocalDarkTheme.current) MAP_STYLE_DARK else MAP_STYLE
     Box(modifier = modifier) {
         MapboxMap(
             modifier = Modifier.matchParentSize(),
             mapViewportState = mapViewportState,
-            style = { MapStyle(style = MAP_STYLE) },
+            style = { MapStyle(style = mapStyle) },
             scaleBar = {},
             onMapClickListener = { point ->
                 currentOnMapClick(point)
@@ -334,7 +339,7 @@ fun MapBox(
                     .align(myLocationButtonAlignment)
                     .padding(12.dp),
                 containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary
+                contentColor = accentTeal()
             ) {
                 Icon(
                     painterResource(R.drawable.ic_my_location),
@@ -348,7 +353,7 @@ fun MapBox(
 
 @Composable
 private fun MapUnavailable(modifier: Modifier) {
-    Box(modifier.background(Color(0xFFE6EBE4)), contentAlignment = Alignment.Center) {
+    Box(modifier.background(adaptiveColor(Color(0xFFE6EBE4), Color(0xFF1F2A27))), contentAlignment = Alignment.Center) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

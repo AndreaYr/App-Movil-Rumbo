@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.app.rumbo.R
 import androidx.compose.ui.unit.dp
@@ -99,27 +100,27 @@ internal fun MapFilterSheet(
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Filtrar lugares", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.filter_title), style = MaterialTheme.typography.titleLarge)
 
             val municipalities = departments.firstOrNull { it.name == draft.department }?.municipalities.orEmpty()
             SelectField(
-                label = "Departamento",
-                placeholder = "Todos los departamentos",
+                label = stringResource(R.string.location_department),
+                placeholder = stringResource(R.string.filter_all_departments),
                 selected = draft.department,
                 options = departments.map { it.name },
                 // Al cambiar de departamento la ciudad elegida deja de valer
                 onSelected = { draft = draft.copy(department = it, town = null) }
             )
             SelectField(
-                label = "Ciudad o municipio",
-                placeholder = if (draft.department == null) "Elige primero un departamento" else "Todos los municipios",
+                label = stringResource(R.string.location_town),
+                placeholder = stringResource(if (draft.department == null) R.string.location_choose_department_first else R.string.filter_all_towns),
                 selected = draft.town,
                 options = municipalities,
                 enabled = draft.department != null,
                 onSelected = { draft = draft.copy(town = it) }
             )
 
-            FilterGroup("Categoría") {
+            FilterGroup(stringResource(R.string.create_category)) {
                 Category.entries.forEach { category ->
                     FilterChip(
                         selected = category in draft.categories,
@@ -132,16 +133,16 @@ internal fun MapFilterSheet(
                 }
             }
 
-            FilterGroup("Mis lugares") {
+            FilterGroup(stringResource(R.string.filter_my_places)) {
                 FilterChip(
                     selected = draft.interested,
                     onClick = { draft = draft.copy(interested = !draft.interested) },
-                    label = { Text("Me interesa") }
+                    label = { Text(stringResource(R.string.publication_vote_interest)) }
                 )
                 FilterChip(
                     selected = draft.visited,
                     onClick = { draft = draft.copy(visited = !draft.visited) },
-                    label = { Text("Visitado") }
+                    label = { Text(stringResource(R.string.publication_visited)) }
                 )
             }
 
@@ -150,12 +151,12 @@ internal fun MapFilterSheet(
                     onClick = { onApply(MapFilters()) },
                     modifier = Modifier.weight(1f).height(48.dp),
                     shape = MaterialTheme.shapes.medium
-                ) { Text("Limpiar") }
+                ) { Text(stringResource(R.string.filter_clear)) }
                 Button(
                     onClick = { onApply(draft) },
                     modifier = Modifier.weight(1f).height(48.dp),
                     shape = MaterialTheme.shapes.medium
-                ) { Text("Aplicar") }
+                ) { Text(stringResource(R.string.filter_apply)) }
             }
         }
     }

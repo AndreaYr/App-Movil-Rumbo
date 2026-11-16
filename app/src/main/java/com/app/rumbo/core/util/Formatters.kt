@@ -5,13 +5,12 @@ import androidx.compose.ui.res.stringResource
 import com.app.rumbo.R
 import java.util.Locale
 
-private val esCO = Locale.forLanguageTag("es-CO")
 
-/** 12.4 -> "12,4 km" */
-fun Double.formatKm(): String = String.format(esCO, "%.1f km", this)
+/** 12.4 -> "12,4 km" en español, "12.4 km" en inglés (según el idioma de la app). */
+fun Double.formatKm(): String = String.format(Locale.getDefault(), "%.1f km", this)
 
-/** 1284 -> "1.284" */
-fun Int.formatThousands(): String = String.format(esCO, "%,d", this)
+/** 1284 -> "1.284" en español, "1,284" en inglés. */
+fun Int.formatThousands(): String = String.format(Locale.getDefault(), "%,d", this)
 
 /** Tiempo transcurrido en el formato del prototipo: "hace 3 h", "ayer", "hace 1 sem". */
 @Composable

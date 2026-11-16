@@ -1,5 +1,6 @@
 package com.app.rumbo.core.component
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,11 +30,12 @@ private data class StatusStyle(
 )
 
 private val PublicationStatus.style: StatusStyle
+    @Composable
     get() = when (this) {
-        PublicationStatus.PENDING -> StatusStyle(Color(0xFFFDF3DC), Color(0xFFEFDFB4), Color(0xFF8A6A0B), R.drawable.ic_schedule)
-        PublicationStatus.VERIFIED -> StatusStyle(Color(0xFFE2F1EC), Color(0xFFBEDDD2), Color(0xFF0A4E45), R.drawable.ic_check_circle)
-        PublicationStatus.REJECTED -> StatusStyle(Color(0xFFFCE8E2), Color(0xFFF0C4B6), Color(0xFF8E2F13), R.drawable.ic_cancel)
-        PublicationStatus.FINISHED -> StatusStyle(Color(0xFFECEEF1), Color(0xFFD8DDE1), Color(0xFF4A5458), R.drawable.ic_task_alt)
+        PublicationStatus.PENDING -> StatusStyle(adaptiveColor(Color(0xFFFDF3DC), Color(0xFF3A3010)), adaptiveColor(Color(0xFFEFDFB4), Color(0xFF5A4A1E)), adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)), R.drawable.ic_schedule)
+        PublicationStatus.VERIFIED -> StatusStyle(adaptiveColor(Color(0xFFE2F1EC), Color(0xFF16403A)), adaptiveColor(Color(0xFFBEDDD2), Color(0xFF24504A)), adaptiveColor(Color(0xFF0A4E45), Color(0xFFBEE4DB)), R.drawable.ic_check_circle)
+        PublicationStatus.REJECTED -> StatusStyle(adaptiveColor(Color(0xFFFCE8E2), Color(0xFF4A1F12)), adaptiveColor(Color(0xFFF0C4B6), Color(0xFF5A2E22)), adaptiveColor(Color(0xFF8E2F13), Color(0xFFFFB4A0)), R.drawable.ic_cancel)
+        PublicationStatus.FINISHED -> StatusStyle(adaptiveColor(Color(0xFFECEEF1), Color(0xFF26312E)), adaptiveColor(Color(0xFFD8DDE1), Color(0xFF3A4642)), adaptiveColor(Color(0xFF4A5458), Color(0xFFB7C2BE)), R.drawable.ic_task_alt)
     }
 
 /** Estado de una publicación: icono + texto + color, para que funcione también con daltonismo. */

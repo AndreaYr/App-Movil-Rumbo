@@ -81,8 +81,9 @@ data class PublicationDto(
             publishedAt = publication.publishedAt,
             votes = publication.votes,
             weeklyVotes = publication.weeklyVotes,
-            interested = publication.interested,
-            visited = publication.visited,
+            // "Me interesa" y "Visitado" son personales: viven en el documento del usuario, no aquí
+            interested = false,
+            visited = false,
             latitude = publication.latitude,
             longitude = publication.longitude,
             photos = publication.photos.map { PhotoDto.fromDomain(it) },

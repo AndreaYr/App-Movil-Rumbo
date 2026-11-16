@@ -1,5 +1,7 @@
 package com.app.rumbo.features.planroute
 
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -196,7 +198,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier, value: Str
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
         Text(text, style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.5.sp), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         if (value != null) {
-            Text(value, style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp), color = MaterialTheme.colorScheme.primary)
+            Text(value, style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp), color = accentTeal())
         }
     }
 }
@@ -216,7 +218,7 @@ private fun StartCard(city: String, start: StartPoint?, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp)
     ) {
-        Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(19.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(19.dp), tint = accentTeal())
         Column(Modifier.weight(1f)) {
             Text(
                 stringResource(if (start == null) R.string.map_my_location else R.string.plan_start_chosen),
@@ -233,7 +235,7 @@ private fun StartCard(city: String, start: StartPoint?, onClick: () -> Unit) {
                 )
             }
         }
-        Text("Cambiar", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.plan_start_change), style = MaterialTheme.typography.labelMedium, color = accentTeal())
     }
 }
 
@@ -294,7 +296,7 @@ private fun PrioritySelector(selected: RoutePriority, onChange: (RoutePriority) 
         modifier = Modifier
             .padding(top = 8.dp)
             .fillMaxWidth()
-            .background(Color(0xFFEFE9DE), MaterialTheme.shapes.medium)
+            .background(adaptiveColor(Color(0xFFEFE9DE), Color(0xFF26312E)), MaterialTheme.shapes.medium)
             .padding(4.dp)
     ) {
         RoutePriority.entries.forEach { priority ->
@@ -302,7 +304,7 @@ private fun PrioritySelector(selected: RoutePriority, onChange: (RoutePriority) 
             Text(
                 priority.label,
                 style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.5.sp),
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isSelected) accentTeal() else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
@@ -322,13 +324,13 @@ private fun PlanSummary(state: PlanRouteUiState, modifier: Modifier = Modifier) 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(TealContainer, shape)
-            .border(1.dp, Color(0xFFCFE3DD), shape)
+            .background(MaterialTheme.colorScheme.primaryContainer, shape)
+            .border(1.dp, adaptiveColor(Color(0xFFCFE3DD), Color(0xFF24504A)), shape)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(painterResource(R.drawable.ic_bolt), null, Modifier.size(22.dp), tint = TealDark)
+        Icon(painterResource(R.drawable.ic_bolt), null, Modifier.size(22.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
         Column {
             Text(
                 if (plan.stops.isEmpty()) stringResource(R.string.plan_no_stops)
@@ -338,13 +340,13 @@ private fun PlanSummary(state: PlanRouteUiState, modifier: Modifier = Modifier) 
                     plan.distanceKm.formatKm()
                 ),
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.5.sp),
-                color = TealDark
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Text(
                 if (plan.stops.isEmpty()) stringResource(R.string.plan_no_stops_hint)
                 else stringResource(R.string.plan_recalc_hint),
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                color = Color(0xFF3F5B52),
+                color = adaptiveColor(Color(0xFF3F5B52), Color(0xFFA9CBC0)),
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
@@ -379,11 +381,11 @@ private fun OptionBox(
     horizontal: Boolean = false,
     content: @Composable (tint: Color) -> Unit
 ) {
-    val tint = if (selected) TealDark else MaterialTheme.colorScheme.onSurfaceVariant
+    val tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
     val padding = if (horizontal) Modifier.padding(horizontal = 12.dp, vertical = 10.dp) else Modifier.padding(vertical = 12.dp)
     val boxModifier = modifier
         .clip(shape)
-        .background(if (selected) TealContainer else MaterialTheme.colorScheme.surface)
+        .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
         .border(1.5.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, shape)
         .clickable(role = Role.Button, onClick = onClick)
         .then(padding)

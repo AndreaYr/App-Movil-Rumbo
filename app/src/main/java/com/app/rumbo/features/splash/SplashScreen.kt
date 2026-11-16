@@ -1,5 +1,6 @@
 package com.app.rumbo.features.splash
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,7 @@ private fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Sand),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -60,10 +61,10 @@ private fun SplashScreen() {
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Teal
+                color = accentTeal()
             )
             CircularProgressIndicator(
-                color = Teal,
+                color = accentTeal(),
                 modifier = Modifier.size(32.dp)
             )
         }

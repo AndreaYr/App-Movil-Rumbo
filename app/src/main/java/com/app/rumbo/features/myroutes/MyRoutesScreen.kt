@@ -1,5 +1,6 @@
 package com.app.rumbo.features.myroutes
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -140,7 +141,7 @@ private fun SavedRouteCard(route: SavedRoute, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(painterResource(R.drawable.ic_route), null, Modifier.size(24.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(painterResource(R.drawable.ic_route), null, Modifier.size(24.dp), tint = accentTeal())
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(route.name, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(

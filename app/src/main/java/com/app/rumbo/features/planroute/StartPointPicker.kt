@@ -1,5 +1,6 @@
 package com.app.rumbo.features.planroute
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -84,13 +86,13 @@ fun StartPointPicker(
                             contentColor = MaterialTheme.colorScheme.onSurface
                         )
                     ) {
-                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = "Cerrar")
+                        Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_close))
                     }
                     Box(Modifier.weight(1f).background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)) {
                         RumboTextField(
                             value = state.query,
                             onValueChange = onQueryChange,
-                            placeholder = "Escribe la dirección de inicio",
+                            placeholder = stringResource(R.string.start_point_address_hint),
                             leadingIcon = R.drawable.ic_search
                         )
                     }
@@ -109,7 +111,7 @@ fun StartPointPicker(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    state.point?.label ?: "Toca el mapa o escribe una dirección",
+                    state.point?.label ?: stringResource(R.string.start_point_tap_hint),
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -120,15 +122,15 @@ fun StartPointPicker(
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = MaterialTheme.shapes.medium
                     ) {
-                        Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(18.dp), tint = Teal)
-                        Text("Mi ubicación", modifier = Modifier.padding(start = 6.dp), maxLines = 1)
+                        Icon(painterResource(R.drawable.ic_my_location), null, Modifier.size(18.dp), tint = accentTeal())
+                        Text(stringResource(R.string.map_my_location), modifier = Modifier.padding(start = 6.dp), maxLines = 1)
                     }
                     Button(
                         onClick = onConfirm,
                         enabled = state.point != null,
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = MaterialTheme.shapes.medium
-                    ) { Text("Usar este punto", maxLines = 1) }
+                    ) { Text(stringResource(R.string.start_point_use), maxLines = 1) }
                 }
             }
         }

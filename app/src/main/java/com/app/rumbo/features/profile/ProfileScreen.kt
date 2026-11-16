@@ -1,5 +1,8 @@
 package com.app.rumbo.features.profile
 
+import com.app.rumbo.core.theme.accentCoral
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
-import com.app.rumbo.core.component.LanguageDialog
+import com.app.rumbo.features.settings.SettingsSheet
 import com.app.rumbo.core.theme.Coral
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.core.util.displayName
@@ -84,9 +87,9 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showLanguageDialog by remember { mutableStateOf(false) }
-    if (showLanguageDialog) {
-        LanguageDialog(onDismiss = { showLanguageDialog = false })
+    var showSettings by remember { mutableStateOf(false) }
+    if (showSettings) {
+        SettingsSheet(onDismiss = { showSettings = false })
     }
     if (state.isLoading) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
@@ -96,7 +99,7 @@ fun ProfileScreen(
         modifier = modifier.fillMaxSize().statusBarsPadding(),
         contentPadding = PaddingValues(top = 6.dp, bottom = 24.dp)
     ) {
-        item { ProfileHeader(onEditProfileClick, onSettingsClick = { showLanguageDialog = true }) }
+        item { ProfileHeader(onEditProfileClick, onSettingsClick = { showSettings = true }) }
         item { LevelCard(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { StatsRow(state, Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)) }
         item { BadgesHeader(state.totalBadges, onBadgesClick) }
@@ -213,9 +216,9 @@ private fun LevelCard(state: ProfileUiState, modifier: Modifier = Modifier) {
 @Composable
 private fun StatsRow(state: ProfileUiState, modifier: Modifier = Modifier) {
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-        StatCard(R.drawable.ic_place, MaterialTheme.colorScheme.primary, state.publicationsCount, stringResource(R.string.profile_stat_publications), Modifier.weight(1f))
-        StatCard(R.drawable.ic_check_circle, Color(0xFF2B6B45), state.visitedCount, stringResource(R.string.profile_stat_visited), Modifier.weight(1f))
-        StatCard(R.drawable.ic_route, Coral, state.routesCount, stringResource(R.string.profile_stat_routes), Modifier.weight(1f))
+        StatCard(R.drawable.ic_place, accentTeal(), state.publicationsCount, stringResource(R.string.profile_stat_publications), Modifier.weight(1f))
+        StatCard(R.drawable.ic_check_circle, adaptiveColor(Color(0xFF2B6B45), Color(0xFF6FCF97)), state.visitedCount, stringResource(R.string.profile_stat_visited), Modifier.weight(1f))
+        StatCard(R.drawable.ic_route, accentCoral(), state.routesCount, stringResource(R.string.profile_stat_routes), Modifier.weight(1f))
     }
 }
 
@@ -244,7 +247,7 @@ private fun BadgesHeader(totalBadges: Int, onClick: () -> Unit) {
         Text(
             stringResource(R.string.profile_see_badges, totalBadges),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = accentTeal(),
             modifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .clickable(role = Role.Button, onClick = onClick)
@@ -298,7 +301,7 @@ private fun ProfileLink(@DrawableRes icon: Int, title: String, subtitle: String,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(painterResource(icon), null, Modifier.size(21.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(painterResource(icon), null, Modifier.size(21.dp), tint = accentTeal())
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp))
             Text(subtitle, style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.5.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))

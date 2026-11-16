@@ -1,5 +1,6 @@
 package com.app.rumbo.core.component
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -78,7 +79,7 @@ fun RumboBottomBar(selected: RumboTab, onTabSelected: (RumboTab) -> Unit) {
 
 @Composable
 private fun TabItem(tab: RumboTab, selected: Boolean, onClick: () -> Unit) {
-    val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val tint = if (selected) accentTeal() else MaterialTheme.colorScheme.onSurfaceVariant
     val label = stringResource(tab.labelRes)
     Column(
         modifier = Modifier

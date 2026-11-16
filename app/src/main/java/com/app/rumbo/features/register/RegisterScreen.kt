@@ -1,5 +1,7 @@
 package com.app.rumbo.features.register
 
+import com.app.rumbo.core.theme.accentCoral
+import com.app.rumbo.core.theme.accentTeal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -120,7 +122,7 @@ fun RegisterScreen(
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Sand
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -134,8 +136,8 @@ fun RegisterScreen(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(White)
-                    .border(1.dp, Outline, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                     .clickable(onClick = onBackToLogin),
                 contentAlignment = Alignment.Center
             ) {
@@ -221,7 +223,7 @@ fun RegisterScreen(
                     onCheckedChange = onTermsAcceptanceChange,
                     modifier = Modifier.size(24.dp),
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Teal,
+                        checkedColor = MaterialTheme.colorScheme.primary,
                         uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
@@ -243,7 +245,7 @@ fun RegisterScreen(
                 enabled = state.status != RegisterStatus.LOADING,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 if (state.status == RegisterStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
@@ -273,7 +275,7 @@ fun RegisterScreen(
                     onClick = onBackToLogin,
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(stringResource(R.string.register_sign_in), style = MaterialTheme.typography.labelMedium, color = Teal)
+                    Text(stringResource(R.string.register_sign_in), style = MaterialTheme.typography.labelMedium, color = accentTeal())
                 }
             }
         }
@@ -300,13 +302,13 @@ private fun RegisterInput(
     showValidation: Boolean
 ) {
     val hasError = error != null
-    val borderColor = if (hasError) Coral else Outline
+    val borderColor = if (hasError) accentCoral() else MaterialTheme.colorScheme.outline
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(42.dp)
             .clip(RoundedCornerShape(13.dp))
-            .background(if (hasError) MaterialTheme.colorScheme.errorContainer else White)
+            .background(if (hasError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface)
             .border(1.dp, borderColor, RoundedCornerShape(13.dp))
             .padding(horizontal = 11.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -319,7 +321,7 @@ private fun RegisterInput(
             modifier = Modifier.weight(1f),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
-            cursorBrush = SolidColor(Teal),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { inner ->
@@ -333,14 +335,14 @@ private fun RegisterInput(
         )
         if (trailingText != null) {
             IconButton(onClick = onTrailingClick, modifier = Modifier.size(30.dp)) {
-                Text(trailingText, color = Teal, style = MaterialTheme.typography.bodyMedium)
+                Text(trailingText, color = accentTeal(), style = MaterialTheme.typography.bodyMedium)
             }
         }
         if (showValidation) {
             Icon(
                 painter = painterResource(if (hasError) R.drawable.ic_cancel else R.drawable.ic_check_circle),
                 contentDescription = if (hasError) stringResource(R.string.register_field_invalid) else stringResource(R.string.register_field_valid),
-                tint = if (hasError) ErrorRed else Teal,
+                tint = if (hasError) MaterialTheme.colorScheme.error else accentTeal(),
                 modifier = Modifier.size(15.dp)
             )
         }
@@ -359,14 +361,14 @@ private fun PasswordSecurityIndicator(state: RegisterUiState) {
                     .weight(1f)
                     .height(3.dp)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(if (index < state.passwordRuleCount) Teal else Outline)
+                    .background(if (index < state.passwordRuleCount) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
             )
         }
     }
     val helperColor = when {
-        state.passwordRuleCount == 3 -> Teal
+        state.passwordRuleCount == 3 -> MaterialTheme.colorScheme.primary
         state.password.isBlank() -> MaterialTheme.colorScheme.onSurfaceVariant
-        else -> ErrorRed
+        else -> MaterialTheme.colorScheme.error
     }
     Text(
         text = if (state.passwordRuleCount == 3) {
@@ -382,7 +384,7 @@ private fun PasswordSecurityIndicator(state: RegisterUiState) {
 
 @Composable
 private fun RegisterErrorText(message: String) {
-    Text(message, style = MaterialTheme.typography.bodySmall, color = ErrorRed)
+    Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
 }
 
 @Preview(showBackground = true, heightDp = 780)

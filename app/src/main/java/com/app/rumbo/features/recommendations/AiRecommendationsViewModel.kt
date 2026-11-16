@@ -1,7 +1,9 @@
 package com.app.rumbo.features.recommendations
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.rumbo.R
 import com.app.rumbo.domain.model.AiRecommendation
 import com.app.rumbo.domain.model.ChatTurn
 import com.app.rumbo.domain.model.Publication
@@ -13,7 +15,7 @@ import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.PlanRouteUseCase
 import com.app.rumbo.domain.usecase.RecommendPlacesUseCase
 import com.app.rumbo.domain.usecase.SaveRouteUseCase
-import com.app.rumbo.features.home.AI_LANGUAGE
+import com.app.rumbo.core.util.currentAiLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,7 +31,9 @@ import javax.inject.Inject
 data class ChatMessage(
     val id: Int,
     val fromUser: Boolean,
-    val text: String,
+    val text: String = "",
+    /** Texto fijo de la app (se traduce en la pantalla); si es null se muestra [text]. */
+    @StringRes val textRes: Int? = null,
     val places: List<AiRecommendation> = emptyList(),
     val route: List<Publication> = emptyList()
 )
@@ -76,16 +80,16 @@ class AiRecommendationsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val picks = recommendPlaces(AI_LANGUAGE)
-            val intro = if (picks.isEmpty()) {
-                "Cuéntame qué te gustaría visitar con el botón del robot y te armo una ruta."
-            } else {
-                picks.firstOrNull { it.reason.isNotBlank() }?.reason
-                    ?: "Elegí estos lugares según los que te interesan y has visitado."
+            val picks = recommendPlaces(currentAiLanguage())
+            val aiReason = picks.firstOrNull { it.reason.isNotBlank() }?.reason
+            val introRes = when {
+                picks.isEmpty() -> R.string.ai_intro_empty
+                aiReason == null -> R.string.home_for_you_default
+                else -> null
             }
             conversation.value = Conversation(
                 loaded = true,
-                messages = listOf(ChatMessage(id = 0, fromUser = false, text = intro, places = picks))
+                messages = listOf(ChatMessage(id = 0, fromUser = false, text = aiReason.orEmpty(), textRes = introRes, places = picks))
             )
         }
     }
@@ -100,10 +104,10 @@ class AiRecommendationsViewModel @Inject constructor(
             it.copy(messages = it.messages + ChatMessage(it.messages.size, fromUser = true, text = request), thinking = true)
         }
         viewModelScope.launch {
-            val reply = askAssistant(request, userName, history)
+            val reply = askAssistant(request, userName, history, currentAiLanguage())
             conversation.update {
                 it.copy(
-                    messages = it.messages + ChatMessage(it.messages.size, false, reply.message, reply.places, reply.route),
+                    messages = it.messages + ChatMessage(it.messages.size, false, reply.message, places = reply.places, route = reply.route),
                     thinking = false
                 )
             }

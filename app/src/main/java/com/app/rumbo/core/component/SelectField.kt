@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.app.rumbo.R
@@ -60,7 +61,7 @@ fun SelectField(
                 modifier = Modifier.heightIn(max = 320.dp)
             ) {
                 DropdownMenuItem(
-                    text = { Text(placeholder.takeIf { selected != null } ?: "Sin selección", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    text = { Text(placeholder.takeIf { selected != null } ?: stringResource(R.string.select_no_selection), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                     onClick = { onSelected(null); expanded = false }
                 )
                 options.forEach { option ->

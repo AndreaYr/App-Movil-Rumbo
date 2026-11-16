@@ -1,5 +1,6 @@
 package com.app.rumbo.features.passwordrecovery
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -89,7 +90,7 @@ fun PasswordRecoveryScreen(
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Sand
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -104,8 +105,8 @@ fun PasswordRecoveryScreen(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(White)
-                    .border(1.dp, Outline, RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
@@ -140,7 +141,7 @@ fun PasswordRecoveryScreen(
                 enabled = state.status != PasswordRecoveryStatus.LOADING,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 if (state.status == PasswordRecoveryStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = White, strokeWidth = 2.dp)
@@ -168,13 +169,13 @@ private fun RecoveryEmailField(
     error: String?,
     onEmailChange: (String) -> Unit
 ) {
-    val borderColor = if (error != null) ErrorRed else Outline
+    val borderColor = if (error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
             .clip(RoundedCornerShape(13.dp))
-            .background(if (error != null) ErrorContainer else White)
+            .background(if (error != null) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface)
             .border(1.dp, borderColor, RoundedCornerShape(13.dp))
             .padding(horizontal = 11.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -187,7 +188,7 @@ private fun RecoveryEmailField(
             modifier = Modifier.weight(1f),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
-            cursorBrush = SolidColor(Teal),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             decorationBox = { inner ->
                 Box {
@@ -206,15 +207,15 @@ private fun RecoveryErrorText(message: String) {
     Text(
         text = message,
         style = MaterialTheme.typography.bodySmall,
-        color = ErrorRed,
+        color = MaterialTheme.colorScheme.error,
         modifier = Modifier.padding(top = 4.dp)
     )
 }
 
 @Composable
 private fun RecoveryStatusMessage(message: String, isError: Boolean) {
-    val containerColor = if (isError) ErrorContainer else TealContainer
-    val contentColor = if (isError) ErrorRed else Teal
+    val containerColor = if (isError) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+    val contentColor = if (isError) MaterialTheme.colorScheme.error else accentTeal()
     Text(
         text = message,
         style = MaterialTheme.typography.bodySmall,

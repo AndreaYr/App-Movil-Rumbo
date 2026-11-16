@@ -1,5 +1,6 @@
 package com.app.rumbo.features.mypublications
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,9 +56,9 @@ import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.features.feed.PublicationCard
 
-private val RejectedBackground = Color(0xFFFCE8E2)
-private val RejectedBorder = Color(0xFFF0C4B6)
-private val RejectedContent = Color(0xFF8E2F13)
+private val RejectedBackground: Color @Composable get() = adaptiveColor(Color(0xFFFCE8E2), Color(0xFF4A1F12))
+private val RejectedBorder: Color @Composable get() = adaptiveColor(Color(0xFFF0C4B6), Color(0xFF5A2E22))
+private val RejectedContent: Color @Composable get() = adaptiveColor(Color(0xFF8E2F13), Color(0xFFFFB4A0))
 
 @Composable
 fun MyPublicationsRoute(
@@ -245,8 +246,8 @@ private fun FinishPublicationSheet(publication: Publication, onConfirm: () -> Un
             Icon(
                 painterResource(R.drawable.ic_task_alt),
                 contentDescription = null,
-                modifier = Modifier.size(56.dp).background(Color(0xFFECEEF1), CircleShape).padding(14.dp),
-                tint = Color(0xFF4A5458)
+                modifier = Modifier.size(56.dp).background(adaptiveColor(Color(0xFFECEEF1), Color(0xFF26312E)), CircleShape).padding(14.dp),
+                tint = adaptiveColor(Color(0xFF4A5458), Color(0xFFB7C2BE))
             )
             Text(stringResource(R.string.my_publications_finish_title), style = MaterialTheme.typography.titleLarge)
             val bodyPrefix = stringResource(R.string.my_publications_finish_body_prefix, publication.title)

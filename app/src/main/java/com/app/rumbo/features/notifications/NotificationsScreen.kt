@@ -1,5 +1,8 @@
 package com.app.rumbo.features.notifications
 
+import com.app.rumbo.core.theme.DarkGoldText
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,10 +55,10 @@ import com.app.rumbo.domain.model.Notification
 import com.app.rumbo.domain.model.NotificationType
 import com.app.rumbo.domain.model.NotificationsContent
 
-private val UnreadBackground = Color(0xFFEFF6F3)
-private val UnreadBorder = Color(0xFFCFE3DD)
-private val ReadBorder = Color(0xFFE9E3D8)
-private val ReadBadgeBackground = Color(0xFFF0EBE1)
+private val UnreadBackground: Color @Composable get() = adaptiveColor(Color(0xFFEFF6F3), Color(0xFF16302B))
+private val UnreadBorder: Color @Composable get() = adaptiveColor(Color(0xFFCFE3DD), Color(0xFF24504A))
+private val ReadBorder: Color @Composable get() = adaptiveColor(Color(0xFFE9E3D8), Color(0xFF2E3B38))
+private val ReadBadgeBackground: Color @Composable get() = adaptiveColor(Color(0xFFF0EBE1), Color(0xFF26312E))
 
 @Composable
 fun NotificationsRoute(
@@ -146,7 +149,7 @@ private fun Header(canMarkAll: Boolean, onMarkAllRead: () -> Unit) {
             Text(
                 stringResource(R.string.notifications_mark_all_read),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary,
+                color = accentTeal(),
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .clickable(role = Role.Button, onClick = onMarkAllRead)
@@ -265,14 +268,15 @@ private fun EmptyState(unreadOnly: Boolean) {
 /** Icono y colores de cada tipo de aviso, tal como en el prototipo. */
 private class TypeStyle(@param:DrawableRes val icon: Int, val container: Color, val content: Color)
 
+@Composable
 private fun NotificationType.style(): TypeStyle = when (this) {
-    NotificationType.PUBLICATION_VERIFIED -> TypeStyle(R.drawable.ic_verified, TealContainer, TealDark)
-    NotificationType.PUBLICATION_REJECTED -> TypeStyle(R.drawable.ic_cancel, ErrorContainer, ErrorRed)
-    NotificationType.COMMENT -> TypeStyle(R.drawable.ic_chat_bubble, Color(0xFFEAF1FB), Color(0xFF2B5FA8))
-    NotificationType.ACHIEVEMENT -> TypeStyle(R.drawable.ic_award, GoldContainer, Color(0xFF8A6A0B))
-    NotificationType.LEVEL_UP -> TypeStyle(R.drawable.ic_person, Color(0xFFE9F1EE), TealDark)
-    NotificationType.TRENDING -> TypeStyle(R.drawable.ic_trending_up, GoldContainer, Color(0xFFB4841A))
-    NotificationType.RELEVANT -> TypeStyle(R.drawable.ic_star, GoldContainer, Color(0xFFB4841A))
+    NotificationType.PUBLICATION_VERIFIED -> TypeStyle(R.drawable.ic_verified, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
+    NotificationType.PUBLICATION_REJECTED -> TypeStyle(R.drawable.ic_cancel, MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.error)
+    NotificationType.COMMENT -> TypeStyle(R.drawable.ic_chat_bubble, adaptiveColor(Color(0xFFEAF1FB), Color(0xFF1B2A3F)), adaptiveColor(Color(0xFF2B5FA8), Color(0xFF8DB4F0)))
+    NotificationType.ACHIEVEMENT -> TypeStyle(R.drawable.ic_award, MaterialTheme.colorScheme.tertiaryContainer, adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)))
+    NotificationType.LEVEL_UP -> TypeStyle(R.drawable.ic_person, adaptiveColor(Color(0xFFE9F1EE), Color(0xFF1D3A34)), MaterialTheme.colorScheme.onPrimaryContainer)
+    NotificationType.TRENDING -> TypeStyle(R.drawable.ic_trending_up, MaterialTheme.colorScheme.tertiaryContainer, adaptiveColor(Color(0xFFB4841A), DarkGoldText))
+    NotificationType.RELEVANT -> TypeStyle(R.drawable.ic_star, MaterialTheme.colorScheme.tertiaryContainer, adaptiveColor(Color(0xFFB4841A), DarkGoldText))
 }
 
 @Preview(showBackground = true)

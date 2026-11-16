@@ -1,5 +1,6 @@
 package com.app.rumbo.features.publicationsubmitted
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -84,10 +85,10 @@ fun PublicationSubmittedScreen(
                     modifier = Modifier
                         .size(90.dp)
                         .clip(CircleShape)
-                        .background(TealContainer),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(painterResource(R.drawable.ic_schedule), contentDescription = null, tint = TealDark, modifier = Modifier.size(48.dp))
+                    Icon(painterResource(R.drawable.ic_schedule), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(48.dp))
                 }
 
                 Text(stringResource(R.string.submitted_title), style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
@@ -104,7 +105,7 @@ fun PublicationSubmittedScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
-                        .background(GoldContainer)
+                        .background(MaterialTheme.colorScheme.tertiaryContainer)
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -113,7 +114,7 @@ fun PublicationSubmittedScreen(
                     Text(
                         stringResource(R.string.submitted_pending_badge),
                         style = MaterialTheme.typography.labelLarge,
-                        color = Color(0xFF8A6A0B)
+                        color = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A))
                     )
                 }
 
@@ -122,20 +123,20 @@ fun PublicationSubmittedScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(MaterialTheme.shapes.medium)
-                        .background(Color(0xFFE8F5F1))
-                        .border(1.dp, TealContainer, MaterialTheme.shapes.medium)
+                        .background(adaptiveColor(Color(0xFFE8F5F1), Color(0xFF16403A)))
+                        .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(painterResource(R.drawable.ic_award), contentDescription = null, tint = TealDark, modifier = Modifier.size(22.dp))
+                    Icon(painterResource(R.drawable.ic_award), contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(22.dp))
                     val pointsPrefix = stringResource(R.string.submitted_points_prefix)
                     val badgeUnlocked = stringResource(R.string.submitted_badge_unlocked)
                     val text = buildAnnotatedString {
                         append(pointsPrefix)
                         withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(badgeUnlocked) }
                     }
-                    Text(text, style = MaterialTheme.typography.bodyMedium, color = TealDark)
+                    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
 
                 Column(

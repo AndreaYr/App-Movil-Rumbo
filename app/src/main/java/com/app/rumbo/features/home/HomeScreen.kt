@@ -1,5 +1,9 @@
 package com.app.rumbo.features.home
 
+import com.app.rumbo.core.theme.DarkGoldText
+import com.app.rumbo.core.theme.DarkCoralText
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.util.currentAiLanguage
 import com.app.rumbo.core.util.label
 import com.app.rumbo.core.component.PublicationPhoto
 import com.app.rumbo.core.component.color
@@ -68,6 +74,8 @@ fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val language = currentAiLanguage()
+    LaunchedEffect(language) { viewModel.refreshIfLanguageChanged() }
     HomeScreen(
         state = state,
         onSearchClick = onSearchClick,
@@ -263,13 +271,13 @@ private fun ForYouCard(
 ) {
     if (!loading && recommendations.isEmpty()) return
     val shape = RoundedCornerShape(20.dp)
-    val accent = Color(0xFFC2431E)
+    val accent = adaptiveColor(Color(0xFFC2431E), DarkCoralText)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(Color(0xFFFDEEE8))
-            .border(1.dp, Color(0xFFF6D3C6), shape)
+            .background(adaptiveColor(Color(0xFFFDEEE8), Color(0xFF3A2620)))
+            .border(1.dp, adaptiveColor(Color(0xFFF6D3C6), Color(0xFF5A3A2F)), shape)
             .clickable(role = Role.Button, onClick = onSeeAllClick)
             .padding(14.dp)
     ) {
@@ -284,7 +292,7 @@ private fun ForYouCard(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = accent)
-                Text(stringResource(R.string.home_for_you_loading), style = MaterialTheme.typography.bodySmall, color = Color(0xFF6E4034))
+                Text(stringResource(R.string.home_for_you_loading), style = MaterialTheme.typography.bodySmall, color = adaptiveColor(Color(0xFF6E4034), Color(0xFFE8B8A8)))
             }
             return@Column
         }
@@ -293,7 +301,7 @@ private fun ForYouCard(
         Text(
             intro,
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-            color = Color(0xFF6E4034),
+            color = adaptiveColor(Color(0xFF6E4034), Color(0xFFE8B8A8)),
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
@@ -326,7 +334,7 @@ private fun SectionHeader(
             Text(
                 actionLabel,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = accentTeal(),
                 modifier = Modifier
                     .weight(1f)
                     .clickable(role = Role.Button, onClick = onAction),
@@ -365,8 +373,8 @@ private fun InfoLine(publication: Publication, modifier: Modifier = Modifier) {
 @Composable
 private fun Interested(votes: Int, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Icon(painterResource(R.drawable.ic_star), null, Modifier.size(14.dp), tint = Color(0xFFB4841A))
-        Text(pluralStringResource(R.plurals.home_interested, votes, votes.formatThousands()), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = Color(0xFFB4841A))
+        Icon(painterResource(R.drawable.ic_star), null, Modifier.size(14.dp), tint = adaptiveColor(Color(0xFFB4841A), DarkGoldText))
+        Text(pluralStringResource(R.plurals.home_interested, votes, votes.formatThousands()), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = adaptiveColor(Color(0xFFB4841A), DarkGoldText))
     }
 }
 
@@ -397,7 +405,7 @@ private fun NearbyCard(publication: Publication, onClick: () -> Unit) {
                     .background(Color.White.copy(alpha = 0.94f), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(painterResource(R.drawable.ic_verified), stringResource(R.string.home_verified), Modifier.size(15.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(painterResource(R.drawable.ic_verified), stringResource(R.string.home_verified), Modifier.size(15.dp), tint = accentTeal())
             }
         }
         Column(Modifier.padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 13.dp)) {
@@ -440,8 +448,8 @@ private fun TopRatedRow(publication: Publication, onClick: () -> Unit, modifier:
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Icon(painterResource(R.drawable.ic_star), null, Modifier.size(13.dp), tint = Color(0xFFB4841A))
-                    Text(publication.votes.formatThousands(), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = Color(0xFFB4841A))
+                    Icon(painterResource(R.drawable.ic_star), null, Modifier.size(13.dp), tint = adaptiveColor(Color(0xFFB4841A), DarkGoldText))
+                    Text(publication.votes.formatThousands(), style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.sp), color = adaptiveColor(Color(0xFFB4841A), DarkGoldText))
                 }
             }
         }
@@ -514,8 +522,8 @@ private fun FreshRow(publication: Publication, onClick: () -> Unit, modifier: Mo
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(3.dp)
         ) {
-            Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(12.dp), tint = Color(0xFF8A6A0B))
-            Text(stringResource(R.string.home_new), style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.5.sp), color = Color(0xFF8A6A0B))
+            Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(12.dp), tint = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)))
+            Text(stringResource(R.string.home_new), style = MaterialTheme.typography.labelMedium.copy(fontSize = 9.5.sp), color = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)))
         }
     }
 }

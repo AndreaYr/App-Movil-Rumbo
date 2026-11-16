@@ -1,5 +1,7 @@
 package com.app.rumbo.features.recommendations
 
+import com.app.rumbo.core.theme.DarkCoralText
+import com.app.rumbo.core.theme.adaptiveColor
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -48,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -64,8 +67,7 @@ import com.app.rumbo.core.util.label
 import com.app.rumbo.domain.model.AiRecommendation
 import com.app.rumbo.domain.model.Publication
 
-private val Accent = Color(0xFFC2431E)
-
+private val Accent: Color @Composable get() = adaptiveColor(Color(0xFFC2431E), DarkCoralText)
 @Composable
 fun AiRecommendationsRoute(
     onTabSelected: (RumboTab) -> Unit,
@@ -75,6 +77,8 @@ fun AiRecommendationsRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var asking by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val routeSavedToast = stringResource(R.string.ai_route_saved_toast)
+    val routeSaveFailedToast = stringResource(R.string.ai_route_save_failed)
     RumboScaffold(
         selectedTab = RumboTab.HOME,
         onTabSelected = onTabSelected,
@@ -84,7 +88,7 @@ fun AiRecommendationsRoute(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White
             ) {
-                Icon(painterResource(R.drawable.ic_smart_toy), contentDescription = "Preguntarle a la IA", modifier = Modifier.size(26.dp))
+                Icon(painterResource(R.drawable.ic_smart_toy), contentDescription = stringResource(R.string.ai_ask_content_description), modifier = Modifier.size(26.dp))
             }
         }
     ) { padding ->
@@ -95,7 +99,7 @@ fun AiRecommendationsRoute(
                 viewModel.saveSuggestedRoute(id) { saved ->
                     Toast.makeText(
                         context,
-                        if (saved) "Ruta guardada en Mis rutas" else "No se pudo guardar la ruta",
+                        if (saved) routeSavedToast else routeSaveFailedToast,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -136,7 +140,7 @@ fun AiRecommendationsScreen(
     ) {
         item { Header(state.userName, state.city) }
         if (state.isLoading) {
-            item { ThinkingBubble("Buscando lugares para ti…") }
+            item { ThinkingBubble(stringResource(R.string.home_for_you_loading)) }
         }
         items(state.messages, key = { it.id }) { message ->
             if (message.fromUser) {
@@ -160,9 +164,9 @@ fun AiRecommendationsScreen(
 private fun Header(userName: String, city: String) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         if (userName.isNotBlank()) {
-            Text("Hola, $userName", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.ai_greeting_user, userName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text("Recomendaciones\npara ti", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
+        Text(stringResource(R.string.ai_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 3.dp))
         if (city.isNotBlank()) {
             Row(
                 modifier = Modifier
@@ -215,16 +219,16 @@ private fun AiMessage(
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(painterResource(R.drawable.ic_auto_awesome), null, Modifier.size(16.dp), tint = Accent)
-            Text("Rumbo IA", style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = Accent)
+            Text(stringResource(R.string.ai_assistant_name), style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = Accent)
         }
         Text(
-            message.text,
+            message.textRes?.let { stringResource(it) } ?: message.text,
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-            color = Color(0xFF6E4034),
+            color = adaptiveColor(Color(0xFF6E4034), Color(0xFFE8B8A8)),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFFDEEE8), RoundedCornerShape(4.dp, 18.dp, 18.dp, 18.dp))
-                .border(1.dp, Color(0xFFF6D3C6), RoundedCornerShape(4.dp, 18.dp, 18.dp, 18.dp))
+                .background(adaptiveColor(Color(0xFFFDEEE8), Color(0xFF3A2620)), RoundedCornerShape(4.dp, 18.dp, 18.dp, 18.dp))
+                .border(1.dp, adaptiveColor(Color(0xFFF6D3C6), Color(0xFF5A3A2F)), RoundedCornerShape(4.dp, 18.dp, 18.dp, 18.dp))
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         )
         message.places.forEach { PlaceCard(it, onClick = { onPublicationClick(it.publication.id) }) }
@@ -268,7 +272,7 @@ private fun PlaceCard(pick: AiRecommendation, onClick: () -> Unit) {
                 Text(
                     pick.reason,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
-                    color = Color(0xFF6E4034),
+                    color = adaptiveColor(Color(0xFF6E4034), Color(0xFFE8B8A8)),
                     modifier = Modifier.padding(top = 4.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -297,7 +301,7 @@ private fun SuggestedRoute(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(painterResource(R.drawable.ic_route), null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
-            Text("Ruta sugerida", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(stringResource(R.string.ai_suggested_route), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
         route.forEachIndexed { index, place ->
             Row(
@@ -312,10 +316,10 @@ private fun SuggestedRoute(
             }
         }
         Button(onClick = onSaveRoute, enabled = !saved, modifier = Modifier.fillMaxWidth()) {
-            Text(if (saved) "Guardada en Mis rutas" else "Guardar en Mis rutas")
+            Text(stringResource(if (saved) R.string.ai_route_saved else R.string.ai_route_save))
         }
         OutlinedButton(onClick = { context.openInMaps(route) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Abrir ruta en Google Maps")
+            Text(stringResource(R.string.ai_open_in_maps))
         }
     }
 }
@@ -331,10 +335,10 @@ private fun AskSheet(enabled: Boolean, onSend: (String) -> Unit, onDismiss: () -
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(painterResource(R.drawable.ic_smart_toy), null, Modifier.size(22.dp), tint = Accent)
-                Text("¿Qué quieres visitar?", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.ai_ask_title), style = MaterialTheme.typography.titleMedium)
             }
             Text(
-                "Cuéntame qué buscas (tipo de plan, presupuesto, comida, naturaleza…) y te muestro lugares y una ruta.",
+                stringResource(R.string.ai_ask_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -342,12 +346,12 @@ private fun AskSheet(enabled: Boolean, onSend: (String) -> Unit, onDismiss: () -
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Ej: un plan tranquilo con naturaleza y comida barata") },
+                placeholder = { Text(stringResource(R.string.ai_ask_placeholder)) },
                 minLines = 2,
                 maxLines = 5,
                 trailingIcon = {
                     IconButton(onClick = { onSend(text) }, enabled = enabled && text.isNotBlank()) {
-                        Icon(painterResource(R.drawable.ic_send), contentDescription = "Enviar", tint = if (enabled && text.isNotBlank()) Accent else Color.Gray)
+                        Icon(painterResource(R.drawable.ic_send), contentDescription = stringResource(R.string.ai_send), tint = if (enabled && text.isNotBlank()) Accent else Color.Gray)
                     }
                 }
             )
@@ -365,6 +369,6 @@ private fun Context.openInMaps(route: List<Publication>) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     } catch (_: ActivityNotFoundException) {
-        Toast.makeText(this, "No hay una app para abrir el mapa", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.detail_no_maps_app), Toast.LENGTH_SHORT).show()
     }
 }

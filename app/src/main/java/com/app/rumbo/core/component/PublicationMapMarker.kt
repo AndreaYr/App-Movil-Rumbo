@@ -7,6 +7,6 @@ fun Publication.toMapMarker() = MapMarker(
     id = id,
     latitude = latitude,
     longitude = longitude,
-    color = category.color,
+    color = category.markerColor,
     icon = category.iconRes
 )

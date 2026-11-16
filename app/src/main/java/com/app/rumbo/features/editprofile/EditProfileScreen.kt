@@ -1,5 +1,8 @@
 package com.app.rumbo.features.editprofile
 
+import com.app.rumbo.core.theme.DarkCoralText
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,11 +56,11 @@ import com.app.rumbo.domain.model.MAX_BIO_LENGTH
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-private val DangerText = Color(0xFF8E2F13)
-private val DangerBody = Color(0xFF7A4433)
-private val DangerBorder = Color(0xFFC2431E)
-private val DangerCardBorder = Color(0xFFF0C4B6)
-private val ReadOnlyBackground = Color(0xFFF4F0E7)
+private val DangerText: Color @Composable get() = adaptiveColor(Color(0xFF8E2F13), Color(0xFFFFB4A0))
+private val DangerBody: Color @Composable get() = adaptiveColor(Color(0xFF7A4433), Color(0xFFF0B8A5))
+private val DangerBorder: Color @Composable get() = adaptiveColor(Color(0xFFC2431E), DarkCoralText)
+private val DangerCardBorder: Color @Composable get() = adaptiveColor(Color(0xFFF0C4B6), Color(0xFF5A2E22))
+private val ReadOnlyBackground: Color @Composable get() = adaptiveColor(Color(0xFFF4F0E7), Color(0xFF1F2A27))
 private val HintColor = Color(0xFF8A9490)
 
 @Composable
@@ -213,7 +216,7 @@ private fun AvatarSection(initials: String, modifier: Modifier = Modifier) {
         Text(
             stringResource(R.string.edit_profile_change_photo),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = accentTeal(),
             modifier = Modifier.padding(top = 12.dp)
         )
     }
@@ -222,7 +225,7 @@ private fun AvatarSection(initials: String, modifier: Modifier = Modifier) {
 @Composable
 private fun FormField(label: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-        Text(label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.5.sp), color = Color(0xFF4A5652))
+        Text(label, style = MaterialTheme.typography.labelMedium.copy(fontSize = 11.5.sp), color = adaptiveColor(Color(0xFF4A5652), Color(0xFFB7C2BE)))
         content()
     }
 }

@@ -54,7 +54,7 @@ fun GoogleSignInButton(
         enabled = !isLoading,
         modifier = modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(14.dp),
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = White),
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         if (isLoading) {

@@ -1,5 +1,7 @@
 package com.app.rumbo.features.publicationdetail
 
+import com.app.rumbo.core.theme.accentTeal
+import com.app.rumbo.core.theme.adaptiveColor
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -160,7 +162,7 @@ private fun PublicationDetailContent(
                     onClick = onToggleInterest,
                     modifier = Modifier.weight(1f).height(48.dp),
                     colors = if (publication.interested) {
-                        ButtonDefaults.buttonColors(containerColor = Color(0xFFFEF6E2), contentColor = Color(0xFF8A6A0B))
+                        ButtonDefaults.buttonColors(containerColor = adaptiveColor(Color(0xFFFEF6E2), Color(0xFF3A3010)), contentColor = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)))
                     } else {
                         ButtonDefaults.buttonColors()
                     }
@@ -179,7 +181,7 @@ private fun PublicationDetailContent(
                     onClick = onToggleVisited,
                     modifier = Modifier.height(48.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (publication.visited) Color(0xFF2B6B45) else MaterialTheme.colorScheme.onSurfaceVariant
+                        contentColor = if (publication.visited) adaptiveColor(Color(0xFF2B6B45), Color(0xFF6FCF97)) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
                     Icon(
@@ -274,15 +276,15 @@ private fun PendingNotice() {
     Row(
         Modifier
             .fillMaxWidth()
-            .background(Color(0xFFFDF3DC), MaterialTheme.shapes.medium)
+            .background(adaptiveColor(Color(0xFFFDF3DC), Color(0xFF3A3010)), MaterialTheme.shapes.medium)
             .padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(18.dp), tint = Color(0xFF8A6A0B))
+        Icon(painterResource(R.drawable.ic_schedule), null, Modifier.size(18.dp), tint = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)))
         Text(
             stringResource(R.string.detail_pending_notice),
             style = MaterialTheme.typography.bodySmall,
-            color = Color(0xFF8A6A0B)
+            color = adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A))
         )
     }
 }
@@ -290,7 +292,7 @@ private fun PendingNotice() {
 @Composable
 private fun InfoRow(@DrawableRes icon: Int, label: String, value: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(painterResource(icon), null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(painterResource(icon), null, Modifier.size(20.dp), tint = accentTeal())
         Column {
             Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(value, style = MaterialTheme.typography.bodyMedium)
@@ -418,7 +420,7 @@ private fun CommentItem(comment: Comment, canLike: Boolean, onLikeClick: () -> U
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(comment.text, style = MaterialTheme.typography.bodyMedium)
-            val likeColor = if (comment.liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            val likeColor = if (comment.liked) accentTeal() else MaterialTheme.colorScheme.onSurfaceVariant
             Row(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.small)

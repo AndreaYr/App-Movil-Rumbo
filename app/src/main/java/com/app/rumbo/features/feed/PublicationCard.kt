@@ -1,5 +1,6 @@
 package com.app.rumbo.features.feed
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -128,9 +129,9 @@ fun PublicationCard(
 @Composable
 private fun VotePill(votes: Int, interested: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(999.dp)
-    val background = if (interested) Color(0xFFFEF6E2) else MaterialTheme.colorScheme.surface
-    val border = if (interested) Color(0xFFF0DCA8) else Color(0xFFE9E3D8)
-    val content = if (interested) Color(0xFF8A6A0B) else MaterialTheme.colorScheme.onSurfaceVariant
+    val background = if (interested) adaptiveColor(Color(0xFFFEF6E2), Color(0xFF3A3010)) else MaterialTheme.colorScheme.surface
+    val border = if (interested) adaptiveColor(Color(0xFFF0DCA8), Color(0xFF5A4A1E)) else adaptiveColor(Color(0xFFE9E3D8), Color(0xFF2E3B38))
+    val content = if (interested) adaptiveColor(Color(0xFF8A6A0B), Color(0xFFE3C26A)) else MaterialTheme.colorScheme.onSurfaceVariant
     Row(
         modifier = Modifier
             .clip(shape)
@@ -148,7 +149,7 @@ private fun VotePill(votes: Int, interested: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun VisitedLabel(visited: Boolean) {
-    val color = if (visited) Color(0xFF2B6B45) else MaterialTheme.colorScheme.onSurfaceVariant
+    val color = if (visited) adaptiveColor(Color(0xFF2B6B45), Color(0xFF6FCF97)) else MaterialTheme.colorScheme.onSurfaceVariant
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Icon(
             painterResource(if (visited) R.drawable.ic_check_circle else R.drawable.ic_radio_unchecked),

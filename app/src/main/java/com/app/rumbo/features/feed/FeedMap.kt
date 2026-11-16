@@ -1,5 +1,6 @@
 package com.app.rumbo.features.feed
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -147,7 +148,7 @@ internal fun FeedMap(
                 )
             } else if ((filters.isActive || text.isNotEmpty()) && publications.isEmpty() && places.isEmpty()) {
                 Text(
-                    "Sin resultados para esta búsqueda",
+                    stringResource(R.string.feed_no_results),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
@@ -278,7 +279,7 @@ private fun MapSearchField(query: String, onQueryChange: (String) -> Unit, modif
         if (query.isNotEmpty()) {
             Icon(
                 painterResource(R.drawable.ic_close),
-                contentDescription = "Borrar búsqueda",
+                contentDescription = stringResource(R.string.feed_clear_search),
                 modifier = Modifier
                     .size(18.dp)
                     .clickable(role = Role.Button) { onQueryChange("") },
@@ -362,11 +363,11 @@ private fun MapPublicationCard(publication: Publication, onClick: () -> Unit, mo
                 Text(
                     stringResource(R.string.feed_view_detail),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = accentTeal(),
                     modifier = Modifier.weight(1f).padding(start = 8.dp),
                     maxLines = 1
                 )
-                Icon(painterResource(R.drawable.ic_arrow_forward), null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
+                Icon(painterResource(R.drawable.ic_arrow_forward), null, Modifier.size(14.dp), tint = accentTeal())
             }
         }
     }

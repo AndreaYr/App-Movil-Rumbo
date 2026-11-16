@@ -1,5 +1,6 @@
 package com.app.rumbo.features.editpublication
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,9 +55,9 @@ import com.app.rumbo.features.createpublication.LocationMap
 import com.app.rumbo.features.createpublication.PriceField
 import com.app.rumbo.features.createpublication.RumboTextField
 
-private val RejectedBackground = Color(0xFFFCE8E2)
-private val RejectedBorder = Color(0xFFF0C4B6)
-private val RejectedContent = Color(0xFF8E2F13)
+private val RejectedBackground: Color @Composable get() = adaptiveColor(Color(0xFFFCE8E2), Color(0xFF4A1F12))
+private val RejectedBorder: Color @Composable get() = adaptiveColor(Color(0xFFF0C4B6), Color(0xFF5A2E22))
+private val RejectedContent: Color @Composable get() = adaptiveColor(Color(0xFF8E2F13), Color(0xFFFFB4A0))
 
 @Composable
 fun EditPublicationRoute(

@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import com.app.rumbo.R
 import com.app.rumbo.domain.model.SavedRoute
@@ -15,12 +16,12 @@ import com.app.rumbo.domain.model.StartPoint
 import com.app.rumbo.domain.model.Transport
 
 /** Formas de compartir una ruta; cada una se muestra con su icono en la hoja "Compartir ruta". */
-enum class ShareTarget(val label: String, @DrawableRes val icon: Int) {
-    LINK("Copiar enlace", R.drawable.ic_link),
-    WHATSAPP("WhatsApp", R.drawable.ic_whatsapp),
-    FACEBOOK("Facebook", R.drawable.ic_facebook),
-    INSTAGRAM("Instagram", R.drawable.ic_instagram),
-    EMAIL("Correo electrónico", R.drawable.ic_mail)
+enum class ShareTarget(@StringRes val labelRes: Int, @DrawableRes val icon: Int) {
+    LINK(R.string.share_copy_link, R.drawable.ic_link),
+    WHATSAPP(R.string.share_whatsapp, R.drawable.ic_whatsapp),
+    FACEBOOK(R.string.share_facebook, R.drawable.ic_facebook),
+    INSTAGRAM(R.string.share_instagram, R.drawable.ic_instagram),
+    EMAIL(R.string.share_email, R.drawable.ic_mail)
 }
 
 /** Enlace que abre el recorrido completo en Google Maps (app o navegador), con el transporte elegido. */
@@ -43,8 +44,8 @@ internal fun directionsUrl(route: SavedRoute, start: StartPoint? = null): String
     }
 }
 
-internal fun shareText(route: SavedRoute, url: String, transportLabel: String): String =
-    "Mira mi ruta en Rumbo: ${route.name} · ${route.stops.size} paradas · $transportLabel\n$url"
+internal fun Context.shareText(route: SavedRoute, url: String, transportLabel: String): String =
+    getString(R.string.share_text, route.name, route.stops.size, transportLabel, url)
 
 /** Comparte la ruta por [target]. Si la app elegida no está instalada, avisa en lugar de fallar. */
 internal fun Context.shareRoute(route: SavedRoute, start: StartPoint?, target: ShareTarget) {
@@ -54,11 +55,11 @@ internal fun Context.shareRoute(route: SavedRoute, start: StartPoint?, target: S
     when (target) {
         ShareTarget.LINK -> {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("Ruta de Rumbo", url))
-            Toast.makeText(this, "Enlace copiado", Toast.LENGTH_SHORT).show()
+            clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.share_clipboard_label), url))
+            Toast.makeText(this, getString(R.string.share_link_copied), Toast.LENGTH_SHORT).show()
         }
-        ShareTarget.WHATSAPP -> sendToApp(text, "com.whatsapp", "WhatsApp")
-        ShareTarget.INSTAGRAM -> sendToApp(text, "com.instagram.android", "Instagram")
+        ShareTarget.WHATSAPP -> sendToApp(text, "com.whatsapp", getString(R.string.share_whatsapp))
+        ShareTarget.INSTAGRAM -> sendToApp(text, "com.instagram.android", getString(R.string.share_instagram))
         ShareTarget.FACEBOOK -> {
             // Facebook casi no acepta texto desde otras apps, así que si no abre se usa su página para compartir enlaces
             val opened = sendToApp(text, "com.facebook.katana", null)
@@ -66,10 +67,10 @@ internal fun Context.shareRoute(route: SavedRoute, start: StartPoint?, target: S
         }
         ShareTarget.EMAIL -> {
             val intent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri()).apply {
-                putExtra(Intent.EXTRA_SUBJECT, "Mi ruta en Rumbo: ${route.name}")
+                putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_email_subject, route.name))
                 putExtra(Intent.EXTRA_TEXT, text)
             }
-            launch(intent, "No hay una app de correo")
+            launch(intent, getString(R.string.share_no_email_app))
         }
     }
 }
@@ -81,11 +82,11 @@ private fun Context.sendToApp(text: String, packageName: String, appName: String
         setPackage(packageName)
         putExtra(Intent.EXTRA_TEXT, text)
     }
-    return launch(intent, appName?.let { "$it no está instalado" })
+    return launch(intent, appName?.let { getString(R.string.share_app_not_installed, it) })
 }
 
 private fun Context.openUri(uri: Uri) {
-    launch(Intent(Intent.ACTION_VIEW, uri), "No hay una app para abrir el enlace")
+    launch(Intent(Intent.ACTION_VIEW, uri), getString(R.string.share_no_link_app))
 }
 
 private fun Context.launch(intent: Intent, errorMessage: String?): Boolean = try {

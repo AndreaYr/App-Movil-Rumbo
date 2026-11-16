@@ -1,5 +1,6 @@
 package com.app.rumbo.features.login
 
+import com.app.rumbo.core.theme.accentTeal
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -137,7 +138,7 @@ fun LoginScreen(
     }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Sand
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -152,7 +153,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .size(38.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Teal),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -173,7 +174,7 @@ fun LoginScreen(
                     modifier = Modifier.semantics { contentDescription = changeLanguageLabel },
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)
                 ) {
-                    Text(languageLabel, style = MaterialTheme.typography.labelMedium, color = Teal)
+                    Text(languageLabel, style = MaterialTheme.typography.labelMedium, color = accentTeal())
                 }
             }
 
@@ -216,7 +217,7 @@ fun LoginScreen(
                 modifier = Modifier.align(Alignment.End).height(36.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp)
             ) {
-                Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelMedium, color = Teal)
+                Text(stringResource(R.string.login_forgot_password), style = MaterialTheme.typography.labelMedium, color = accentTeal())
             }
 
             Button(
@@ -224,7 +225,7 @@ fun LoginScreen(
                 enabled = state.status != LoginStatus.LOADING,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 if (state.status == LoginStatus.LOADING) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
@@ -266,7 +267,7 @@ fun LoginScreen(
                     modifier = Modifier.height(28.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
                 ) {
-                    Text(stringResource(R.string.login_register), style = MaterialTheme.typography.labelMedium, color = Teal)
+                    Text(stringResource(R.string.login_register), style = MaterialTheme.typography.labelMedium, color = accentTeal())
                 }
             }
         }
@@ -291,12 +292,12 @@ private fun LoginInput(
             .fillMaxWidth()
             .height(48.dp)
             .clip(RoundedCornerShape(13.dp))
-            .background(White)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, borderColor, RoundedCornerShape(13.dp))
             .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(icon, color = Teal, style = MaterialTheme.typography.bodyMedium)
+        Text(icon, color = accentTeal(), style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.width(10.dp))
         BasicTextField(
             value = value,
@@ -304,7 +305,7 @@ private fun LoginInput(
             modifier = Modifier.weight(1f),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
-            cursorBrush = SolidColor(Teal),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { inner ->
@@ -316,7 +317,7 @@ private fun LoginInput(
         )
         if (trailingText != null) {
             TextButton(onClick = onTrailingClick, modifier = Modifier.size(32.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) {
-                Text(trailingText, color = Teal)
+                Text(trailingText, color = accentTeal())
             }
         }
     }

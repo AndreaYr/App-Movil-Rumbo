@@ -1,5 +1,6 @@
 package com.app.rumbo.features.planroute
 
+import com.app.rumbo.core.theme.accentTeal
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -258,7 +259,7 @@ private fun TopActions(isSaved: Boolean, canShare: Boolean, onBack: () -> Unit, 
             contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary,
+                contentColor = accentTeal(),
                 disabledContainerColor = MaterialTheme.colorScheme.surface,
                 disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
             )
@@ -297,9 +298,9 @@ private fun BottomActions(isSaved: Boolean, canNavigate: Boolean, onSave: () -> 
             modifier = Modifier.weight(1f).height(52.dp),
             shape = MaterialTheme.shapes.large,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Teal,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
-                disabledContainerColor = Teal.copy(alpha = 0.55f),
+                disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.55f),
                 disabledContentColor = Color.White
             )
         ) {
@@ -318,7 +319,7 @@ private fun BottomActions(isSaved: Boolean, canNavigate: Boolean, onSave: () -> 
             contentPadding = ButtonDefaults.TextButtonContentPadding,
             border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline)
         ) {
-            Icon(painterResource(R.drawable.ic_navigation), contentDescription = stringResource(R.string.route_start_navigation), tint = Teal)
+            Icon(painterResource(R.drawable.ic_navigation), contentDescription = stringResource(R.string.route_start_navigation), tint = accentTeal())
         }
     }
 }
@@ -333,7 +334,7 @@ private fun Kpi(@DrawableRes icon: Int, value: String, label: String, modifier: 
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(painterResource(icon), null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(painterResource(icon), null, Modifier.size(18.dp), tint = accentTeal())
         Text(value, style = MaterialTheme.typography.titleSmall, maxLines = 1)
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
     }
@@ -353,7 +354,7 @@ private fun StopRow(number: Int, stop: SavedRouteStop, isLast: Boolean, onClick:
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(
-            Modifier.size(30.dp).background(if (isLast) Coral else Teal, CircleShape),
+            Modifier.size(30.dp).background(if (isLast) Coral else MaterialTheme.colorScheme.primary, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Text(number.toString(), style = MaterialTheme.typography.labelLarge, color = Color.White)
@@ -401,7 +402,7 @@ private fun ShareRouteSheet(onTarget: (ShareTarget) -> Unit, onDismiss: () -> Un
             modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text("Compartir ruta", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 8.dp))
+            Text(stringResource(R.string.route_share), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 8.dp))
             ShareTarget.entries.forEach { target ->
                 Row(
                     modifier = Modifier
@@ -421,7 +422,7 @@ private fun ShareRouteSheet(onTarget: (ShareTarget) -> Unit, onDismiss: () -> Un
                             .padding(10.dp),
                         tint = target.color
                     )
-                    Text(target.label, style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(target.labelRes), style = MaterialTheme.typography.titleSmall)
                 }
             }
         }

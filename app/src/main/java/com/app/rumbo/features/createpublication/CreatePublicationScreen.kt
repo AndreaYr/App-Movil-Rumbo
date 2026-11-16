@@ -1,5 +1,6 @@
 package com.app.rumbo.features.createpublication
 
+import com.app.rumbo.core.theme.accentTeal
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -239,12 +240,12 @@ fun CreatePublicationScreen(
                     )
                 }
 
-                FormField("Dirección · escríbela o toca el mapa y se detecta sola") {
+                FormField(stringResource(R.string.create_address_field)) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         RumboTextField(
                             value = state.address,
                             onValueChange = onAddressChange,
-                            placeholder = "Calle, carrera o nombre del lugar",
+                            placeholder = stringResource(R.string.create_address_placeholder),
                             leadingIcon = R.drawable.ic_place
                         )
                         AddressSuggestions(state.addressSuggestions, onAddressSuggestionSelected)
@@ -270,7 +271,7 @@ fun CreatePublicationScreen(
                             onClick = { locateUserRequest++ },
                             modifier = Modifier.align(Alignment.End).height(44.dp),
                             shape = MaterialTheme.shapes.medium,
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = accentTeal()),
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                         ) {
                             Text(stringResource(R.string.create_use_my_location), style = MaterialTheme.typography.titleSmall)
@@ -334,7 +335,7 @@ private fun ModerationNotice() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(GoldContainer)
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
             .padding(14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -381,7 +382,7 @@ private fun AddPhotoBox(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(painterResource(R.drawable.ic_camera), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+            Icon(painterResource(R.drawable.ic_camera), contentDescription = null, tint = accentTeal(), modifier = Modifier.size(24.dp))
             Text(stringResource(R.string.create_add_photo), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
@@ -535,7 +536,7 @@ private fun SelectorRow(iconRes: Int, text: String, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(painterResource(iconRes), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+        Icon(painterResource(iconRes), contentDescription = null, tint = accentTeal(), modifier = Modifier.size(20.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
         Icon(painterResource(R.drawable.ic_arrow_drop_down), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -711,15 +712,15 @@ internal fun DepartmentTownFields(
     val municipalities = departments.firstOrNull { it.name == department }?.municipalities.orEmpty()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SelectField(
-            label = "Departamento",
-            placeholder = "Selecciona el departamento",
+            label = stringResource(R.string.location_department),
+            placeholder = stringResource(R.string.location_department_select),
             selected = department,
             options = departments.map { it.name },
             onSelected = onDepartmentSelected
         )
         SelectField(
-            label = "Ciudad o municipio",
-            placeholder = if (department == null) "Elige primero un departamento" else "Selecciona el municipio",
+            label = stringResource(R.string.location_town),
+            placeholder = stringResource(if (department == null) R.string.location_choose_department_first else R.string.location_town_select),
             selected = town,
             options = municipalities,
             enabled = department != null,

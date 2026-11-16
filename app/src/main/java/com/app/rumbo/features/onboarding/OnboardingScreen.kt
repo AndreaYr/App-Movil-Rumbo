@@ -1,5 +1,6 @@
 package com.app.rumbo.features.onboarding
 
+import com.app.rumbo.core.theme.accentTeal
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +76,7 @@ fun OnboardingRoute(
 fun OnboardingScreen(
     onContinueClick: () -> Unit
 ) {
-    Scaffold(containerColor = Sand) { padding ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -90,7 +91,7 @@ fun OnboardingScreen(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Teal),
+                    .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -126,7 +127,7 @@ fun OnboardingScreen(
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = Teal,
+                    color = accentTeal(),
                     strokeWidth = 2.5.dp
                 )
                 Text(
@@ -167,7 +168,7 @@ fun OnboardingScreen(
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Teal)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(
                     text = stringResource(R.string.onboarding_continue),
@@ -191,7 +192,7 @@ private fun OnboardingFeature(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(White, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
