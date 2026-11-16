@@ -1,5 +1,6 @@
 package com.app.rumbo.features.moderationhistory
 
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.GetModerationHistoryUseCase
@@ -21,7 +22,7 @@ class ModerationHistoryViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val repository = InMemoryPublicationRepository()
+    private val repository = InMemoryPublicationRepository(SamplePublications.create())
 
     private fun createViewModel() = ModerationHistoryViewModel(GetModerationHistoryUseCase(repository))
 

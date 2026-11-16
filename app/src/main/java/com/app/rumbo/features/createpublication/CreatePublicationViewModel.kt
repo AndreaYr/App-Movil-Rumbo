@@ -4,12 +4,13 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
-import com.app.rumbo.data.local.CurrentUser
+import com.app.rumbo.domain.model.Author
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationDraft
 import com.app.rumbo.domain.model.PlaceResult
+import com.app.rumbo.domain.usecase.GetCurrentAuthorUseCase
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
 import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
 import com.app.rumbo.domain.usecase.SearchPlacesUseCase
@@ -18,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 
 const val MAX_PHOTOS = 6
@@ -76,13 +79,15 @@ data class CreatePublicationUiState(
 sealed interface CreatePublicationEvent {
     data object DraftSaved : CreatePublicationEvent
     data class Published(val publicationId: String) : CreatePublicationEvent
+    data class PublishFailed(@StringRes val messageRes: Int) : CreatePublicationEvent
 }
 
 @HiltViewModel
 class CreatePublicationViewModel @Inject constructor(
     private val publishPublication: PublishPublicationUseCase,
     private val searchPlaces: SearchPlacesUseCase,
-    private val reverseGeocode: ReverseGeocodeUseCase
+    private val reverseGeocode: ReverseGeocodeUseCase,
+    private val getCurrentAuthor: GetCurrentAuthorUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePublicationUiState())
@@ -194,9 +199,18 @@ class CreatePublicationViewModel @Inject constructor(
         }
         _uiState.update { it.copy(isSaving = true) }
         viewModelScope.launch {
-            val publication = publishPublication(state.toDraft(), CurrentUser.author)
-            _uiState.update { it.copy(isSaving = false) }
-            _events.send(CreatePublicationEvent.Published(publication.id))
+            try {
+                val author = getCurrentAuthor().first()
+                    ?: Author(id = "me", name = "Tú", levelName = "Explorador")
+                val publication = publishPublication(state.toDraft(), author)
+                _uiState.update { it.copy(isSaving = false) }
+                _events.send(CreatePublicationEvent.Published(publication.id))
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update { it.copy(isSaving = false) }
+                _events.send(CreatePublicationEvent.PublishFailed(R.string.create_publish_error))
+            }
         }
     }
 }

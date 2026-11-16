@@ -4,10 +4,14 @@ import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.domain.usecase.GetCurrentAuthorUseCase
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
 import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
 import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import com.app.rumbo.testutil.FakeAuthorRepository
+import com.app.rumbo.testutil.FakePhotoRepository
 import com.app.rumbo.testutil.FakePlaceSearchRepository
+import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -28,9 +32,10 @@ class CreatePublicationViewModelTest {
     private val places = FakePlaceSearchRepository()
 
     private fun createViewModel() = CreatePublicationViewModel(
-        PublishPublicationUseCase(repository),
+        PublishPublicationUseCase(repository, FakePhotoRepository()),
         SearchPlacesUseCase(places),
-        ReverseGeocodeUseCase(places)
+        ReverseGeocodeUseCase(places),
+        GetCurrentAuthorUseCase(FakeUserRepository(), FakeAuthorRepository())
     )
 
     @Test

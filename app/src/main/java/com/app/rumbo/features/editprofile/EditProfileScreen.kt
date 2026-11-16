@@ -374,9 +374,9 @@ private fun EditProfileScreenPreview() {
         EditProfileScreen(
             state = EditProfileUiState(
                 isLoading = false,
-                initials = "MO",
-                email = "mariana.ospina@correo.co",
-                name = "Mariana Ospina",
+                initials = "UP",
+                email = "usuario@ejemplo.com",
+                name = "Usuario de prueba",
                 bio = "Caminante de fin de semana. Busco miradores y cafés de finca en el Quindío.",
                 city = "Armenia, Quindío"
             ),

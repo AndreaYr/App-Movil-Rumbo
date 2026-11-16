@@ -1,14 +1,15 @@
 package com.app.rumbo.features.home
 
-import com.app.rumbo.data.repository.InMemoryNotificationRepository
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
-import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.GetHomeUseCase
 import com.app.rumbo.domain.repository.AiRepository
 import com.app.rumbo.domain.usecase.HasUnreadNotificationsUseCase
 import com.app.rumbo.domain.usecase.RecommendPlacesUseCase
+import com.app.rumbo.testutil.FakeNotificationRepository
+import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -37,11 +38,12 @@ class HomeViewModelTest {
 
     @Before
     fun setUp() {
+        val publications = InMemoryPublicationRepository(SamplePublications.create())
         viewModel = HomeViewModel(
-            GetHomeUseCase(InMemoryPublicationRepository()),
-            GetCurrentUserUseCase(InMemoryUserRepository()),
-            HasUnreadNotificationsUseCase(InMemoryNotificationRepository()),
-            RecommendPlacesUseCase(InMemoryPublicationRepository(), NoAi)
+            GetHomeUseCase(publications),
+            GetCurrentUserUseCase(FakeUserRepository()),
+            HasUnreadNotificationsUseCase(FakeNotificationRepository()),
+            RecommendPlacesUseCase(publications, NoAi)
         )
     }
 

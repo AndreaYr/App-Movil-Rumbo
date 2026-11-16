@@ -2,10 +2,14 @@ package com.app.rumbo.features.createpublication
 
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PlaceResult
+import com.app.rumbo.domain.usecase.GetCurrentAuthorUseCase
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
 import com.app.rumbo.domain.usecase.ReverseGeocodeUseCase
 import com.app.rumbo.domain.usecase.SearchPlacesUseCase
+import com.app.rumbo.testutil.FakeAuthorRepository
+import com.app.rumbo.testutil.FakePhotoRepository
 import com.app.rumbo.testutil.FakePlaceSearchRepository
+import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -25,9 +29,10 @@ class CreateAddressTest {
     private val place = PlaceResult("1", "Calle 40 #25-10", "Calarcá, Quindío", 4.52, -75.64)
 
     private fun createViewModel(places: FakePlaceSearchRepository) = CreatePublicationViewModel(
-        PublishPublicationUseCase(InMemoryPublicationRepository()),
+        PublishPublicationUseCase(InMemoryPublicationRepository(), FakePhotoRepository()),
         SearchPlacesUseCase(places),
-        ReverseGeocodeUseCase(places)
+        ReverseGeocodeUseCase(places),
+        GetCurrentAuthorUseCase(FakeUserRepository(), FakeAuthorRepository())
     )
 
     @Test

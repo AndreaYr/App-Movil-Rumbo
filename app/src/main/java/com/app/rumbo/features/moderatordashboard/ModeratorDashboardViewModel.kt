@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.GetModeratorStatsUseCase
 import com.app.rumbo.domain.usecase.GetRecentModerationActivityUseCase
+import com.app.rumbo.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 class ModeratorDashboardViewModel @Inject constructor(
     private val getModeratorStatsUseCase: GetModeratorStatsUseCase,
     private val getRecentModerationActivityUseCase: GetRecentModerationActivityUseCase,
-    private val getCurrentUserUseCase: GetCurrentUserUseCase
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ModeratorDashboardUiState())
@@ -45,5 +47,9 @@ class ModeratorDashboardViewModel @Inject constructor(
                 }
             }.collect { }
         }
+    }
+
+    fun logout() {
+        viewModelScope.launch { logoutUseCase() }
     }
 }

@@ -1,10 +1,12 @@
 package com.app.rumbo.domain.usecase
 
-import com.app.rumbo.data.local.CurrentUser
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationDraft
+import com.app.rumbo.testutil.FakePhotoRepository
+import com.app.rumbo.testutil.TestUsers
+import com.app.rumbo.testutil.toAuthor
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -19,7 +21,10 @@ class PublishDepartmentTest {
             department = "Quindío", town = "Salento"
         )
 
-        val publication = PublishPublicationUseCase(InMemoryPublicationRepository())(draft, CurrentUser.author)
+        val publication = PublishPublicationUseCase(
+            InMemoryPublicationRepository(),
+            FakePhotoRepository()
+        )(draft, TestUsers.mariana.toAuthor())
 
         assertEquals("Quindío", publication.department)
         assertEquals("Salento", publication.town)

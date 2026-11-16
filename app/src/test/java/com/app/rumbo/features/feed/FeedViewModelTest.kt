@@ -1,5 +1,6 @@
 package com.app.rumbo.features.feed
 
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.FeedSort
@@ -32,7 +33,7 @@ class FeedViewModelTest {
 
     @Before
     fun setUp() {
-        val repository = InMemoryPublicationRepository()
+        val repository = InMemoryPublicationRepository(SamplePublications.create())
         viewModel = FeedViewModel(
             GetFeedUseCase(repository),
             ToggleInterestUseCase(repository),

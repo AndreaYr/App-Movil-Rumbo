@@ -531,14 +531,14 @@ private fun ModeratorDashboardPreview() {
                         id = "1",
                         actionType = ModerationActionType.VERIFIED,
                         publicationTitle = "Verificaste Mirador Alto de la Cruz",
-                        authorName = "Mariana Ospina",
+                        authorName = "Usuario de prueba",
                         timeAgo = "hace 25 min"
                     ),
                     ModerationActivity(
                         id = "2",
                         actionType = ModerationActionType.REJECTED,
                         publicationTitle = "Rechazaste Bar La Esquina",
-                        authorName = "Carlos Pérez",
+                        authorName = "Otro usuario",
                         timeAgo = "hace 1 h"
                     )
                 )

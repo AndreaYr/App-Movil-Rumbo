@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789647592703",
+    "project_id": "rumboruta-d0529",
+    "storage_bucket": "rumboruta-d0529.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789647592703:android:ff9ed77202e56ce43110ca",
+        "android_client_info": {
+          "package_name": "com.app.rumbo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_cMbWQ0QWU37qckSB-ha3TAabKfL905k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

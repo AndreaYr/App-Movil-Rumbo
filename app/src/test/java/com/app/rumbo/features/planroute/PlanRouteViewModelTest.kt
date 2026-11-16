@@ -1,5 +1,6 @@
 package com.app.rumbo.features.planroute
 
+import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.PlaceResult
@@ -47,7 +48,7 @@ class PlanRouteViewModelTest {
     @Before
     fun setUp() {
         viewModel = PlanRouteViewModel(
-            PlanRouteUseCase(InMemoryPublicationRepository()),
+            PlanRouteUseCase(InMemoryPublicationRepository(SamplePublications.create())),
             GetCurrentUserUseCase(FakeUserRepository()),
             GetSavedRoutesUseCase(savedRoutes),
             SaveRouteUseCase(savedRoutes),

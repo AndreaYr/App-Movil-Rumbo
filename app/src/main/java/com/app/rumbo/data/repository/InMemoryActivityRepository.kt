@@ -39,7 +39,7 @@ class InMemoryActivityRepository @Inject constructor(
                 finishedPublications = mine.count { it.status == PublicationStatus.FINISHED },
                 publicationsByCategory = mine.groupingBy { it.category }.eachCount(),
                 monthlyVotes = MonthlyVotes.emptyWindow(System.currentTimeMillis()),
-                visitedPlaces = publications.count { it.visited },
+                visitedPlaces = mine.count { it.visited },
                 routesCreated = savedRoutes.size
             )
         }

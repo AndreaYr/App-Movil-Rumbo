@@ -528,7 +528,7 @@ private fun HomeScreenPreview() {
         HomeScreen(
             state = HomeUiState(
                 isLoading = false,
-                userName = "Mariana",
+                userName = "Usuario",
                 city = "Armenia, Quindío",
                 hasUnreadNotifications = true,
                 recommendations = publications.take(2).map { AiRecommendation(it, "Te gusta la naturaleza y caminar") },

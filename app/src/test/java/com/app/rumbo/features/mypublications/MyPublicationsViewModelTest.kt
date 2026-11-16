@@ -1,6 +1,5 @@
 package com.app.rumbo.features.mypublications
 
-import com.app.rumbo.data.local.CurrentUser
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -12,7 +11,11 @@ import com.app.rumbo.domain.usecase.RejectPublicationUseCase
 import com.app.rumbo.domain.usecase.ApprovePublicationUseCase
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.PublishPublicationUseCase
+import com.app.rumbo.testutil.FakePhotoRepository
+import com.app.rumbo.testutil.FakeUserRepository
 import com.app.rumbo.testutil.MainDispatcherRule
+import com.app.rumbo.testutil.TestUsers
+import com.app.rumbo.testutil.toAuthor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -30,6 +33,10 @@ class MyPublicationsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = InMemoryPublicationRepository()
+    private val users = FakeUserRepository()
+    private val photos = FakePhotoRepository()
+
+    private fun getMyPublications() = GetMyPublicationsUseCase(repository, users)
 
     private fun draft(title: String) = PublicationDraft(
         title = title,
@@ -44,7 +51,7 @@ class MyPublicationsViewModelTest {
 
     @Test
     fun `sin publicaciones propias la lista esta vacia`() = runTest {
-        val viewModel = MyPublicationsViewModel(GetMyPublicationsUseCase(repository), FinishPublicationUseCase(repository))
+        val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
         assertTrue(viewModel.uiState.value.publications.isEmpty())
@@ -52,25 +59,25 @@ class MyPublicationsViewModelTest {
 
     @Test
     fun `incluye solo las publicaciones del usuario actual`() = runTest {
-        PublishPublicationUseCase(repository).invoke(draft("Mirador de la Vereda Cruces"), CurrentUser.author)
-        val viewModel = MyPublicationsViewModel(GetMyPublicationsUseCase(repository), FinishPublicationUseCase(repository))
+        PublishPublicationUseCase(repository, photos).invoke(draft("Mirador de la Vereda Cruces"), TestUsers.mariana.toAuthor())
+        val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
         val mine = viewModel.uiState.value.publications
         assertEquals(1, mine.size)
         assertEquals("Mirador de la Vereda Cruces", mine.first().title)
-        assertTrue(mine.all { it.author.id == CurrentUser.author.id })
+        assertTrue(mine.all { it.author.id == TestUsers.mariana.toAuthor().id })
     }
 
     @Test
     fun `la pestana filtra por estado y cuenta cada grupo`() = runTest {
-        val publish = PublishPublicationUseCase(repository)
-        val approved = publish(draft("Aprobada"), CurrentUser.author)
-        val rejected = publish(draft("Rechazada"), CurrentUser.author)
-        publish(draft("Pendiente"), CurrentUser.author)
+        val publish = PublishPublicationUseCase(repository, photos)
+        val approved = publish(draft("Aprobada"), TestUsers.mariana.toAuthor())
+        val rejected = publish(draft("Rechazada"), TestUsers.mariana.toAuthor())
+        publish(draft("Pendiente"), TestUsers.mariana.toAuthor())
         ApprovePublicationUseCase(repository)(approved.id)
         RejectPublicationUseCase(repository)(rejected.id, "Ubicación incorrecta", "El marcador quedó sobre la vía")
-        val viewModel = MyPublicationsViewModel(GetMyPublicationsUseCase(repository), FinishPublicationUseCase(repository))
+        val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
         viewModel.onTabSelected(MyPublicationsTab.REJECTED)
@@ -85,9 +92,9 @@ class MyPublicationsViewModelTest {
 
     @Test
     fun `finalizar pide confirmacion y cierra la publicacion verificada`() = runTest {
-        val published = PublishPublicationUseCase(repository).invoke(draft("Sendero"), CurrentUser.author)
+        val published = PublishPublicationUseCase(repository, photos).invoke(draft("Sendero"), TestUsers.mariana.toAuthor())
         ApprovePublicationUseCase(repository)(published.id)
-        val viewModel = MyPublicationsViewModel(GetMyPublicationsUseCase(repository), FinishPublicationUseCase(repository))
+        val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
         viewModel.onFinishRequested(published.id)
@@ -101,9 +108,9 @@ class MyPublicationsViewModelTest {
 
     @Test
     fun `cancelar la confirmacion no cambia el estado`() = runTest {
-        val published = PublishPublicationUseCase(repository).invoke(draft("Sendero"), CurrentUser.author)
+        val published = PublishPublicationUseCase(repository, photos).invoke(draft("Sendero"), TestUsers.mariana.toAuthor())
         ApprovePublicationUseCase(repository)(published.id)
-        val viewModel = MyPublicationsViewModel(GetMyPublicationsUseCase(repository), FinishPublicationUseCase(repository))
+        val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
         viewModel.onFinishRequested(published.id)

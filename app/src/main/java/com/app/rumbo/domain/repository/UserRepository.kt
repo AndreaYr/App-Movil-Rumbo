@@ -11,6 +11,12 @@ interface UserRepository {
     /** Guarda al usuario recién creado y lo deja seleccionado como usuario actual. */
     suspend fun createUser(user: User): User
 
+    /** Autentica al usuario; null si las credenciales son inválidas. */
+    suspend fun login(email: String, password: String): User?
+
+    /** Cierra la sesión del usuario actual. */
+    suspend fun logout()
+
     /** Guarda los cambios del perfil del usuario actual. */
     suspend fun updateProfile(update: ProfileUpdate)
 }

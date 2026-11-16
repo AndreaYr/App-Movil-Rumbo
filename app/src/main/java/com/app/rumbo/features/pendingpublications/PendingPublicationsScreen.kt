@@ -346,7 +346,7 @@ private fun PendingPublicationsPreview() {
                         distanceKm = 5.2,
                         price = PriceLevel.FREE,
                         status = PublicationStatus.PENDING,
-                        author = Author(id = "a1", name = "Mariana Ospina", levelName = "Exploradora"),
+                        author = Author(id = "a1", name = "Usuario de prueba", levelName = "Explorador"),
                         publishedAt = System.currentTimeMillis(),
                         votes = 0,
                         weeklyVotes = 0,
