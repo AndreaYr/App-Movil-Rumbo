@@ -14,6 +14,15 @@ interface UserRepository {
     /** Autentica al usuario; null si las credenciales son inválidas. */
     suspend fun login(email: String, password: String): User?
 
+    /**
+     * Inicia sesión (o registra, si es la primera vez) con una cuenta de Google.
+     * @param idToken token de identidad entregado por Google.
+     */
+    suspend fun signInWithGoogle(idToken: String): User
+
+    /** Envía al correo un enlace para restablecer la contraseña. */
+    suspend fun sendPasswordReset(email: String)
+
     /** Cierra la sesión del usuario actual. */
     suspend fun logout()
 

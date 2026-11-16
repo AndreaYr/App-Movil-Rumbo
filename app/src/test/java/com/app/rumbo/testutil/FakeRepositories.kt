@@ -71,6 +71,9 @@ class FakeUserRepository(user: User? = TestUsers.mariana) : UserRepository {
     }
     override suspend fun login(email: String, password: String): User? =
         current.value?.takeIf { it.email == email }?.also { current.value = it }
+    override suspend fun signInWithGoogle(idToken: String): User =
+        (current.value ?: TestUsers.mariana).also { current.value = it }
+    override suspend fun sendPasswordReset(email: String) = Unit
     override suspend fun logout() {
         current.value = null
     }

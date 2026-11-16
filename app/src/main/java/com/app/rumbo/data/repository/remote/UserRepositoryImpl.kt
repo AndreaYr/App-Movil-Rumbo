@@ -4,12 +4,14 @@ import com.app.rumbo.data.remote.UserDto
 import com.app.rumbo.domain.exception.EmailAlreadyInUseException
 import com.app.rumbo.domain.model.ProfileUpdate
 import com.app.rumbo.domain.model.User
+import com.app.rumbo.domain.model.UserRole
 import com.app.rumbo.domain.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -86,6 +88,42 @@ class UserRepositoryImpl @Inject constructor(
             return null
         }
         return user
+    }
+
+    override suspend fun signInWithGoogle(idToken: String): User {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val firebaseUser = auth.signInWithCredential(credential).await().user
+            ?: throw Exception("No se pudo obtener el usuario de Google")
+        val uid = firebaseUser.uid
+        val document = collection.document(uid)
+
+        val existing = document.get().await().toObject(UserDto::class.java)?.copy(id = uid)?.toDomain()
+        if (existing != null) return existing // Cuenta ya registrada: solo se inicia sesión
+
+        // Primer ingreso con Google: se crea el perfil igual que en el registro con correo
+        val newUser = User(
+            id = uid,
+            name = firebaseUser.displayName.orEmpty().ifBlank { firebaseUser.email.orEmpty().substringBefore('@') },
+            email = firebaseUser.email.orEmpty(),
+            city = "",
+            levelName = "Explorador",
+            role = UserRole.USER
+        )
+        try {
+            document.set(UserDto.fromDomain(newUser)).await()
+        } catch (e: Exception) {
+            withContext(NonCancellable) { auth.signOut() }
+            throw e
+        }
+        return newUser
+    }
+
+    override suspend fun sendPasswordReset(email: String) {
+        try {
+            auth.sendPasswordResetEmail(email).await()
+        } catch (_: FirebaseAuthInvalidUserException) {
+            // No se revela si el correo existe: se responde igual que en un envío exitoso
+        }
     }
 
     override suspend fun logout() {

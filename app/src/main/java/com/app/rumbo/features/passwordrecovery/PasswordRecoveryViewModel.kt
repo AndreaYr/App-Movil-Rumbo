@@ -5,9 +5,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
+import com.app.rumbo.domain.usecase.SendPasswordResetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,9 @@ data class PasswordRecoveryUiState(
 )
 
 @HiltViewModel
-class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
+class PasswordRecoveryViewModel @Inject constructor(
+    private val sendPasswordReset: SendPasswordResetUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PasswordRecoveryUiState())
     val uiState: StateFlow<PasswordRecoveryUiState> = _uiState.asStateFlow()
@@ -55,29 +58,29 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
 
         viewModelScope.launch {
             _uiState.update { it.copy(status = PasswordRecoveryStatus.LOADING, messageRes = null) }
-            delay(SIMULATED_REQUEST_DELAY_MS)
-            _uiState.update {
-                it.copy(
-                    status = PasswordRecoveryStatus.SUCCESS,
-                    messageRes = R.string.password_recovery_success_message
-                )
+            try {
+                sendPasswordReset(state.email)
+                _uiState.update {
+                    it.copy(
+                        status = PasswordRecoveryStatus.SUCCESS,
+                        messageRes = R.string.password_recovery_success_message
+                    )
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update {
+                    it.copy(
+                        status = PasswordRecoveryStatus.ERROR,
+                        messageRes = R.string.password_recovery_error_message
+                    )
+                }
             }
         }
     }
 
-    /** Activa un error visible de demostración, incluso si no se ingresó correo. */
     fun clearMessage() {
         _uiState.update { it.copy(messageRes = null) }
-    }
-
-    fun showErrorDemo() {
-        if (_uiState.value.status == PasswordRecoveryStatus.LOADING) return
-        _uiState.update {
-            it.copy(
-                status = PasswordRecoveryStatus.ERROR,
-                messageRes = R.string.password_recovery_demo_error_message
-            )
-        }
     }
 
     @StringRes
@@ -85,9 +88,5 @@ class PasswordRecoveryViewModel @Inject constructor() : ViewModel() {
         email.isBlank() -> R.string.validation_email_required
         !Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches() -> R.string.validation_email_invalid
         else -> null
-    }
-
-    private companion object {
-        const val SIMULATED_REQUEST_DELAY_MS = 800L
     }
 }

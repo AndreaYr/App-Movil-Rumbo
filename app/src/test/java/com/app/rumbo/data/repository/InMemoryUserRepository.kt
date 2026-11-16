@@ -38,6 +38,15 @@ class InMemoryUserRepository @Inject constructor() : UserRepository {
         return user
     }
 
+    override suspend fun signInWithGoogle(idToken: String): User {
+        val user = User(id = idToken, name = "Google", email = "$idToken@google.test", city = "", levelName = "Explorador")
+        users[user.email] = user
+        currentUser.value = user
+        return user
+    }
+
+    override suspend fun sendPasswordReset(email: String) = Unit
+
     override suspend fun logout() {
         currentUser.value = null
     }

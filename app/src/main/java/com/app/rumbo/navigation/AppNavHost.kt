@@ -387,6 +387,12 @@ fun AppNavHost(
                         ?.savedStateHandle
                         ?.set(REGISTER_SUCCESS_RESULT_KEY, registerSuccessMessage)
                     navController.popBackStack()
+                },
+                onGoogleSuccess = {
+                    navController.navigate(HomeDestination) {
+                        popUpTo<LoginDestination> { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

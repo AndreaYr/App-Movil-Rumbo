@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
 import com.app.rumbo.domain.usecase.LoginUserUseCase
+import com.app.rumbo.domain.usecase.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +38,8 @@ data class LoginUiState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUserUseCase: LoginUserUseCase
+    private val loginUserUseCase: LoginUserUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -106,6 +108,31 @@ class LoginViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    /** Recibe el ID token de Google y abre sesión (o crea la cuenta si es la primera vez). */
+    fun loginWithGoogle(idToken: String) {
+        if (_uiState.value.status == LoginStatus.LOADING) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = LoginStatus.LOADING, messageRes = null) }
+            try {
+                signInWithGoogleUseCase(idToken)
+                _uiState.update {
+                    it.copy(status = LoginStatus.SUCCESS, messageRes = R.string.login_success_message)
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                onGoogleError()
+            }
+        }
+    }
+
+    /** Google no entregó credenciales (sin cuentas, sin red o configuración incompleta). */
+    fun onGoogleError() {
+        _uiState.update {
+            it.copy(status = LoginStatus.ERROR, messageRes = R.string.google_sign_in_error)
         }
     }
 

@@ -3,6 +3,7 @@ package com.app.rumbo.features.register
 import com.app.rumbo.R
 import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
+import com.app.rumbo.domain.usecase.SignInWithGoogleUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -11,7 +12,8 @@ class RegisterViewModelTest {
 
     @Test
     fun `al enviar formulario invalido muestra los errores en el estado`() {
-        val viewModel = RegisterViewModel(RegisterUserUseCase(InMemoryUserRepository()))
+        val repository = InMemoryUserRepository()
+        val viewModel = RegisterViewModel(RegisterUserUseCase(repository), SignInWithGoogleUseCase(repository))
 
         viewModel.register()
 

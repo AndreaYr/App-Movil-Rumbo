@@ -29,8 +29,7 @@
     <string name="moderator_login_success_message">Access granted.</string>
     <string name="moderator_login_error_generic">Could not sign in.</string>
     <string name="moderator_login_error_not_moderator">This account does not have moderator permissions.</string>
-    <string name="password_recovery_success_message">Request simulated successfully. No email was sent.</string>
-    <string name="password_recovery_demo_error_message">Test error: the request could not be completed. Try again.</string>
+    <string name="password_recovery_success_message">If the email is registered, we sent you a link to reset your password.</string>
     <string name="create_title_required">Write a title</string>
     <string name="create_description_required">Tell us about the place</string>
     <string name="create_publish_error">Could not submit the publication. Check your connection and make sure Firebase Storage is enabled if you added photos.</string>
@@ -126,7 +125,6 @@
     <string name="password_recovery_email_label">Email</string>
     <string name="password_recovery_sending">"  Sending…"</string>
     <string name="password_recovery_send_link">Send link</string>
-    <string name="password_recovery_show_error">Show error state</string>
 
     <!-- Moderator login -->
     <string name="moderator_login_console">MODERATION CONSOLE</string>
@@ -589,4 +587,7 @@
     <string name="my_publications_tab_verified">Verified</string>
     <string name="my_publications_tab_rejected">Rejected</string>
     <string name="my_publications_tab_finished">Finished</string>
+    <string name="password_recovery_error_message">The link could not be sent. Check your connection and try again.</string>
+    <string name="google_sign_in_button">Continue with Google</string>
+    <string name="google_sign_in_error">Could not sign in with Google. Please try again.</string>
 </resources>

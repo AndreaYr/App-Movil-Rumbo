@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.component.GoogleSignInButton
 import com.app.rumbo.core.component.LanguageDialog
 import com.app.rumbo.core.theme.RumboTheme
 import com.app.rumbo.core.util.currentLanguage
@@ -105,6 +106,8 @@ fun LoginRoute(
         onPasswordChange = viewModel::onPasswordChange,
         onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
         onLogin = viewModel::login,
+        onGoogleToken = viewModel::loginWithGoogle,
+        onGoogleError = viewModel::onGoogleError,
         onRegisterClick = onRegisterClick,
         onRecoveryClick = onRecoveryClick,
         onModeratorClick = onModeratorClick
@@ -121,6 +124,8 @@ fun LoginScreen(
     onLogin: () -> Unit,
     onRegisterClick: () -> Unit,
     onRecoveryClick: () -> Unit,
+    onGoogleToken: (String) -> Unit = {},
+    onGoogleError: () -> Unit = {},
     onModeratorClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -229,6 +234,12 @@ fun LoginScreen(
                 }
             }
 
+            GoogleSignInButton(
+                isLoading = state.status == LoginStatus.LOADING,
+                onToken = onGoogleToken,
+                onError = onGoogleError
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -244,7 +255,11 @@ fun LoginScreen(
                 RoleButton("♙", stringResource(R.string.login_moderator), Modifier.weight(1f), selected = true, onClick = onModeratorClick)
             }
             Spacer(Modifier.height(2.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(stringResource(R.string.login_first_time), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(
                     onClick = onRegisterClick,

@@ -75,8 +75,7 @@ fun PasswordRecoveryRoute(
         snackbarHostState = snackbarHostState,
         onBack = onBack,
         onEmailChange = viewModel::onEmailChange,
-        onSendLink = viewModel::sendLink,
-        onShowErrorDemo = viewModel::showErrorDemo
+        onSendLink = viewModel::sendLink
     )
 }
 
@@ -86,8 +85,7 @@ fun PasswordRecoveryScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit,
     onEmailChange: (String) -> Unit,
-    onSendLink: () -> Unit,
-    onShowErrorDemo: () -> Unit
+    onSendLink: () -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -158,18 +156,6 @@ fun PasswordRecoveryScreen(
                 RecoveryStatusMessage(
                     message = stringResource(messageRes),
                     isError = state.status == PasswordRecoveryStatus.ERROR
-                )
-            }
-
-            TextButton(
-                onClick = onShowErrorDemo,
-                enabled = state.status != PasswordRecoveryStatus.LOADING,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(
-                    stringResource(R.string.password_recovery_show_error),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -248,7 +234,7 @@ private fun PasswordRecoveryScreenPreview() {
     RumboTheme {
         PasswordRecoveryScreen(
             state = PasswordRecoveryUiState(),
-            onBack = {}, onEmailChange = {}, onSendLink = {}, onShowErrorDemo = {}
+            onBack = {}, onEmailChange = {}, onSendLink = {}
         )
     }
 }

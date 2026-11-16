@@ -36,6 +36,8 @@ android {
 
         // Clave de OpenRouter (IA) de local.properties; vacía = la app usa el respaldo sin IA
         resValue("string", "openrouter_api_key", localProperties.getProperty("OPENROUTER_API_KEY", ""))
+        // ID de cliente web (OAuth) de Firebase para el inicio de sesión con Google
+        resValue("string", "google_web_client_id", localProperties.getProperty("GOOGLE_WEB_CLIENT_ID", ""))
         resValue("string", "cloudinary_cloud_name", localProperties.getProperty("CLOUDINARY_CLOUD_NAME", ""))
         resValue("string", "cloudinary_upload_preset", localProperties.getProperty("CLOUDINARY_UPLOAD_PRESET", ""))
 
@@ -89,6 +91,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.kotlinx.coroutines.play.services)

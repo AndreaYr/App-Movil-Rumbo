@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
 import com.app.rumbo.domain.exception.EmailAlreadyInUseException
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
+import com.app.rumbo.domain.usecase.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class RegisterStatus { IDLE, LOADING, SUCCESS, ERROR }
+enum class RegisterStatus { IDLE, LOADING, SUCCESS, GOOGLE_SUCCESS, ERROR }
 
 private fun isValidEmail(email: String) =
     Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
@@ -50,7 +51,8 @@ data class RegisterUiState(
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val registerUser: RegisterUserUseCase
+    private val registerUser: RegisterUserUseCase,
+    private val signInWithGoogle: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RegisterUiState())
@@ -150,6 +152,28 @@ class RegisterViewModel @Inject constructor(
                 }
                 _uiState.update { it.copy(status = RegisterStatus.ERROR, errorMessageRes = messageRes) }
             }
+        }
+    }
+
+    /** Registro/inicio con Google: crea el perfil si no existe y deja la sesión abierta. */
+    fun registerWithGoogle(idToken: String) {
+        if (_uiState.value.status == RegisterStatus.LOADING) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = RegisterStatus.LOADING, errorMessageRes = null) }
+            try {
+                signInWithGoogle(idToken)
+                _uiState.update { it.copy(status = RegisterStatus.GOOGLE_SUCCESS) }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                onGoogleError()
+            }
+        }
+    }
+
+    fun onGoogleError() {
+        _uiState.update {
+            it.copy(status = RegisterStatus.ERROR, errorMessageRes = R.string.google_sign_in_error)
         }
     }
 

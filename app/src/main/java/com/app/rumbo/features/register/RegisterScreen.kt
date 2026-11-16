@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
+import com.app.rumbo.core.component.GoogleSignInButton
 import com.app.rumbo.core.theme.Coral
 import com.app.rumbo.core.theme.ErrorRed
 import com.app.rumbo.core.theme.Outline
@@ -64,6 +65,7 @@ import com.app.rumbo.core.theme.White
 fun RegisterRoute(
     onBackToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
+    onGoogleSuccess: () -> Unit = {},
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -77,6 +79,7 @@ fun RegisterRoute(
                 snackbarHostState.showSnackbar(successMessage)
                 onRegisterSuccess()
             }
+            RegisterStatus.GOOGLE_SUCCESS -> onGoogleSuccess()
             RegisterStatus.ERROR -> snackbarHostState.showSnackbar(errorMessage)
             else -> Unit
         }
@@ -93,7 +96,9 @@ fun RegisterRoute(
         onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
         onToggleConfirmPasswordVisibility = viewModel::onToggleConfirmPasswordVisibility,
         onTermsAcceptanceChange = viewModel::onAcceptedTermsChange,
-        onRegister = viewModel::register
+        onRegister = viewModel::register,
+        onGoogleToken = viewModel::registerWithGoogle,
+        onGoogleError = viewModel::onGoogleError
     )
 }
 
@@ -109,7 +114,9 @@ fun RegisterScreen(
     onTogglePasswordVisibility: () -> Unit,
     onToggleConfirmPasswordVisibility: () -> Unit,
     onTermsAcceptanceChange: (Boolean) -> Unit,
-    onRegister: () -> Unit
+    onRegister: () -> Unit,
+    onGoogleToken: (String) -> Unit = {},
+    onGoogleError: () -> Unit = {}
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -245,6 +252,12 @@ fun RegisterScreen(
                     Text(stringResource(R.string.register_button), style = MaterialTheme.typography.labelLarge)
                 }
             }
+            Spacer(Modifier.height(10.dp))
+            GoogleSignInButton(
+                isLoading = state.status == RegisterStatus.LOADING,
+                onToken = onGoogleToken,
+                onError = onGoogleError
+            )
             Spacer(Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),

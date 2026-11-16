@@ -29,8 +29,7 @@
     <string name="moderator_login_success_message">Acceso concedido.</string>
     <string name="moderator_login_error_generic">Error al iniciar sesión.</string>
     <string name="moderator_login_error_not_moderator">Esta cuenta no tiene permisos de moderador.</string>
-    <string name="password_recovery_success_message">Solicitud simulada correctamente. No se envió ningún correo.</string>
-    <string name="password_recovery_demo_error_message">Error de prueba: no se pudo completar la solicitud. Intenta de nuevo.</string>
+    <string name="password_recovery_success_message">Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.</string>
     <string name="create_title_required">Escribe un título</string>
     <string name="create_description_required">Cuenta algo sobre el lugar</string>
     <string name="create_publish_error">No se pudo enviar la publicación. Revisa tu conexión y que Firebase Storage esté habilitado si agregaste fotos.</string>
@@ -126,7 +125,6 @@
     <string name="password_recovery_email_label">Correo electrónico</string>
     <string name="password_recovery_sending">"  Enviando…"</string>
     <string name="password_recovery_send_link">Enviar enlace</string>
-    <string name="password_recovery_show_error">Ver estado de error</string>
 
     <!-- Login de moderación -->
     <string name="moderator_login_console">CONSOLA DE MODERACIÓN</string>
@@ -596,4 +594,7 @@
     <string name="my_publications_tab_verified">Verificadas</string>
     <string name="my_publications_tab_rejected">Rechazadas</string>
     <string name="my_publications_tab_finished">Finalizadas</string>
+    <string name="password_recovery_error_message">No se pudo enviar el enlace. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="google_sign_in_button">Continuar con Google</string>
+    <string name="google_sign_in_error">No se pudo iniciar sesión con Google. Inténtalo de nuevo.</string>
 </resources>
