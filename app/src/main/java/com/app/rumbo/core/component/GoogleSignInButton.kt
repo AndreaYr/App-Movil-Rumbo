@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GoogleSignInButton(
     isLoading: Boolean,
+    enabled: Boolean = !isLoading,
     onToken: (String) -> Unit,
     onError: () -> Unit,
     modifier: Modifier = Modifier
@@ -51,7 +52,7 @@ fun GoogleSignInButton(
                 }
             }
         },
-        enabled = !isLoading,
+        enabled = enabled && !isLoading,
         modifier = modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface),

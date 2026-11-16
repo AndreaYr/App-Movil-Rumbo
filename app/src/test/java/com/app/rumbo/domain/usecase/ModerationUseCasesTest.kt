@@ -1,5 +1,6 @@
 package com.app.rumbo.domain.usecase
 
+import com.app.rumbo.testutil.FakeNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -21,8 +22,8 @@ import org.junit.Test
 class ModerationUseCasesTest {
 
     private val repository = InMemoryPublicationRepository()
-    private val verify = ApprovePublicationUseCase(repository)
-    private val reject = RejectPublicationUseCase(repository)
+    private val verify = ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))
+    private val reject = RejectPublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))
     private val finish = FinishPublicationUseCase(repository)
     private val resubmit = ResubmitPublicationUseCase(repository)
 

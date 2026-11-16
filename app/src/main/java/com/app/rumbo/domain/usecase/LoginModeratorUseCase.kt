@@ -23,7 +23,7 @@ class LoginModeratorUseCase @Inject constructor(
         if (user.role != UserRole.MODERATOR) {
             // No se deja autenticada una cuenta normal desde la pantalla de moderador
             userRepository.logout()
-            return Result.failure(LoginModeratorException(R.string.moderator_login_error_not_moderator))
+            return Result.failure(LoginModeratorException(R.string.auth_error_invalid_credentials_or_role))
         }
 
         return Result.success(user)

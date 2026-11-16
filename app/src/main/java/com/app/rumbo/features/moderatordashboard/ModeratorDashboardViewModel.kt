@@ -42,6 +42,7 @@ class ModeratorDashboardViewModel @Inject constructor(
                         stats = stats,
                         recentActivity = activities,
                         userName = currentUser?.name ?: state.userName,
+                        userInitials = currentUser?.initials ?: state.userInitials,
                         isLoading = false
                     )
                 }

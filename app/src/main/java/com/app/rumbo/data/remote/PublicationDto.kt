@@ -33,7 +33,9 @@ data class PublicationDto(
     val photos: List<PhotoDto> = emptyList(),
     val comments: List<CommentDto> = emptyList(),
     val rejectionReason: String? = null,
-    val rejectionDetail: String? = null
+    val rejectionDetail: String? = null,
+    val moderatedAt: Long? = null,
+    val moderatedBy: String = ""
 ) {
     // Convierte el DTO (datos de Firestore) al modelo de dominio
     fun toDomain(): Publication = Publication(
@@ -60,7 +62,9 @@ data class PublicationDto(
         photos = photos.map { it.toDomain() },
         comments = comments.map { it.toDomain() },
         rejectionReason = rejectionReason,
-        rejectionDetail = rejectionDetail
+        rejectionDetail = rejectionDetail,
+        moderatedAt = moderatedAt,
+        moderatedBy = moderatedBy
     )
 
     companion object {
@@ -89,7 +93,9 @@ data class PublicationDto(
             photos = publication.photos.map { PhotoDto.fromDomain(it) },
             comments = publication.comments.map { CommentDto.fromDomain(it) },
             rejectionReason = publication.rejectionReason,
-            rejectionDetail = publication.rejectionDetail
+            rejectionDetail = publication.rejectionDetail,
+            moderatedAt = publication.moderatedAt,
+            moderatedBy = publication.moderatedBy
         )
     }
 }

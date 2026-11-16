@@ -1,45 +1,45 @@
-﻿package com.app.rumbo.domain.usecase
+package com.app.rumbo.domain.usecase
 
 import com.app.rumbo.domain.model.ModerationActionType
 import com.app.rumbo.domain.model.ModerationActivity
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.repository.PublicationRepository
+import com.app.rumbo.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
+/** Las últimas decisiones que tomó el moderador con sesión iniciada, de la más reciente a la más antigua. */
 class GetRecentModerationActivityUseCase @Inject constructor(
-    private val publicationRepository: PublicationRepository
+    private val publicationRepository: PublicationRepository,
+    private val userRepository: UserRepository
 ) {
-    operator fun invoke(): Flow<List<ModerationActivity>> {
-        return publicationRepository.observePublications().map { publications ->
+    operator fun invoke(limit: Int = DEFAULT_LIMIT): Flow<List<ModerationActivity>> =
+        combine(publicationRepository.observePublications(), userRepository.observeCurrentUser()) { publications, user ->
+            if (user == null) return@combine emptyList()
             publications
-                .filter { it.status == PublicationStatus.VERIFIED || it.status == PublicationStatus.REJECTED }
-                .sortedByDescending { it.publishedAt }
-                .take(5)
-                .mapIndexed { index, publication ->
+                .filter {
+                    (it.status == PublicationStatus.VERIFIED || it.status == PublicationStatus.REJECTED) &&
+                        it.moderatedBy == user.id
+                }
+                .sortedByDescending { it.moderationTime }
+                .take(limit)
+                .map { publication ->
                     ModerationActivity(
-                        id = publication.id + "_activity_$index",
+                        id = publication.id,
                         actionType = if (publication.status == PublicationStatus.VERIFIED) {
                             ModerationActionType.VERIFIED
                         } else {
                             ModerationActionType.REJECTED
                         },
-                        publicationTitle = if (publication.status == PublicationStatus.VERIFIED) {
-                            "Verificaste ${publication.title}"
-                        } else {
-                            "Rechazaste ${publication.title}"
-                        },
+                        publicationTitle = publication.title,
                         authorName = publication.author.name,
-                        timeAgo = when (index) {
-                            0 -> "hace 25 min"
-                            1 -> "hace 1 h"
-                            2 -> "hace 2 h"
-                            3 -> "hace ayer"
-                            else -> "hace 2 días"
-                        }
+                        timestamp = publication.moderationTime
                     )
                 }
         }
+
+    private companion object {
+        const val DEFAULT_LIMIT = 5
     }
 }

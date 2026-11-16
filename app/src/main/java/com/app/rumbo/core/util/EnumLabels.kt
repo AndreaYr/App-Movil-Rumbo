@@ -9,6 +9,7 @@ import com.app.rumbo.domain.model.FeedSort
 import com.app.rumbo.domain.model.Level
 import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.PublicationStatus
+import com.app.rumbo.domain.model.RejectionReason
 import com.app.rumbo.domain.model.RoutePriority
 import com.app.rumbo.domain.model.Transport
 
@@ -56,3 +57,12 @@ val Achievement.description: String
     @Composable
     @ReadOnlyComposable
     get() = stringResource(descriptionRes)
+
+/**
+ * Texto del motivo de rechazo en el idioma actual. Los motivos nuevos se guardan como código y se traducen aquí;
+ * los anteriores eran texto libre y se muestran tal cual.
+ */
+@Composable
+@ReadOnlyComposable
+fun String.rejectionReasonText(): String =
+    RejectionReason.fromCode(this)?.let { stringResource(it.labelRes) } ?: this

@@ -35,6 +35,7 @@ import com.app.rumbo.features.loginmoderator.LoginModeratorRoute
 import com.app.rumbo.features.moderatoraccount.ModeratorAccountRoute
 import com.app.rumbo.features.moderatordashboard.ModeratorDashboardRoute
 import com.app.rumbo.features.moderationfinished.ModerationFinishedRoute
+import com.app.rumbo.features.moderationhistory.ModerationHistoryFilter
 import com.app.rumbo.features.moderationhistory.ModerationHistoryRoute
 import com.app.rumbo.features.moderationfinished.ModerationOutcome
 import com.app.rumbo.features.moderatorfinish.ModeratorFinishRoute
@@ -269,6 +270,7 @@ fun AppNavHost(
         }
         composable<LoginModeratorDestination> {
             LoginModeratorRoute(
+                onRecoveryClick = { navController.navigate(PasswordRecoveryDestination) },
                 onLoginSuccess = {
                     navController.navigate(ModeratorDashboardDestination) {
                         popUpTo<LoginDestination> { inclusive = true }
@@ -282,10 +284,10 @@ fun AppNavHost(
             ModeratorDashboardRoute(
                 onStartReview = { navController.navigate(PendingPublicationsDestination) },
                 onNavigateToPending = { navController.navigate(PendingPublicationsDestination) },
-                onNavigateToVerified = {},
-                onNavigateToRejected = {},
+                onNavigateToVerified = { navController.navigate(ModerationHistoryDestination(ModerationHistoryFilter.APPROVED.name)) },
+                onNavigateToRejected = { navController.navigate(ModerationHistoryDestination(ModerationHistoryFilter.REJECTED.name)) },
                 onNavigateToFinished = { navController.navigate(ModeratorFinishDestination) },
-                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination) },
+                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination()) },
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) },
                 onLogout = {
                     navController.navigate(LoginDestination) {
@@ -303,7 +305,7 @@ fun AppNavHost(
                 onRejectClick = { id -> navController.navigate(RejectPublicationDestination(id)) },
                 onNavigateToPanel = { navController.navigate(ModeratorDashboardDestination) { launchSingleTop = true } },
                 onNavigateToPending = { },
-                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination) },
+                onNavigateToHistory = { navController.navigate(ModerationHistoryDestination()) },
                 onNavigateToAccount = { navController.navigate(ModeratorAccountDestination) }
             )
         }
@@ -329,6 +331,7 @@ fun AppNavHost(
         composable<ModeratorAccountDestination> {
             ModeratorAccountRoute(
                 onBack = { navController.popBackStack() },
+                onEditProfile = { navController.navigate(EditProfileDestination) },
                 onLogout = {
                     navController.navigate(LoginDestination) {
                         popUpTo(ModeratorDashboardDestination) { inclusive = true }

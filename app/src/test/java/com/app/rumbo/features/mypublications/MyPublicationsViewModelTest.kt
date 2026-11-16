@@ -1,5 +1,7 @@
 package com.app.rumbo.features.mypublications
 
+import com.app.rumbo.domain.usecase.ModerationNotifier
+import com.app.rumbo.testutil.FakeNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.Photo
@@ -75,8 +77,8 @@ class MyPublicationsViewModelTest {
         val approved = publish(draft("Aprobada"), TestUsers.mariana.toAuthor())
         val rejected = publish(draft("Rechazada"), TestUsers.mariana.toAuthor())
         publish(draft("Pendiente"), TestUsers.mariana.toAuthor())
-        ApprovePublicationUseCase(repository)(approved.id)
-        RejectPublicationUseCase(repository)(rejected.id, "Ubicación incorrecta", "El marcador quedó sobre la vía")
+        ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(approved.id)
+        RejectPublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(rejected.id, "Ubicación incorrecta", "El marcador quedó sobre la vía")
         val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
@@ -93,7 +95,7 @@ class MyPublicationsViewModelTest {
     @Test
     fun `finalizar pide confirmacion y cierra la publicacion verificada`() = runTest {
         val published = PublishPublicationUseCase(repository, photos).invoke(draft("Sendero"), TestUsers.mariana.toAuthor())
-        ApprovePublicationUseCase(repository)(published.id)
+        ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(published.id)
         val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
@@ -109,7 +111,7 @@ class MyPublicationsViewModelTest {
     @Test
     fun `cancelar la confirmacion no cambia el estado`() = runTest {
         val published = PublishPublicationUseCase(repository, photos).invoke(draft("Sendero"), TestUsers.mariana.toAuthor())
-        ApprovePublicationUseCase(repository)(published.id)
+        ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(published.id)
         val viewModel = MyPublicationsViewModel(getMyPublications(), FinishPublicationUseCase(repository))
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 

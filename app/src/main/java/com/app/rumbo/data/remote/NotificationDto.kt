@@ -14,7 +14,8 @@ data class NotificationDto(
     val text: String = "",
     val createdAt: Long = 0L,
     val isRead: Boolean = false,
-    val publicationId: String? = null
+    val publicationId: String? = null,
+    val publicationTitle: String = ""
 ) {
     fun toDomain(): Notification = Notification(
         id = id,
@@ -22,7 +23,8 @@ data class NotificationDto(
         text = text,
         createdAt = createdAt,
         isRead = isRead,
-        publicationId = publicationId
+        publicationId = publicationId,
+        publicationTitle = publicationTitle
     )
 
     companion object {
@@ -32,7 +34,8 @@ data class NotificationDto(
             text = notification.text,
             createdAt = notification.createdAt,
             isRead = notification.isRead,
-            publicationId = notification.publicationId
+            publicationId = notification.publicationId,
+            publicationTitle = notification.publicationTitle
         )
     }
 }

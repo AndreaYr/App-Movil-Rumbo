@@ -247,7 +247,7 @@ fun RegisterScreen(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                if (state.status == RegisterStatus.LOADING) {
+                if (state.status == RegisterStatus.LOADING && !state.isGoogleLoading) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
                     Text(stringResource(R.string.register_creating_account))
                 } else {
@@ -256,7 +256,8 @@ fun RegisterScreen(
             }
             Spacer(Modifier.height(10.dp))
             GoogleSignInButton(
-                isLoading = state.status == RegisterStatus.LOADING,
+                isLoading = state.isGoogleLoading,
+                enabled = state.status != RegisterStatus.LOADING,
                 onToken = onGoogleToken,
                 onError = onGoogleError
             )

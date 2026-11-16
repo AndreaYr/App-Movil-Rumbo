@@ -20,6 +20,12 @@ interface UserRepository {
      */
     suspend fun signInWithGoogle(idToken: String): User
 
+    /**
+     * Inicia sesión con Google solo si la cuenta ya está registrada en Rumbo; nunca crea el perfil.
+     * @return el usuario, o null si esa cuenta de Google no está registrada.
+     */
+    suspend fun signInExistingWithGoogle(idToken: String): User?
+
     /** Envía al correo un enlace para restablecer la contraseña. */
     suspend fun sendPasswordReset(email: String)
 

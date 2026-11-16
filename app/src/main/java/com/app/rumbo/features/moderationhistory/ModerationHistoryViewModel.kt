@@ -1,5 +1,6 @@
 package com.app.rumbo.features.moderationhistory
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.domain.model.PublicationStatus
@@ -14,10 +15,16 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ModerationHistoryViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getModerationHistory: GetModerationHistoryUseCase
 ) : ViewModel() {
 
-    private val selectedFilter = MutableStateFlow(ModerationHistoryFilter.ALL)
+    /** El panel abre el historial ya filtrado (verificadas o rechazadas); sin argumento se muestran todas. */
+    private val selectedFilter = MutableStateFlow(
+        savedStateHandle.get<String>("filter")
+            ?.let { name -> ModerationHistoryFilter.entries.firstOrNull { it.name == name } }
+            ?: ModerationHistoryFilter.ALL
+    )
     private val _uiState = MutableStateFlow(ModerationHistoryUiState())
     val uiState: StateFlow<ModerationHistoryUiState> = _uiState.asStateFlow()
 

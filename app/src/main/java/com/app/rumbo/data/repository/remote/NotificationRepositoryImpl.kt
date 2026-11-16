@@ -54,6 +54,11 @@ class NotificationRepositoryImpl @Inject constructor(
         batch.commit().await()
     }
 
+    override suspend fun notifyUser(userId: String, notification: Notification) {
+        val document = collection(userId).document()
+        document.set(NotificationDto.fromDomain(notification.copy(id = document.id))).await()
+    }
+
     private fun collection(uid: String) =
         firestore.collection("users").document(uid).collection("notifications")
 

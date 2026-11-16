@@ -1,5 +1,6 @@
 package com.app.rumbo.domain.usecase
 
+import com.app.rumbo.testutil.FakeNotificationRepository
 import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PublicationStatus
@@ -29,7 +30,7 @@ class PublicationModerationUseCasesTest {
         assertTrue(pending().first().any { it.id == publicationId })
         assertFalse(feed(null, FeedSort.RECENT).first().any { it.id == publicationId })
 
-        assertTrue(ApprovePublicationUseCase(repository)(publicationId))
+        assertTrue(ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(publicationId))
 
         assertTrue(pending().first().none { it.id == publicationId })
         assertEquals(PublicationStatus.VERIFIED, repository.observePublication(publicationId).first()?.status)
@@ -43,7 +44,7 @@ class PublicationModerationUseCasesTest {
         val publicationId = "murales-filandia"
         val reason = "Ubicación incorrecta: el marcador está sobre la vía principal."
 
-        assertTrue(RejectPublicationUseCase(repository)(publicationId, reason))
+        assertTrue(RejectPublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))(publicationId, reason))
 
         val rejected = repository.observePublication(publicationId).first()
         assertEquals(PublicationStatus.REJECTED, rejected?.status)
@@ -60,8 +61,8 @@ class PublicationModerationUseCasesTest {
     fun `solo se pueden moderar publicaciones pendientes y el rechazo exige motivo`() = runTest {
         val repository = InMemoryPublicationRepository(SamplePublications.create())
 
-        assertFalse(ApprovePublicationUseCase(repository)("valle-cocora"))
-        assertFalse(RejectPublicationUseCase(repository)("murales-filandia", " "))
+        assertFalse(ApprovePublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))("valle-cocora"))
+        assertFalse(RejectPublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))("murales-filandia", " "))
         assertNull(repository.observePublication("murales-filandia").first()?.rejectionReason)
     }
 }

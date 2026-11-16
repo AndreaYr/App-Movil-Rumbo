@@ -17,6 +17,6 @@ class GetModerationHistoryUseCase @Inject constructor(
                     it.status == PublicationStatus.VERIFIED ||
                         it.status == PublicationStatus.REJECTED
                 }
-                .sortedByDescending { it.publishedAt }
+                .sortedByDescending { it.moderationTime }
         }
 }

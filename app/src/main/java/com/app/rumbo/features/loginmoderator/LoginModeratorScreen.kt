@@ -1,5 +1,7 @@
 ﻿package com.app.rumbo.features.loginmoderator
 
+import com.app.rumbo.core.component.GoogleSignInButton
+import com.app.rumbo.core.theme.adaptiveColor
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,20 +55,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
 import com.app.rumbo.core.theme.RumboTheme
 
-private val ModeratorBackground = Color(0xFF0F1E1B)
-private val ModeratorInputBg = Color(0xFF162824)
-private val ModeratorInputBorder = Color(0xFF2B443E)
+private val OnAccent = Color(0xFFFFFFFF)
+private val TextMain: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFFFFFFF))
+private val ModeratorBackground: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1E1B))
+private val ModeratorInputBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF162824))
+private val ModeratorInputBorder: Color @Composable get() = adaptiveColor(Color(0xFFE4DFD3), Color(0xFF2B443E))
 private val ModeratorOrange = Color(0xFFF05A36)
 private val ModeratorBadgeBorder = Color(0xFFC85B38)
 private val ModeratorBadgeText = Color(0xFFC85B38)
-private val ModeratorLabelText = Color(0xFF7DA89B)
-private val ModeratorIconTint = Color(0xFF589382)
-private val ModeratorLinkText = Color(0xFF589382)
-
+private val ModeratorLabelText: Color @Composable get() = adaptiveColor(Color(0xFF5B6B65), Color(0xFF7DA89B))
+private val ModeratorIconTint: Color @Composable get() = adaptiveColor(Color(0xFF117361), Color(0xFF589382))
+private val ModeratorLinkText: Color @Composable get() = adaptiveColor(Color(0xFF117361), Color(0xFF589382))
 @Composable
 fun LoginModeratorRoute(
     onLoginSuccess: () -> Unit,
     onBackToUserLogin: () -> Unit,
+    onRecoveryClick: () -> Unit = {},
     viewModel: LoginModeratorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,6 +99,9 @@ fun LoginModeratorRoute(
         onPasswordChange = viewModel::onPasswordChange,
         onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
         onLogin = viewModel::login,
+        onGoogleToken = viewModel::loginWithGoogle,
+        onGoogleError = viewModel::onGoogleError,
+        onRecoveryClick = onRecoveryClick,
         onBackToUserLogin = onBackToUserLogin
     )
 }
@@ -107,7 +114,10 @@ fun LoginModeratorScreen(
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
     onLogin: () -> Unit,
-    onBackToUserLogin: () -> Unit
+    onBackToUserLogin: () -> Unit,
+    onGoogleToken: (String) -> Unit = {},
+    onGoogleError: () -> Unit = {},
+    onRecoveryClick: () -> Unit = {}
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -140,7 +150,7 @@ fun LoginModeratorScreen(
                 Column {
                     Text(
                         text = stringResource(R.string.app_name),
-                        color = Color.White,
+                        color = TextMain,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -183,7 +193,7 @@ fun LoginModeratorScreen(
 
             Text(
                 text = stringResource(R.string.moderator_login_title),
-                color = Color.White,
+                color = TextMain,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 32.sp
@@ -204,7 +214,7 @@ fun LoginModeratorScreen(
                 text = stringResource(R.string.moderator_login_email_label),
                 color = ModeratorLabelText,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(6.dp))
             ModeratorInput(
@@ -226,7 +236,7 @@ fun LoginModeratorScreen(
                 text = stringResource(R.string.moderator_login_password_label),
                 color = ModeratorLabelText,
                 fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(6.dp))
             ModeratorInput(
@@ -245,7 +255,18 @@ fun LoginModeratorScreen(
                 Text(stringResource(it), color = Color(0xFFFF6B6B), fontSize = 12.sp)
             }
 
-            Spacer(Modifier.height(24.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onRecoveryClick) {
+                    Text(
+                        text = stringResource(R.string.login_forgot_password),
+                        color = ModeratorLinkText,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
 
             Button(
                 onClick = onLogin,
@@ -256,13 +277,22 @@ fun LoginModeratorScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = ModeratorOrange)
             ) {
-                if (state.status == LoginModeratorStatus.LOADING) {
+                if (state.status == LoginModeratorStatus.LOADING && !state.isGoogleLoading) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                     Text(stringResource(R.string.moderator_login_verifying), color = Color.White)
                 } else {
                     Text(stringResource(R.string.moderator_login_enter), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
             }
+
+            Spacer(Modifier.height(12.dp))
+
+            GoogleSignInButton(
+                isLoading = state.isGoogleLoading,
+                enabled = state.status != LoginModeratorStatus.LOADING,
+                onToken = onGoogleToken,
+                onError = onGoogleError
+            )
 
             Spacer(Modifier.height(20.dp))
 
@@ -313,8 +343,8 @@ private fun ModeratorInput(
             onValueChange = onValueChange,
             modifier = Modifier.weight(1f),
             singleLine = true,
-            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 14.sp),
-            cursorBrush = SolidColor(Color.White),
+            textStyle = androidx.compose.ui.text.TextStyle(color = TextMain, fontSize = 14.sp),
+            cursorBrush = SolidColor(TextMain),
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { inner ->

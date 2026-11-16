@@ -211,7 +211,7 @@ private fun NotificationCard(notification: Notification, onClick: () -> Unit, mo
             }
             Column(Modifier.weight(1f)) {
                 Text(
-                    notification.text,
+                    notification.displayText(),
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = if (unread) FontWeight.Bold else FontWeight.Medium
                     ),
@@ -263,6 +263,15 @@ private fun EmptyState(unreadOnly: Boolean) {
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 48.dp)
     )
+}
+
+/** Texto del aviso; los de moderación se arman aquí para que salgan en el idioma actual de la app. */
+@Composable
+private fun Notification.displayText(): String = when {
+    text.isNotBlank() -> text
+    type == NotificationType.PUBLICATION_VERIFIED -> stringResource(R.string.notification_publication_verified, publicationTitle)
+    type == NotificationType.PUBLICATION_REJECTED -> stringResource(R.string.notification_publication_rejected, publicationTitle)
+    else -> text
 }
 
 /** Icono y colores de cada tipo de aviso, tal como en el prototipo. */

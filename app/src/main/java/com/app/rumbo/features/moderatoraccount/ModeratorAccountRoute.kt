@@ -17,8 +17,7 @@ import androidx.lifecycle.viewModelScope
 
 data class ModeratorAccountUiState(
     val name: String = "",
-    val email: String = "",
-    val role: String = "MODERADOR"
+    val email: String = ""
 )
 
 @HiltViewModel
@@ -52,6 +51,7 @@ class ModeratorAccountViewModel @Inject constructor(
 @Composable
 fun ModeratorAccountRoute(
     onBack: () -> Unit = {},
+    onEditProfile: () -> Unit = {},
     onLogout: () -> Unit = {},
     viewModel: ModeratorAccountViewModel = hiltViewModel()
 ) {
@@ -59,6 +59,7 @@ fun ModeratorAccountRoute(
     ModeratorAccountScreen(
         state = state.value,
         onBack = onBack,
+        onEditProfile = onEditProfile,
         onLogout = {
             viewModel.logout()
             onLogout()

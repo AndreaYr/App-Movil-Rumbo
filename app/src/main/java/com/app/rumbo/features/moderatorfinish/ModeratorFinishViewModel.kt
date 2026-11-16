@@ -1,5 +1,7 @@
 package com.app.rumbo.features.moderatorfinish
 
+import kotlinx.coroutines.CancellationException
+import com.app.rumbo.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.domain.usecase.FinishPublicationUseCase
@@ -24,7 +26,7 @@ class ModeratorFinishViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getFinishablePublications().collect { publications ->
-                _uiState.update { it.copy(isLoading = false, publication = publications.firstOrNull()) }
+                _uiState.update { it.copy(isLoading = false, publications = publications) }
             }
         }
     }
@@ -34,11 +36,30 @@ class ModeratorFinishViewModel @Inject constructor(
         val state = _uiState.value
         val publication = state.publication ?: return
         if (state.isFinishing) return
-        _uiState.update { it.copy(isFinishing = true) }
+        _uiState.update { it.copy(isFinishing = true, errorRes = null) }
         viewModelScope.launch {
-            val finished = finishPublication(publication.id)
-            _uiState.update { it.copy(isFinishing = false) }
-            if (finished) onDone()
+            try {
+                if (finishPublication(publication.id)) {
+                    onDone()
+                } else {
+                    _uiState.update { it.copy(errorRes = R.string.moderation_error_already_resolved) }
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorRes = R.string.moderation_error_connection) }
+            } finally {
+                _uiState.update { it.copy(isFinishing = false) }
+            }
         }
+    }
+
+    /** El moderador elige cuál de las publicaciones verificadas va a cerrar. */
+    fun onPublicationSelected(id: String) {
+        _uiState.update { it.copy(selectedId = id) }
+    }
+
+    fun onErrorShown() {
+        _uiState.update { it.copy(errorRes = null) }
     }
 }

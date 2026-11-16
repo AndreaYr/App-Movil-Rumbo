@@ -112,7 +112,9 @@ class PublicationRepositoryImpl @Inject constructor(
         dto.copy(
             status = PublicationStatus.VERIFIED.name,
             rejectionReason = null,
-            rejectionDetail = null
+            rejectionDetail = null,
+            moderatedAt = System.currentTimeMillis(),
+            moderatedBy = auth.currentUser?.uid.orEmpty()
         )
     }
 
@@ -122,7 +124,9 @@ class PublicationRepositoryImpl @Inject constructor(
             dto.copy(
                 status = PublicationStatus.REJECTED.name,
                 rejectionReason = reason.trim(),
-                rejectionDetail = detail.trim()
+                rejectionDetail = detail.trim(),
+                moderatedAt = System.currentTimeMillis(),
+                moderatedBy = auth.currentUser?.uid.orEmpty()
             )
         }
     }

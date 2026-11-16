@@ -1,5 +1,7 @@
 package com.app.rumbo.features.rejectpublication
 
+import kotlinx.coroutines.CancellationException
+import com.app.rumbo.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -52,8 +54,27 @@ class RejectPublicationViewModel @Inject constructor(
     fun onConfirm(onDone: () -> Unit) {
         val state = _uiState.value
         val reason = state.selectedReason ?: return
+        if (state.isProcessing) return
+        _uiState.update { it.copy(isProcessing = true, errorRes = null) }
         viewModelScope.launch {
-            if (rejectPublication(publicationId, reason, state.detail)) onDone()
+            try {
+                if (rejectPublication(publicationId, reason, state.detail)) {
+                    onDone()
+                } else {
+                    // Otro moderador ya la resolvió (o ya no existe)
+                    _uiState.update { it.copy(errorRes = R.string.moderation_error_already_resolved) }
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorRes = R.string.moderation_error_connection) }
+            } finally {
+                _uiState.update { it.copy(isProcessing = false) }
+            }
         }
+    }
+
+    fun onErrorShown() {
+        _uiState.update { it.copy(errorRes = null) }
     }
 }

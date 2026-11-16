@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
+import com.app.rumbo.domain.exception.InvalidRoleException
 import com.app.rumbo.domain.usecase.LoginUserUseCase
 import com.app.rumbo.domain.usecase.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +26,9 @@ data class LoginUiState(
     @StringRes val passwordError: Int? = null,
     val isPasswordVisible: Boolean = false,
     val status: LoginStatus = LoginStatus.IDLE,
-    @StringRes val messageRes: Int? = null
+    @StringRes val messageRes: Int? = null,
+    /** El inicio de sesión en curso es el de Google; el botón de correo no muestra la rueda de carga. */
+    val isGoogleLoading: Boolean = false
 ) {
     val isFormValid: Boolean
         get() = emailError == null && passwordError == null &&
@@ -84,7 +87,7 @@ class LoginViewModel @Inject constructor(
         val submittedPassword = current.password
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = LoginStatus.LOADING, messageRes = null) }
+            _uiState.update { it.copy(status = LoginStatus.LOADING, isGoogleLoading = false, messageRes = null) }
 
             try {
                 val user = loginUserUseCase(submittedEmail, submittedPassword)
@@ -100,13 +103,11 @@ class LoginViewModel @Inject constructor(
                 }
             } catch (cancellation: CancellationException) {
                 throw cancellation
+            } catch (_: InvalidRoleException) {
+                // Un moderador no puede entrar por el acceso de usuarios
+                showError(R.string.auth_error_invalid_credentials_or_role)
             } catch (_: Exception) {
-                _uiState.update {
-                    it.copy(
-                        status = LoginStatus.ERROR,
-                        messageRes = R.string.login_error_generic
-                    )
-                }
+                showError(R.string.login_error_generic)
             }
         }
     }
@@ -115,14 +116,16 @@ class LoginViewModel @Inject constructor(
     fun loginWithGoogle(idToken: String) {
         if (_uiState.value.status == LoginStatus.LOADING) return
         viewModelScope.launch {
-            _uiState.update { it.copy(status = LoginStatus.LOADING, messageRes = null) }
+            _uiState.update { it.copy(status = LoginStatus.LOADING, isGoogleLoading = true, messageRes = null) }
             try {
                 signInWithGoogleUseCase(idToken)
                 _uiState.update {
-                    it.copy(status = LoginStatus.SUCCESS, messageRes = R.string.login_success_message)
+                    it.copy(status = LoginStatus.SUCCESS, isGoogleLoading = false, messageRes = R.string.login_success_message)
                 }
             } catch (cancellation: CancellationException) {
                 throw cancellation
+            } catch (_: InvalidRoleException) {
+                showError(R.string.auth_error_invalid_credentials_or_role)
             } catch (_: Exception) {
                 onGoogleError()
             }
@@ -130,10 +133,10 @@ class LoginViewModel @Inject constructor(
     }
 
     /** Google no entregó credenciales (sin cuentas, sin red o configuración incompleta). */
-    fun onGoogleError() {
-        _uiState.update {
-            it.copy(status = LoginStatus.ERROR, messageRes = R.string.google_sign_in_error)
-        }
+    fun onGoogleError() = showError(R.string.google_sign_in_error)
+
+    private fun showError(@StringRes messageRes: Int) {
+        _uiState.update { it.copy(status = LoginStatus.ERROR, isGoogleLoading = false, messageRes = messageRes) }
     }
 
     fun resetResult() {

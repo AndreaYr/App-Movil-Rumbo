@@ -35,8 +35,9 @@ data object ModeratorFinishDestination
 @Serializable
 data object ModeratorAccountDestination
 
+/** Historial del moderador; [filter] es el nombre de un `ModerationHistoryFilter` con el que se abre ("ALL", "APPROVED" o "REJECTED"). */
 @Serializable
-data object ModerationHistoryDestination
+data class ModerationHistoryDestination(val filter: String = "ALL")
 
 @Serializable
 data object RegisterDestination

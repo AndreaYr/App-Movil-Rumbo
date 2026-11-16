@@ -28,7 +28,6 @@
     <string name="login_error_generic">Could not sign in. Check your connection and try again.</string>
     <string name="moderator_login_success_message">Access granted.</string>
     <string name="moderator_login_error_generic">Could not sign in.</string>
-    <string name="moderator_login_error_not_moderator">This account does not have moderator permissions.</string>
     <string name="password_recovery_success_message">If the email is registered, we sent you a link to reset your password.</string>
     <string name="create_title_required">Write a title</string>
     <string name="create_description_required">Tell us about the place</string>
@@ -131,7 +130,7 @@
     <string name="moderator_login_restricted">RESTRICTED ACCESS</string>
     <string name="moderator_login_title">Sign in with your institutional account</string>
     <string name="moderator_login_subtitle">Moderation accounts require institutional credentials to access the management panel.</string>
-    <string name="moderator_login_email_label">Institutional email</string>
+    <string name="moderator_login_email_label">Email</string>
     <string name="moderator_login_email_placeholder">email@institution.edu</string>
     <string name="moderator_login_password_label">Password</string>
     <string name="moderator_login_password_placeholder">Enter your password</string>
@@ -456,7 +455,7 @@
     <string name="dashboard_recent_activity">Recent activity</string>
     <string name="dashboard_no_activity">No recent activity</string>
     <string name="dashboard_verified_action">You verified \"%1$s\"</string>
-    <string name="dashboard_rejected_action">You rejected \"%1$s\" · Invalid photographs</string>
+    <string name="dashboard_rejected_action">You rejected \"%1$s\"</string>
     <string name="dashboard_activity_meta">%1$s · %2$s</string>
 
     <!-- Moderation history -->
@@ -665,4 +664,16 @@
     <string name="text_size_large">Large</string>
     <string name="text_size_extra_large">Extra large</string>
     <string name="settings_text_preview">This is how text will look across the whole app.</string>
+
+    <!-- Moderation -->
+    <string name="moderation_error_connection">The action could not be completed. Check your connection and try again.</string>
+    <string name="moderation_error_already_resolved">This publication was already resolved by another moderator.</string>
+    <string name="notification_publication_verified">Your publication “%1$s” was verified and is now public.</string>
+    <string name="notification_publication_rejected">“%1$s” was rejected. Tap to see the reason and fix it.</string>
+    <string name="moderator_role_label">MODERATOR</string>
+    <string name="moderator_finish_choose">Choose the publication you want to close:</string>
+    <string name="moderator_account_edit_profile">Edit profile</string>
+    <string name="moderator_account_accessibility">Accessibility</string>
+    <string name="moderator_account_language">Language</string>
+    <string name="auth_error_invalid_credentials_or_role">Invalid credentials and/or role.</string>
 </resources>

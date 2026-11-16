@@ -33,7 +33,13 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
     }
 
     override suspend fun approvePublication(id: String): Boolean = updatePending(id) {
-        it.copy(status = PublicationStatus.VERIFIED, rejectionReason = null, rejectionDetail = null)
+        it.copy(
+            status = PublicationStatus.VERIFIED,
+            rejectionReason = null,
+            rejectionDetail = null,
+            moderatedAt = System.currentTimeMillis(),
+            moderatedBy = MODERATOR_ID
+        )
     }
 
     override suspend fun rejectPublication(id: String, reason: String, detail: String): Boolean {
@@ -42,7 +48,9 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
             it.copy(
                 status = PublicationStatus.REJECTED,
                 rejectionReason = reason.trim(),
-                rejectionDetail = detail.trim()
+                rejectionDetail = detail.trim(),
+                moderatedAt = System.currentTimeMillis(),
+                moderatedBy = MODERATOR_ID
             )
         }
     }
@@ -98,5 +106,10 @@ class InMemoryPublicationRepository @Inject constructor() : PublicationRepositor
             }
             if (publications.compareAndSet(current, updated)) return true
         }
+    }
+
+    companion object {
+        /** Moderador que figura en las resoluciones hechas con este repositorio de prueba. */
+        const val MODERATOR_ID = "moderador-1"
     }
 }

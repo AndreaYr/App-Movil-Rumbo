@@ -118,6 +118,24 @@ class UserRepositoryImpl @Inject constructor(
         return newUser
     }
 
+    override suspend fun signInExistingWithGoogle(idToken: String): User? {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val result = auth.signInWithCredential(credential).await()
+        val firebaseUser = result.user ?: throw Exception("No se pudo obtener el usuario de Google")
+        val profile = collection.document(firebaseUser.uid).get().await()
+            .toObject(UserDto::class.java)
+            ?.copy(id = firebaseUser.uid)
+            ?.toDomain()
+        if (profile == null) {
+            // Cuenta de Google sin perfil en Rumbo: no se registra desde aquí. Si Firebase la acaba de crear, se borra
+            withContext(NonCancellable) {
+                if (result.additionalUserInfo?.isNewUser == true) runCatching { firebaseUser.delete().await() }
+                auth.signOut()
+            }
+        }
+        return profile
+    }
+
     override suspend fun sendPasswordReset(email: String) {
         try {
             auth.sendPasswordResetEmail(email).await()

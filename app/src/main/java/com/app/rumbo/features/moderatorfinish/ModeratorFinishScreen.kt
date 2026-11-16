@@ -1,5 +1,16 @@
 package com.app.rumbo.features.moderatorfinish
 
+import com.app.rumbo.core.theme.adaptiveColor
+import androidx.compose.ui.semantics.Role
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,12 +54,12 @@ import com.app.rumbo.R
 import com.app.rumbo.core.util.label
 import com.app.rumbo.core.util.formatThousands
 
-private val BodyBg = Color(0xFF0F1E1B)
-private val SurfaceBg = Color(0xFF162824)
-private val White = Color(0xFFFFFFFF)
+private val BodyBg: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1E1B))
+private val SurfaceBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF162824))
+private val OnAccent = Color(0xFFFFFFFF)
+private val TextMain: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFFFFFFF))
 private val FinishGreen = Color(0xFF117361)
-private val TextSecondary = Color(0xFF7DA89B)
-
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF5B6B65), Color(0xFF7DA89B))
 @Composable
 fun ModeratorFinishRoute(
     onBack: () -> Unit = {},
@@ -56,9 +67,19 @@ fun ModeratorFinishRoute(
     viewModel: ModeratorFinishViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage = state.errorRes?.let { stringResource(it) }
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            snackbarHostState.showSnackbar(errorMessage)
+            viewModel.onErrorShown()
+        }
+    }
     ModeratorFinishScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
+        onPublicationSelected = viewModel::onPublicationSelected,
         onConfirm = { viewModel.onConfirm(onFinished) }
     )
 }
@@ -66,49 +87,88 @@ fun ModeratorFinishRoute(
 @Composable
 fun ModeratorFinishScreen(
     state: ModeratorFinishUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit = {},
+    onPublicationSelected: (String) -> Unit = {},
     onConfirm: () -> Unit = {}
 ) {
     val publication = state.publication
-    Scaffold(containerColor = BodyBg) { padding ->
+    Scaffold(
+        containerColor = BodyBg,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
+                    Icon(painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = TextMain)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.moderator_finish_title), color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.moderator_finish_title), color = TextMain, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
             Box(Modifier.weight(1f).fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
                 when {
-                    state.isLoading -> CircularProgressIndicator(color = White)
+                    state.isLoading -> CircularProgressIndicator(color = TextMain)
                     publication == null -> Text(
                         stringResource(R.string.moderator_finish_empty),
                         color = TextSecondary,
                         textAlign = TextAlign.Center
                     )
                     else -> Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        if (state.publications.size > 1) {
+                            Text(
+                                stringResource(R.string.moderator_finish_choose),
+                                color = TextSecondary,
+                                fontSize = 13.sp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            state.publications.forEach { candidate ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(SurfaceBg)
+                                        .selectable(
+                                            selected = candidate.id == publication.id,
+                                            onClick = { onPublicationSelected(candidate.id) },
+                                            role = Role.RadioButton
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = candidate.id == publication.id,
+                                        onClick = null,
+                                        colors = RadioButtonDefaults.colors(selectedColor = FinishGreen, unselectedColor = TextSecondary)
+                                    )
+                                    Column(Modifier.padding(start = 8.dp)) {
+                                        Text(candidate.title, color = TextMain, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text(candidate.town, color = TextSecondary, fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(4.dp))
+                        }
                         Icon(
                             painterResource(R.drawable.ic_task_alt),
                             contentDescription = null,
                             tint = TextSecondary,
-                            modifier = Modifier.size(64.dp).background(Color(0xFF1F3B35), CircleShape).padding(16.dp)
+                            modifier = Modifier.size(64.dp).background(adaptiveColor(Color(0xFFD7E6E1), Color(0xFF1F3B35)), CircleShape).padding(16.dp)
                         )
-                        Text(stringResource(R.string.moderator_finish_heading), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                        Text(stringResource(R.string.moderator_finish_heading), color = TextMain, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                         val bodyPrefix = stringResource(R.string.moderator_finish_body_prefix, publication.title)
                         val bodyState = stringResource(R.string.moderator_finish_state)
                         val bodySuffix = stringResource(R.string.moderator_finish_body_suffix)
                         Text(
                             buildAnnotatedString {
                                 append(bodyPrefix)
-                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = White)) { append(bodyState) }
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = TextMain)) { append(bodyState) }
                                 append(bodySuffix)
                             },
                             color = TextSecondary,
@@ -126,7 +186,7 @@ fun ModeratorFinishScreen(
                                     publication.votes.formatThousands()
                                 )
                             ),
-                            color = White,
+                            color = TextMain,
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -142,7 +202,7 @@ fun ModeratorFinishScreen(
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = SurfaceBg)
-                            ) { Text(stringResource(R.string.moderator_finish_cancel), color = White) }
+                            ) { Text(stringResource(R.string.moderator_finish_cancel), color = TextMain) }
                             Button(
                                 onClick = onConfirm,
                                 enabled = !state.isFinishing,
@@ -150,9 +210,9 @@ fun ModeratorFinishScreen(
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = FinishGreen)
                             ) {
-                                Icon(painterResource(R.drawable.ic_task_alt), null, Modifier.size(18.dp), tint = White)
+                                Icon(painterResource(R.drawable.ic_task_alt), null, Modifier.size(18.dp), tint = OnAccent)
                                 Spacer(Modifier.width(6.dp))
-                                Text(stringResource(R.string.moderator_finish_confirm), color = White, fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.moderator_finish_confirm), color = OnAccent, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }

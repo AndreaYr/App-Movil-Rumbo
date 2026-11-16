@@ -28,7 +28,6 @@
     <string name="login_error_generic">No se pudo iniciar sesión. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="moderator_login_success_message">Acceso concedido.</string>
     <string name="moderator_login_error_generic">Error al iniciar sesión.</string>
-    <string name="moderator_login_error_not_moderator">Esta cuenta no tiene permisos de moderador.</string>
     <string name="password_recovery_success_message">Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.</string>
     <string name="create_title_required">Escribe un título</string>
     <string name="create_description_required">Cuenta algo sobre el lugar</string>
@@ -131,7 +130,7 @@
     <string name="moderator_login_restricted">ACCESO RESTRINGIDO</string>
     <string name="moderator_login_title">Ingresa con tu cuenta institucional</string>
     <string name="moderator_login_subtitle">Las cuentas de moderación requieren credenciales institucionales para acceder al panel de gestión.</string>
-    <string name="moderator_login_email_label">Correo institucional</string>
+    <string name="moderator_login_email_label">Correo</string>
     <string name="moderator_login_email_placeholder">correo@institucion.edu</string>
     <string name="moderator_login_password_label">Contraseña</string>
     <string name="moderator_login_password_placeholder">Ingresa tu contraseña</string>
@@ -463,7 +462,7 @@
     <string name="dashboard_recent_activity">Actividad reciente</string>
     <string name="dashboard_no_activity">Sin actividad reciente</string>
     <string name="dashboard_verified_action">Verificaste \"%1$s\"</string>
-    <string name="dashboard_rejected_action">Rechazaste \"%1$s\" · Fotografías no válidas</string>
+    <string name="dashboard_rejected_action">Rechazaste \"%1$s\"</string>
     <string name="dashboard_activity_meta">%1$s · %2$s</string>
 
     <!-- Historial de moderación -->
@@ -664,4 +663,16 @@
     <string name="text_size_large">Grande</string>
     <string name="text_size_extra_large">Muy grande</string>
     <string name="settings_text_preview">Así se verá el texto en toda la aplicación.</string>
+
+    <!-- Moderación -->
+    <string name="moderation_error_connection">No se pudo completar la acción. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="moderation_error_already_resolved">Esta publicación ya fue resuelta por otro moderador.</string>
+    <string name="notification_publication_verified">Tu publicación “%1$s” fue verificada y ya es pública.</string>
+    <string name="notification_publication_rejected">“%1$s” fue rechazada. Toca para ver el motivo y corregirla.</string>
+    <string name="moderator_role_label">MODERADOR</string>
+    <string name="moderator_finish_choose">Elige la publicación que quieres cerrar:</string>
+    <string name="moderator_account_edit_profile">Editar perfil</string>
+    <string name="moderator_account_accessibility">Accesibilidad</string>
+    <string name="moderator_account_language">Idioma</string>
+    <string name="auth_error_invalid_credentials_or_role">Credenciales y/o rol inválido.</string>
 </resources>

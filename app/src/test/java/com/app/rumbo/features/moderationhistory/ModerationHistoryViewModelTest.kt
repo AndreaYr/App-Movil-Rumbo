@@ -1,5 +1,8 @@
 package com.app.rumbo.features.moderationhistory
 
+import androidx.lifecycle.SavedStateHandle
+import com.app.rumbo.domain.usecase.ModerationNotifier
+import com.app.rumbo.testutil.FakeNotificationRepository
 import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.domain.model.PublicationStatus
@@ -24,7 +27,10 @@ class ModerationHistoryViewModelTest {
 
     private val repository = InMemoryPublicationRepository(SamplePublications.create())
 
-    private fun createViewModel() = ModerationHistoryViewModel(GetModerationHistoryUseCase(repository))
+    private fun createViewModel(filter: String? = null) = ModerationHistoryViewModel(
+        SavedStateHandle(if (filter == null) emptyMap() else mapOf("filter" to filter)),
+        GetModerationHistoryUseCase(repository)
+    )
 
     @Test
     fun `carga todas las publicaciones moderadas`() = runTest {
@@ -65,10 +71,27 @@ class ModerationHistoryViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
         val rejectedBefore = viewModel.uiState.value.rejectedCount
 
-        RejectPublicationUseCase(repository)("murales-filandia", "Información inconsistente")
+        RejectPublicationUseCase(repository, ModerationNotifier(FakeNotificationRepository()))("murales-filandia", "Información inconsistente")
 
         val state = viewModel.uiState.value
         assertEquals(rejectedBefore + 1, state.rejectedCount)
         assertTrue(state.publications.any { it.id == "murales-filandia" })
+    }
+
+    @Test
+    fun `se abre con el filtro que pide el panel`() = runTest {
+        val viewModel = createViewModel(filter = "REJECTED")
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
+
+        val state = viewModel.uiState.value
+        assertEquals(ModerationHistoryFilter.REJECTED, state.filter)
+        assertTrue(state.publications.all { it.status == PublicationStatus.REJECTED })
+    }
+
+    @Test
+    fun `un filtro desconocido se ignora y se muestran todas`() = runTest {
+        val viewModel = createViewModel(filter = "OTRO")
+
+        assertEquals(ModerationHistoryFilter.ALL, viewModel.uiState.value.filter)
     }
 }

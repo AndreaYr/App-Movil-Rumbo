@@ -1,5 +1,7 @@
 package com.app.rumbo.features.moderationhistory
 
+import com.app.rumbo.core.theme.adaptiveColor
+import com.app.rumbo.core.util.rejectionReasonText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,18 +57,19 @@ import com.app.rumbo.data.local.SamplePublications
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
 
-private val BodyBeige = Color(0xFFF7F5EE)
+private val BodyBeige: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1614))
 private val HeaderDark = Color(0xFF0F1E1B)
-private val White = Color(0xFFFFFFFF)
-private val BorderColor = Color(0xFFEFECE4)
+private val OnAccent = Color(0xFFFFFFFF)
+private val CardBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF18211F))
+private val BorderColor: Color @Composable get() = adaptiveColor(Color(0xFFEFECE4), Color(0xFF2E3B38))
 private val VerifyGreen = Color(0xFF117361)
 private val RejectOrange = Color(0xFFD95338)
-private val TextDark = Color(0xFF0F1E1B)
-private val TextSecondary = Color(0xFF6B7C75)
-private val TextMeta = Color(0xFF828282)
-private val ImagePlaceholder = Color(0xFFE6E2D6)
-private val RejectedReasonBg = Color(0xFFFDECEA)
-private val FilterCountBg = Color(0xFFEFECE4)
+private val TextDark: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFE6ECE9))
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF6B7C75), Color(0xFF9FB0AA))
+private val TextMeta: Color @Composable get() = adaptiveColor(Color(0xFF828282), Color(0xFF8FA09A))
+private val ImagePlaceholder: Color @Composable get() = adaptiveColor(Color(0xFFE6E2D6), Color(0xFF26312E))
+private val RejectedReasonBg: Color @Composable get() = adaptiveColor(Color(0xFFFDECEA), Color(0xFF3A2620))
+private val FilterCountBg: Color @Composable get() = adaptiveColor(Color(0xFFEFECE4), Color(0xFF26312E))
 private val ActiveFilterBg = Color(0xFF23C49D)
 
 @Composable
@@ -156,7 +159,7 @@ private fun HistoryHeader(
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(White)
+                .background(CardBg)
                 .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
         ) {
             Icon(
@@ -227,7 +230,7 @@ private fun HistoryFilterChip(
     Row(
         modifier = Modifier
             .clip(shape)
-            .background(if (selected) HeaderDark else White)
+            .background(if (selected) HeaderDark else CardBg)
             .border(1.dp, if (selected) HeaderDark else BorderColor, shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -235,7 +238,7 @@ private fun HistoryFilterChip(
     ) {
         Text(
             text = label,
-            color = if (selected) White else TextSecondary,
+            color = if (selected) OnAccent else TextSecondary,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             fontSize = 13.sp
         )
@@ -266,7 +269,7 @@ private fun ModerationHistoryCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, BorderColor)
     ) {
@@ -368,7 +371,7 @@ private fun ModerationHistoryCard(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = publication.rejectionReason.orEmpty(),
+                        text = publication.rejectionReason.orEmpty().rejectionReasonText(),
                         color = TextDark,
                         fontSize = 13.sp
                     )
@@ -395,7 +398,7 @@ private fun EmptyHistoryState(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = White),
+            colors = CardDefaults.cardColors(containerColor = CardBg),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             border = BorderStroke(1.dp, BorderColor)
         ) {

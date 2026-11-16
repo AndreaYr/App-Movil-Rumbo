@@ -1,5 +1,6 @@
 package com.app.rumbo.features.mypublications
 
+import com.app.rumbo.core.util.rejectionReasonText
 import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -220,7 +221,7 @@ private fun RejectionReason(publication: Publication) {
     Text(
         buildAnnotatedString {
             withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(reasonPrefix) }
-            append(publication.rejectionReason ?: noReason)
+            append(publication.rejectionReason?.rejectionReasonText() ?: noReason)
             append(detailSuffix)
         },
         style = MaterialTheme.typography.bodyMedium,

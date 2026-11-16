@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
 import com.app.rumbo.domain.exception.EmailAlreadyInUseException
+import com.app.rumbo.domain.exception.InvalidRoleException
 import com.app.rumbo.domain.usecase.RegisterUserUseCase
 import com.app.rumbo.domain.usecase.SignInWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +38,9 @@ data class RegisterUiState(
     @StringRes val termsError: Int? = null,
     val hasSubmitted: Boolean = false,
     val status: RegisterStatus = RegisterStatus.IDLE,
-    @StringRes val errorMessageRes: Int? = null
+    @StringRes val errorMessageRes: Int? = null,
+    /** El registro en curso es el de Google; el botón de crear cuenta no muestra la rueda de carga. */
+    val isGoogleLoading: Boolean = false
 ) {
     val hasMinimumLength: Boolean get() = password.length >= MIN_PASSWORD_LENGTH
     val hasUppercase: Boolean get() = password.any(Char::isUpperCase)
@@ -138,7 +141,7 @@ class RegisterViewModel @Inject constructor(
         if (current.status == RegisterStatus.LOADING) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = RegisterStatus.LOADING, errorMessageRes = null) }
+            _uiState.update { it.copy(status = RegisterStatus.LOADING, isGoogleLoading = false, errorMessageRes = null) }
             try {
                 registerUser(current.name, current.email, current.password)
                 _uiState.update { it.copy(status = RegisterStatus.SUCCESS) }
@@ -159,12 +162,16 @@ class RegisterViewModel @Inject constructor(
     fun registerWithGoogle(idToken: String) {
         if (_uiState.value.status == RegisterStatus.LOADING) return
         viewModelScope.launch {
-            _uiState.update { it.copy(status = RegisterStatus.LOADING, errorMessageRes = null) }
+            _uiState.update { it.copy(status = RegisterStatus.LOADING, isGoogleLoading = true, errorMessageRes = null) }
             try {
                 signInWithGoogle(idToken)
-                _uiState.update { it.copy(status = RegisterStatus.GOOGLE_SUCCESS) }
+                _uiState.update { it.copy(status = RegisterStatus.GOOGLE_SUCCESS, isGoogleLoading = false) }
             } catch (cancellation: CancellationException) {
                 throw cancellation
+            } catch (_: InvalidRoleException) {
+                _uiState.update {
+                    it.copy(status = RegisterStatus.ERROR, isGoogleLoading = false, errorMessageRes = R.string.auth_error_invalid_credentials_or_role)
+                }
             } catch (_: Exception) {
                 onGoogleError()
             }
@@ -173,7 +180,7 @@ class RegisterViewModel @Inject constructor(
 
     fun onGoogleError() {
         _uiState.update {
-            it.copy(status = RegisterStatus.ERROR, errorMessageRes = R.string.google_sign_in_error)
+            it.copy(status = RegisterStatus.ERROR, isGoogleLoading = false, errorMessageRes = R.string.google_sign_in_error)
         }
     }
 

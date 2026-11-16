@@ -1,5 +1,7 @@
 package com.app.rumbo.features.reviewpublication
 
+import kotlinx.coroutines.CancellationException
+import com.app.rumbo.R
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -42,8 +44,27 @@ class ReviewPublicationViewModel @Inject constructor(
 
     /** Aprueba la publicación y avisa a la pantalla cuando ya quedó guardado. */
     fun onVerify(onDone: () -> Unit) {
+        if (_uiState.value.isProcessing) return
+        _uiState.update { it.copy(isProcessing = true, errorRes = null) }
         viewModelScope.launch {
-            if (approvePublication(publicationId)) onDone()
+            try {
+                if (approvePublication(publicationId)) {
+                    onDone()
+                } else {
+                    // Otro moderador ya la resolvió (o ya no existe)
+                    _uiState.update { it.copy(errorRes = R.string.moderation_error_already_resolved) }
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                _uiState.update { it.copy(errorRes = R.string.moderation_error_connection) }
+            } finally {
+                _uiState.update { it.copy(isProcessing = false) }
+            }
         }
+    }
+
+    fun onErrorShown() {
+        _uiState.update { it.copy(errorRes = null) }
     }
 }

@@ -10,4 +10,7 @@ interface NotificationRepository {
     suspend fun markAsRead(id: String)
 
     suspend fun markAllAsRead()
+
+    /** Crea un aviso en la bandeja de [userId] (por ejemplo, para decirle al autor que su publicación fue moderada). */
+    suspend fun notifyUser(userId: String, notification: Notification)
 }

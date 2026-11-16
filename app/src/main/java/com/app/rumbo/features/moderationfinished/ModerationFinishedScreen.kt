@@ -1,5 +1,6 @@
 package com.app.rumbo.features.moderationfinished
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,11 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.rumbo.R
 
-private val BodyBg = Color(0xFF0F1E1B)
-private val White = Color(0xFFFFFFFF)
+private val BodyBg: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1E1B))
+private val OnAccent = Color(0xFFFFFFFF)
+private val TextMain: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFFFFFFF))
 private val VerifyGreen = Color(0xFF117361)
-private val TextSecondary = Color(0xFF7DA89B)
-
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF5B6B65), Color(0xFF7DA89B))
 @Composable
 fun ModerationFinishedScreen(
     state: ModerationFinishedUiState,
@@ -65,13 +66,13 @@ fun ModerationFinishedScreen(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1F3B35)),
+                    .background(adaptiveColor(Color(0xFFD7E6E1), Color(0xFF1F3B35))),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(painter = painterResource(iconRes), contentDescription = null, tint = iconColor, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.height(24.dp))
-            Text(stringResource(state.outcome.titleRes), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
+            Text(stringResource(state.outcome.titleRes), color = TextMain, fontWeight = FontWeight.Bold, fontSize = 22.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(8.dp))
             Text(stringResource(state.outcome.messageRes), color = TextSecondary, fontSize = 14.sp, textAlign = TextAlign.Center)
             Spacer(Modifier.height(32.dp))
@@ -81,7 +82,7 @@ fun ModerationFinishedScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = iconColor)
             ) {
-                Text(stringResource(R.string.moderation_back_to_panel), color = White, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.moderation_back_to_panel), color = OnAccent, fontWeight = FontWeight.SemiBold)
             }
         }
     }

@@ -1,5 +1,11 @@
 package com.app.rumbo.features.rejectpublication
 
+import com.app.rumbo.core.theme.adaptiveColor
+import com.app.rumbo.domain.model.RejectionReason
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,15 +51,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.rumbo.R
 import com.app.rumbo.core.util.label
 
-private val BodyBg = Color(0xFF0F1E1B)
-private val SurfaceBg = Color(0xFF162824)
-private val White = Color(0xFFFFFFFF)
-private val BorderColor = Color(0xFF2B443E)
-private val RejectOrange = Color(0xFFF05A36)
-private val TextPrimary = Color(0xFFFFFFFF)
-private val TextSecondary = Color(0xFF7DA89B)
-private val ErrorRed = Color(0xFFE76F51)
-
+private val BodyBg: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1E1B))
+private val SurfaceBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF162824))
+private val OnAccent = Color(0xFFFFFFFF)
+private val TextMain: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFFFFFFF))
+private val BorderColor: Color @Composable get() = adaptiveColor(Color(0xFFE4DFD3), Color(0xFF2B443E))
+private val RejectOrange: Color @Composable get() = adaptiveColor(Color(0xFFC4401E), Color(0xFFF05A36))
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF5B6B65), Color(0xFF7DA89B))
+private val ErrorRed: Color @Composable get() = adaptiveColor(Color(0xFFB8431F), Color(0xFFE76F51))
 @Composable
 fun RejectPublicationRoute(
     onBack: () -> Unit = {},
@@ -62,8 +67,17 @@ fun RejectPublicationRoute(
     viewModel: RejectPublicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage = state.errorRes?.let { stringResource(it) }
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            snackbarHostState.showSnackbar(errorMessage)
+            viewModel.onErrorShown()
+        }
+    }
     RejectPublicationScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onCancel = onCancel,
         onConfirmReject = { viewModel.onConfirm(onConfirmReject) },
@@ -75,6 +89,7 @@ fun RejectPublicationRoute(
 @Composable
 fun RejectPublicationScreen(
     state: RejectPublicationUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit = {},
     onCancel: () -> Unit = {},
     onConfirmReject: () -> Unit = {},
@@ -84,6 +99,7 @@ fun RejectPublicationScreen(
     val publication = state.publication
     Scaffold(
         containerColor = BodyBg,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             Row(
                 modifier = Modifier
@@ -92,10 +108,10 @@ fun RejectPublicationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = TextMain)
                 }
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.reject_title), color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.reject_title), color = TextMain, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         },
         bottomBar = {
@@ -115,7 +131,7 @@ fun RejectPublicationScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = SurfaceBg)
                     ) {
-                        Text(stringResource(R.string.common_cancel), color = White)
+                        Text(stringResource(R.string.common_cancel), color = TextMain)
                     }
                     Button(
                         onClick = onConfirmReject,
@@ -127,11 +143,11 @@ fun RejectPublicationScreen(
                             disabledContainerColor = SurfaceBg
                         )
                     ) {
-                        Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
+                        Icon(painter = painterResource(R.drawable.ic_cancel), contentDescription = null, tint = OnAccent, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(
                             stringResource(R.string.reject_title),
-                            color = White,
+                            color = OnAccent,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1
                         )
@@ -149,14 +165,14 @@ fun RejectPublicationScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF1F3B35)),
+                    modifier = Modifier.size(40.dp).clip(CircleShape).background(adaptiveColor(Color(0xFFD7E6E1), Color(0xFF1F3B35))),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(painter = painterResource(R.drawable.ic_place), contentDescription = null, tint = TextSecondary)
                 }
                 Spacer(Modifier.width(10.dp))
                 Column {
-                    Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.SemiBold)
+                    Text(publication?.title.orEmpty(), color = TextMain, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(R.string.reject_header_line, publication?.category?.label.orEmpty(), publication?.author?.name.orEmpty()), color = TextSecondary, fontSize = 12.sp)
                 }
             }
@@ -167,34 +183,27 @@ fun RejectPublicationScreen(
                 Text(stringResource(R.string.reject_warning), color = TextSecondary, fontSize = 13.sp)
             }
             Spacer(Modifier.height(16.dp))
-            Text(stringResource(R.string.reject_reason_label), color = White, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.reject_reason_label), color = TextMain, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            val reasons = listOf(
-                stringResource(R.string.reject_reason_insufficient),
-                stringResource(R.string.reject_reason_location),
-                stringResource(R.string.reject_reason_photos),
-                stringResource(R.string.reject_reason_not_found),
-                stringResource(R.string.reject_reason_inconsistent)
-            )
-            reasons.forEach { reason ->
+            RejectionReason.entries.forEach { reason ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable { onReasonSelected(reason) }
+                        .clickable { onReasonSelected(reason.name) }
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = reason == state.selectedReason,
-                        onClick = { onReasonSelected(reason) },
+                        selected = reason.name == state.selectedReason,
+                        onClick = { onReasonSelected(reason.name) },
                         colors = RadioButtonDefaults.colors(selectedColor = RejectOrange, unselectedColor = TextSecondary)
                     )
-                    Text(reason, color = White)
+                    Text(stringResource(reason.labelRes), color = TextMain)
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Text(stringResource(R.string.reject_detail_label), color = White, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.reject_detail_label), color = TextMain, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(6.dp))
             Box(
                 modifier = Modifier
@@ -209,7 +218,7 @@ fun RejectPublicationScreen(
                     value = state.detail,
                     onValueChange = onDetailChanged,
                     modifier = Modifier.fillMaxSize(),
-                    textStyle = androidx.compose.ui.text.TextStyle(color = White, fontSize = 13.sp),
+                    textStyle = androidx.compose.ui.text.TextStyle(color = TextMain, fontSize = 13.sp),
                     maxLines = 4
                 )
             }

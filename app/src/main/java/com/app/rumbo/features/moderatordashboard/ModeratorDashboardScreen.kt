@@ -1,5 +1,7 @@
 ﻿package com.app.rumbo.features.moderatordashboard
 
+import com.app.rumbo.core.theme.adaptiveColor
+import com.app.rumbo.core.util.toTimeAgo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,17 +49,17 @@ import com.app.rumbo.domain.model.ModerationActionType
 import com.app.rumbo.domain.model.ModerationActivity
 import com.app.rumbo.domain.model.ModeratorStats
 
+private val CardBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF18211F))
 private val HeaderDark = Color(0xFF0F1E1B)
-private val BodyBeige = Color(0xFFF7F5EE)
+private val BodyBeige: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1614))
 private val OrangeCta = Color(0xFFF05A36)
 private val Terracotta = Color(0xFFC85B38)
 private val EmeraldGreen = Color(0xFF117361)
 private val PendingYellow = Color(0xFFF2C94C)
 private val RejectedOrange = Color(0xFFE76F51)
 private val FinishedGray = Color(0xFFBDBDBD)
-private val TextDark = Color(0xFF0F1E1B)
-private val TextSecondary = Color(0xFF6B7C75)
-
+private val TextDark: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFE6ECE9))
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF6B7C75), Color(0xFF9FB0AA))
 @Composable
 fun ModeratorDashboardScreen(
     state: ModeratorDashboardUiState,
@@ -117,7 +119,7 @@ fun ModeratorDashboardScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "LG",
+                                    text = state.userInitials,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
@@ -132,7 +134,7 @@ fun ModeratorDashboardScreen(
                                     fontSize = 18.sp
                                 )
                                 Text(
-                                    text = state.userRole,
+                                    text = stringResource(R.string.moderator_role_label),
                                     color = Terracotta,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 10.sp,
@@ -246,7 +248,7 @@ fun ModeratorDashboardScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = CardBg),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Row(
@@ -275,7 +277,7 @@ fun ModeratorDashboardScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = CardBg),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
@@ -374,7 +376,7 @@ fun ModeratorDashboardScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = CardBg),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Text(
@@ -403,7 +405,7 @@ private fun StatCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -456,7 +458,7 @@ private fun LegendItem(color: Color, label: String, count: Int) {
         Spacer(Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.dashboard_legend_item, label, count),
-            color = Color(0xFF4F4F4F),
+            color = adaptiveColor(Color(0xFF4F4F4F), Color(0xFFB7C2BE)),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )
@@ -465,11 +467,10 @@ private fun LegendItem(color: Color, label: String, count: Int) {
 
 @Composable
 private fun ActivityItem(activity: ModerationActivity) {
-    val cleanTitle = activity.publicationTitle.replace("Verificaste ", "").replace("Rechazaste ", "")
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -484,8 +485,8 @@ private fun ActivityItem(activity: ModerationActivity) {
                     .clip(CircleShape)
                     .background(
                         when (activity.actionType) {
-                            ModerationActionType.VERIFIED -> Color(0xFFE8F5F1)
-                            ModerationActionType.REJECTED -> Color(0xFFFDECEA)
+                            ModerationActionType.VERIFIED -> adaptiveColor(Color(0xFFE8F5F1), Color(0xFF16403A))
+                            ModerationActionType.REJECTED -> adaptiveColor(Color(0xFFFDECEA), Color(0xFF3A2620))
                         }
                     ),
                 contentAlignment = Alignment.Center
@@ -501,16 +502,16 @@ private fun ActivityItem(activity: ModerationActivity) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (activity.actionType == ModerationActionType.VERIFIED) {
-                        stringResource(R.string.dashboard_verified_action, cleanTitle)
+                        stringResource(R.string.dashboard_verified_action, activity.publicationTitle)
                     } else {
-                        stringResource(R.string.dashboard_rejected_action, cleanTitle)
+                        stringResource(R.string.dashboard_rejected_action, activity.publicationTitle)
                     },
                     color = TextDark,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp
                 )
                 Text(
-                    text = stringResource(R.string.dashboard_activity_meta, activity.timeAgo, activity.authorName),
+                    text = stringResource(R.string.dashboard_activity_meta, activity.timestamp.toTimeAgo(), activity.authorName),
                     color = TextSecondary,
                     fontSize = 12.sp
                 )
@@ -530,16 +531,16 @@ private fun ModeratorDashboardPreview() {
                     ModerationActivity(
                         id = "1",
                         actionType = ModerationActionType.VERIFIED,
-                        publicationTitle = "Verificaste Mirador Alto de la Cruz",
+                        publicationTitle = "Mirador Alto de la Cruz",
                         authorName = "Usuario de prueba",
-                        timeAgo = "hace 25 min"
+                        timestamp = System.currentTimeMillis() - 25 * 60_000L
                     ),
                     ModerationActivity(
                         id = "2",
                         actionType = ModerationActionType.REJECTED,
-                        publicationTitle = "Rechazaste Bar La Esquina",
+                        publicationTitle = "Bar La Esquina",
                         authorName = "Otro usuario",
-                        timeAgo = "hace 1 h"
+                        timestamp = System.currentTimeMillis() - 60 * 60_000L
                     )
                 )
             )

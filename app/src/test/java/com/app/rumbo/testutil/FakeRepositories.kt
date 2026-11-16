@@ -49,6 +49,13 @@ class FakeNotificationRepository : NotificationRepository {
     override suspend fun markAllAsRead() {
         notifications.update { list -> list.map { it.copy(isRead = true) } }
     }
+    /** Avisos creados con [notifyUser], por id de usuario destinatario. */
+    val sent = mutableListOf<Pair<String, Notification>>()
+    var failNotify = false
+    override suspend fun notifyUser(userId: String, notification: Notification) {
+        if (failNotify) throw java.io.IOException("Sin permisos")
+        sent += userId to notification
+    }
 }
 
 /** Rutas guardadas en memoria; con `failWrites` simula un error de almacenamiento. */
@@ -73,6 +80,7 @@ class FakeUserRepository(user: User? = TestUsers.mariana) : UserRepository {
         current.value?.takeIf { it.email == email }?.also { current.value = it }
     override suspend fun signInWithGoogle(idToken: String): User =
         (current.value ?: TestUsers.mariana).also { current.value = it }
+    override suspend fun signInExistingWithGoogle(idToken: String): User? = current.value
     override suspend fun sendPasswordReset(email: String) = Unit
     override suspend fun logout() {
         current.value = null

@@ -227,7 +227,7 @@ fun LoginScreen(
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                if (state.status == LoginStatus.LOADING) {
+                if (state.status == LoginStatus.LOADING && !state.isGoogleLoading) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = White, strokeWidth = 2.dp)
                     Text(stringResource(R.string.login_signing_in))
                 } else {
@@ -236,7 +236,8 @@ fun LoginScreen(
             }
 
             GoogleSignInButton(
-                isLoading = state.status == LoginStatus.LOADING,
+                isLoading = state.isGoogleLoading,
+                enabled = state.status != LoginStatus.LOADING,
                 onToken = onGoogleToken,
                 onError = onGoogleError
             )

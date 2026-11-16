@@ -27,5 +27,12 @@ data class Publication(
     val comments: List<Comment>,
     /** Motivo y detalle que el moderador le deja al autor cuando la rechaza. */
     val rejectionReason: String? = null,
-    val rejectionDetail: String? = null
-)
+    val rejectionDetail: String? = null,
+    /** Momento en que un moderador la verificó o la rechazó; null si sigue pendiente o es anterior a este dato. */
+    val moderatedAt: Long? = null,
+    /** Id del moderador que la verificó o la rechazó; vacío si no se registró. */
+    val moderatedBy: String = ""
+) {
+    /** Cuándo se resolvió la moderación; para datos antiguos sin ese registro se usa la fecha de publicación. */
+    val moderationTime: Long get() = moderatedAt ?: publishedAt
+}

@@ -41,6 +41,7 @@ import com.app.rumbo.domain.model.ThemeMode
 @Composable
 fun SettingsSheet(
     onDismiss: () -> Unit,
+    showLanguage: Boolean = true,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val appearance by viewModel.appearance.collectAsStateWithLifecycle()
@@ -49,7 +50,8 @@ fun SettingsSheet(
         textScale = appearance.textScale,
         onThemeModeSelected = viewModel::onThemeModeSelected,
         onTextScaleSelected = viewModel::onTextScaleSelected,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        showLanguage = showLanguage
     )
 }
 
@@ -60,7 +62,8 @@ fun SettingsSheetContent(
     textScale: TextScale,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onTextScaleSelected: (TextScale) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    showLanguage: Boolean = true
 ) {
     val context = LocalContext.current
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -84,8 +87,8 @@ fun SettingsSheetContent(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            SectionTitle(R.string.settings_language)
-            Row(
+            if (showLanguage) SectionTitle(R.string.settings_language)
+            if (showLanguage) Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(role = Role.Button) { showLanguageDialog = true }
@@ -104,7 +107,7 @@ fun SettingsSheetContent(
                 )
             }
 
-            HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline)
+            if (showLanguage) HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline)
 
             SectionTitle(R.string.settings_theme)
             Column(Modifier.selectableGroup()) {

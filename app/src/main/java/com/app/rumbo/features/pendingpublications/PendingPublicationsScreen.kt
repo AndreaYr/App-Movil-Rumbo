@@ -1,5 +1,6 @@
 ﻿package com.app.rumbo.features.pendingpublications
 
+import com.app.rumbo.core.theme.adaptiveColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -51,18 +52,18 @@ import com.app.rumbo.domain.model.PriceLevel
 import com.app.rumbo.domain.model.Publication
 import com.app.rumbo.domain.model.PublicationStatus
 
-private val BodyBeige = Color(0xFFF7F5EE)
-private val White = Color(0xFFFFFFFF)
-private val BorderColor = Color(0xFFEFECE4)
+private val BodyBeige: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1614))
+private val OnAccent = Color(0xFFFFFFFF)
+private val CardBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF18211F))
+private val BorderColor: Color @Composable get() = adaptiveColor(Color(0xFFEFECE4), Color(0xFF2E3B38))
 private val PendingBadgeBg = Color(0xFFFEF3C7)
 private val PendingBadgeText = Color(0xFF9A7B1C)
 private val VerifyGreen = Color(0xFF117361)
 private val RejectOrange = Color(0xFFD95338)
-private val TextDark = Color(0xFF0F1E1B)
-private val TextSecondary = Color(0xFF6B7C75)
-private val TextMeta = Color(0xFF828282)
-private val ImagePlaceholder = Color(0xFFE6E2D6)
-
+private val TextDark: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFE6ECE9))
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF6B7C75), Color(0xFF9FB0AA))
+private val TextMeta: Color @Composable get() = adaptiveColor(Color(0xFF828282), Color(0xFF8FA09A))
+private val ImagePlaceholder: Color @Composable get() = adaptiveColor(Color(0xFFE6E2D6), Color(0xFF26312E))
 @Composable
 fun PendingPublicationsScreen(
     state: PendingPublicationsUiState,
@@ -105,7 +106,7 @@ fun PendingPublicationsScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(White)
+                        .background(CardBg)
                         .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
                 ) {
                     Icon(
@@ -136,7 +137,7 @@ fun PendingPublicationsScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(White)
+                        .background(CardBg)
                         .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
                 ) {
                     Icon(
@@ -176,7 +177,7 @@ private fun PendingPublicationCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor)
     ) {
@@ -311,13 +312,13 @@ private fun PendingPublicationCard(
                         Icon(
                             painter = painterResource(R.drawable.ic_check_circle),
                             contentDescription = null,
-                            tint = White,
+                            tint = OnAccent,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
                             text = stringResource(R.string.pending_verify),
-                            color = White,
+                            color = OnAccent,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )

@@ -5,7 +5,7 @@ import com.app.rumbo.domain.model.ModeratorStats
 
 data class ModeratorDashboardUiState(
     val userName: String = "",
-    val userRole: String = "MODERADOR",
+    val userInitials: String = "",
     val stats: ModeratorStats = ModeratorStats(),
     val recentActivity: List<ModerationActivity> = emptyList(),
     val isLoading: Boolean = false

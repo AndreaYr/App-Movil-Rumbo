@@ -1,0 +1,72 @@
+// PROPUESTA de reglas de seguridad de Firestore para Rumbo.
+// Revisar y publicar desde la consola de Firebase o con: firebase deploy --only firestore:rules
+//
+// Cómo crear un moderador: en la consola de Firestore, colección "users", documento con el UID de la cuenta,
+// cambiar el campo "role" a "MODERATOR". Desde la app no se puede: el registro siempre crea cuentas "USER".
+//
+// Limitación conocida: las publicaciones se leen con una consulta sin filtros, así que todo usuario con sesión
+// puede leer también las pendientes y rechazadas. Para restringirlo habría que filtrar la consulta en la app.
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isModerator() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'MODERATOR';
+    }
+
+    match /users/{uid} {
+      // Los nombres y niveles de otros usuarios se muestran como autores de publicaciones y comentarios
+      allow read: if signedIn();
+
+      // Toda cuenta nueva nace como USER: nadie puede crearse como moderador
+      allow create: if signedIn() && request.auth.uid == uid && request.resource.data.role == 'USER';
+
+      // Cada quien edita su perfil, pero no puede cambiarse el rol
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+
+      match /notifications/{notificationId} {
+        allow read, update: if signedIn() && request.auth.uid == uid;
+        // El moderador deja avisos en la bandeja del autor al verificar o rechazar
+        allow create: if signedIn() && (request.auth.uid == uid || isModerator());
+      }
+
+      match /savedRoutes/{routeId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /publications/{publicationId} {
+      allow read: if signedIn();
+
+      // Se crea siempre pendiente y a nombre de quien la publica
+      allow create: if signedIn()
+        && request.resource.data.author.id == request.auth.uid
+        && request.resource.data.status == 'PENDING';
+
+      allow update: if signedIn() && (
+        // El moderador verifica, rechaza y finaliza
+        isModerator()
+        // El autor corrige una rechazada y la reenvía a revisión
+        || (resource.data.author.id == request.auth.uid
+            && resource.data.status == 'REJECTED'
+            && request.resource.data.status == 'PENDING')
+        // El autor cierra una publicación suya ya verificada
+        || (resource.data.author.id == request.auth.uid
+            && resource.data.status == 'VERIFIED'
+            && request.resource.data.status == 'FINISHED')
+        // Cualquier usuario puede votar y comentar, pero solo tocar esos campos
+        || request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['votes', 'weeklyVotes', 'comments'])
+      );
+
+      allow delete: if isModerator();
+    }
+  }
+}

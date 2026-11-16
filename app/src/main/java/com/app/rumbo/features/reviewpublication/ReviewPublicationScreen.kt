@@ -1,5 +1,10 @@
 package com.app.rumbo.features.reviewpublication
 
+import com.app.rumbo.core.theme.adaptiveColor
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -43,18 +48,17 @@ import coil3.compose.AsyncImage
 import com.app.rumbo.R
 import com.app.rumbo.core.util.label
 
-private val BodyBg = Color(0xFF0F1E1B)
-private val SurfaceBg = Color(0xFF162824)
-private val White = Color(0xFFFFFFFF)
-private val BorderColor = Color(0xFF2B443E)
+private val BodyBg: Color @Composable get() = adaptiveColor(Color(0xFFF7F5EE), Color(0xFF0F1E1B))
+private val SurfaceBg: Color @Composable get() = adaptiveColor(Color(0xFFFFFFFF), Color(0xFF162824))
+private val OnAccent = Color(0xFFFFFFFF)
+private val TextMain: Color @Composable get() = adaptiveColor(Color(0xFF0F1E1B), Color(0xFFFFFFFF))
+private val BorderColor: Color @Composable get() = adaptiveColor(Color(0xFFE4DFD3), Color(0xFF2B443E))
 private val PendingBadgeBg = Color(0xFFFEF3C7)
 private val PendingBadgeText = Color(0xFF9A7B1C)
 private val VerifyGreen = Color(0xFF117361)
-private val RejectOrange = Color(0xFFF05A36)
-private val TextPrimary = Color(0xFFFFFFFF)
-private val TextSecondary = Color(0xFF7DA89B)
-private val TextTertiary = Color(0xFF94A3B8)
-
+private val RejectOrange: Color @Composable get() = adaptiveColor(Color(0xFFC4401E), Color(0xFFF05A36))
+private val TextSecondary: Color @Composable get() = adaptiveColor(Color(0xFF5B6B65), Color(0xFF7DA89B))
+private val TextTertiary: Color @Composable get() = adaptiveColor(Color(0xFF64748B), Color(0xFF94A3B8))
 @Composable
 fun ReviewPublicationRoute(
     onBack: () -> Unit = {},
@@ -63,8 +67,17 @@ fun ReviewPublicationRoute(
     viewModel: ReviewPublicationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage = state.errorRes?.let { stringResource(it) }
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            snackbarHostState.showSnackbar(errorMessage)
+            viewModel.onErrorShown()
+        }
+    }
     ReviewPublicationScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBack = onBack,
         onVerify = { viewModel.onVerify(onVerify) },
         onReject = { publicationId -> onReject(publicationId) }
@@ -74,6 +87,7 @@ fun ReviewPublicationRoute(
 @Composable
 fun ReviewPublicationScreen(
     state: ReviewPublicationUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit = {},
     onVerify: () -> Unit = {},
     onReject: (String) -> Unit = {}
@@ -82,6 +96,7 @@ fun ReviewPublicationScreen(
     val photosCount = publication?.photos?.size
     Scaffold(
         containerColor = BodyBg,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Surface(color = BodyBg) {
                 Row(
@@ -92,6 +107,7 @@ fun ReviewPublicationScreen(
                 ) {
                     Button(
                         onClick = { publication?.let { onReject(it.id) } },
+                        enabled = !state.isProcessing,
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
@@ -105,15 +121,16 @@ fun ReviewPublicationScreen(
                     }
                     Button(
                         onClick = onVerify,
+                        enabled = !state.isProcessing,
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = VerifyGreen)
                     ) {
-                        Icon(painter = painterResource(R.drawable.ic_check_circle), contentDescription = null, tint = White, modifier = Modifier.size(18.dp))
+                        Icon(painter = painterResource(R.drawable.ic_check_circle), contentDescription = null, tint = OnAccent, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.pending_verify), color = White, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.pending_verify), color = OnAccent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -132,7 +149,7 @@ fun ReviewPublicationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_arrow_back), contentDescription = stringResource(R.string.common_back), tint = TextMain)
                 }
                 Spacer(Modifier.weight(1f))
                 Text(
@@ -168,20 +185,20 @@ fun ReviewPublicationScreen(
                         Text(stringResource(R.string.review_badge), color = PendingBadgeText, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                     }
                 }
-                Text(publication?.title.orEmpty(), color = White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                Text(publication?.title.orEmpty(), color = TextMain, fontWeight = FontWeight.Bold, fontSize = 22.sp)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1F3B35)),
+                            .background(adaptiveColor(Color(0xFFD7E6E1), Color(0xFF1F3B35))),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(publication?.author?.initials.orEmpty(), color = White, fontWeight = FontWeight.Bold)
+                        Text(publication?.author?.initials.orEmpty(), color = TextMain, fontWeight = FontWeight.Bold)
                     }
                     Spacer(Modifier.width(10.dp))
                     Column {
-                        Text(publication?.author?.name.orEmpty(), color = White, fontWeight = FontWeight.SemiBold)
+                        Text(publication?.author?.name.orEmpty(), color = TextMain, fontWeight = FontWeight.SemiBold)
                         Text(publication?.author?.levelName.orEmpty(), color = TextSecondary, fontSize = 12.sp)
                     }
                 }
@@ -205,9 +222,9 @@ fun ReviewPublicationScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = SurfaceBg)
                 ) {
-                    Icon(painter = painterResource(R.drawable.ic_near_me), contentDescription = null, tint = White)
+                    Icon(painter = painterResource(R.drawable.ic_near_me), contentDescription = null, tint = TextMain)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.review_street_view), color = White)
+                    Text(stringResource(R.string.review_street_view), color = TextMain)
                 }
             }
         }
@@ -224,7 +241,7 @@ private fun ReviewSection(title: String, iconRes: Int = 0, content: String) {
                 Icon(painter = painterResource(iconRes), contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
             }
-            Text(content, color = White, fontSize = 14.sp)
+            Text(content, color = TextMain, fontSize = 14.sp)
         }
     }
 }

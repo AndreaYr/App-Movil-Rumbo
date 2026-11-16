@@ -39,8 +39,16 @@ class InMemoryUserRepository @Inject constructor() : UserRepository {
     }
 
     override suspend fun signInWithGoogle(idToken: String): User {
-        val user = User(id = idToken, name = "Google", email = "$idToken@google.test", city = "", levelName = "Explorador")
+        // Igual que el repositorio real: si la cuenta ya tiene perfil se usa ese, si no se crea uno de usuario
+        val email = "$idToken@google.test"
+        val user = users[email] ?: User(id = idToken, name = "Google", email = email, city = "", levelName = "Explorador")
         users[user.email] = user
+        currentUser.value = user
+        return user
+    }
+
+    override suspend fun signInExistingWithGoogle(idToken: String): User? {
+        val user = users["$idToken@google.test"] ?: return null
         currentUser.value = user
         return user
     }

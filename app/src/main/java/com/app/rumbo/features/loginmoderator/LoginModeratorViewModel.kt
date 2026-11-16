@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.app.rumbo.R
 import com.app.rumbo.domain.usecase.LoginModeratorException
 import com.app.rumbo.domain.usecase.LoginModeratorUseCase
+import com.app.rumbo.domain.usecase.SignInModeratorWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,9 @@ data class LoginModeratorUiState(
     @StringRes val passwordError: Int? = null,
     val isPasswordVisible: Boolean = false,
     val status: LoginModeratorStatus = LoginModeratorStatus.IDLE,
-    @StringRes val messageRes: Int? = null
+    @StringRes val messageRes: Int? = null,
+    /** El inicio de sesión en curso es el de Google; el botón de correo no muestra la rueda de carga. */
+    val isGoogleLoading: Boolean = false
 ) {
     val isFormValid: Boolean
         get() = emailError == null && passwordError == null &&
@@ -37,7 +41,8 @@ data class LoginModeratorUiState(
 
 @HiltViewModel
 class LoginModeratorViewModel @Inject constructor(
-    private val loginModeratorUseCase: LoginModeratorUseCase
+    private val loginModeratorUseCase: LoginModeratorUseCase,
+    private val signInModeratorWithGoogleUseCase: SignInModeratorWithGoogleUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginModeratorUiState())
@@ -82,7 +87,7 @@ class LoginModeratorViewModel @Inject constructor(
         val submittedPassword = current.password
 
         viewModelScope.launch {
-            _uiState.update { it.copy(status = LoginModeratorStatus.LOADING, messageRes = null) }
+            _uiState.update { it.copy(status = LoginModeratorStatus.LOADING, isGoogleLoading = false, messageRes = null) }
             loginModeratorUseCase(submittedEmail, submittedPassword)
                 .onSuccess {
                     _uiState.update {
@@ -103,6 +108,41 @@ class LoginModeratorViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    /** Recibe el ID token de Google; solo entra una cuenta ya registrada con rol de moderador. */
+    fun loginWithGoogle(idToken: String) {
+        if (_uiState.value.status == LoginModeratorStatus.LOADING) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(status = LoginModeratorStatus.LOADING, isGoogleLoading = true, messageRes = null) }
+            try {
+                signInModeratorWithGoogleUseCase(idToken)
+                    .onSuccess {
+                        _uiState.update {
+                            it.copy(
+                                status = LoginModeratorStatus.SUCCESS,
+                                isGoogleLoading = false,
+                                messageRes = R.string.moderator_login_success_message
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        val messageRes = (error as? LoginModeratorException)?.messageRes
+                            ?: R.string.google_sign_in_error
+                        showError(messageRes)
+                    }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                onGoogleError()
+            }
+        }
+    }
+
+    fun onGoogleError() = showError(R.string.google_sign_in_error)
+
+    private fun showError(@StringRes messageRes: Int) {
+        _uiState.update { it.copy(status = LoginModeratorStatus.ERROR, isGoogleLoading = false, messageRes = messageRes) }
     }
 
     fun resetResult() {
