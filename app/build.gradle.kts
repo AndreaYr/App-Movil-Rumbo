@@ -36,6 +36,8 @@ android {
 
         // Clave de OpenRouter (IA) de local.properties; vacía = la app usa el respaldo sin IA
         resValue("string", "openrouter_api_key", localProperties.getProperty("OPENROUTER_API_KEY", ""))
+        resValue("string", "cloudinary_cloud_name", localProperties.getProperty("CLOUDINARY_CLOUD_NAME", ""))
+        resValue("string", "cloudinary_upload_preset", localProperties.getProperty("CLOUDINARY_UPLOAD_PRESET", ""))
 
         // Solo se empaquetan las librerías nativas de 64 bits para no inflar el APK
         ndk {
