@@ -12,7 +12,20 @@
           "package_name": "com.app.rumbo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "789647592703-m389bqsk969o3p8dqdegqt2nva30koqb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.rumbo",
+            "certificate_hash": "3b182ab910eb1b994af23c0b22b59af7602b0927"
+          }
+        },
+        {
+          "client_id": "789647592703-vkpikqv3qq4b0cuauh7pknfrr4sph0l1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB_cMbWQ0QWU37qckSB-ha3TAabKfL905k"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789647592703-vkpikqv3qq4b0cuauh7pknfrr4sph0l1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
