@@ -48,6 +48,9 @@ data object PasswordRecoveryDestination
 data object HomeDestination
 
 @Serializable
+data object AiRecommendationsDestination
+
+@Serializable
 data object FeedDestination
 
 @Serializable

@@ -1,12 +1,14 @@
 package com.app.rumbo.core.di
 
 import com.app.rumbo.data.remote.MapboxPlaceSearchRepository
+import com.app.rumbo.data.remote.OpenRouterAiRepository
 import com.app.rumbo.data.repository.FileSavedRouteRepository
 import com.app.rumbo.data.repository.InMemoryActivityRepository
 import com.app.rumbo.data.repository.InMemoryNotificationRepository
 import com.app.rumbo.data.repository.InMemoryPublicationRepository
 import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.repository.ActivityRepository
+import com.app.rumbo.domain.repository.AiRepository
 import com.app.rumbo.domain.repository.NotificationRepository
 import com.app.rumbo.domain.repository.PlaceSearchRepository
 import com.app.rumbo.domain.repository.PublicationRepository
@@ -39,4 +41,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindPlaceSearchRepository(impl: MapboxPlaceSearchRepository): PlaceSearchRepository
+
+    @Binds
+    abstract fun bindAiRepository(impl: OpenRouterAiRepository): AiRepository
 }

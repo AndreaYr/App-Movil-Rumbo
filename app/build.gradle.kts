@@ -33,6 +33,9 @@ android {
         // Crea el recurso "mapbox_access_token" con el token de local.properties
         resValue("string", "mapbox_access_token", localProperties.getProperty("MAPBOX_ACCESS_TOKEN", ""))
 
+        // Clave de OpenRouter (IA) de local.properties; vacía = la app usa el respaldo sin IA
+        resValue("string", "openrouter_api_key", localProperties.getProperty("OPENROUTER_API_KEY", ""))
+
         // Solo se empaquetan las librerías nativas de 64 bits para no inflar el APK
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")

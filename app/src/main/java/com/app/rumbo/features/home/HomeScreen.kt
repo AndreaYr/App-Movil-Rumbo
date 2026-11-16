@@ -51,6 +51,7 @@ import com.app.rumbo.core.util.formatKm
 import com.app.rumbo.core.util.formatThousands
 import com.app.rumbo.core.util.toTimeAgo
 import com.app.rumbo.data.local.SamplePublications
+import com.app.rumbo.domain.model.AiRecommendation
 import com.app.rumbo.domain.model.Category
 import com.app.rumbo.domain.model.HomeContent
 import com.app.rumbo.domain.model.Publication
@@ -62,6 +63,7 @@ fun HomeRoute(
     onPublicationClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onPlanRouteClick: () -> Unit,
+    onRecommendationsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -72,6 +74,7 @@ fun HomeRoute(
         onPublicationClick = onPublicationClick,
         onNotificationsClick = onNotificationsClick,
         onPlanRouteClick = onPlanRouteClick,
+        onRecommendationsClick = onRecommendationsClick,
         modifier = modifier
     )
 }
@@ -83,6 +86,7 @@ fun HomeScreen(
     onPublicationClick: (String) -> Unit,
     onNotificationsClick: () -> Unit,
     onPlanRouteClick: () -> Unit,
+    onRecommendationsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (state.isLoading) {
@@ -96,6 +100,14 @@ fun HomeScreen(
         item { HomeHeader(state.userName, state.city, state.hasUnreadNotifications, onNotificationsClick) }
         item { SearchField(onSearchClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) }
         item { PlanRouteBanner(onPlanRouteClick, Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp)) }
+        item {
+            ForYouCard(
+                recommendations = state.recommendations,
+                loading = state.recommendationsLoading,
+                onSeeAllClick = onRecommendationsClick,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+            )
+        }
 
         item { SectionHeader(stringResource(R.string.home_section_nearby), actionLabel = stringResource(R.string.home_see_all), onAction = onSearchClick) }
         item {
@@ -238,6 +250,58 @@ private fun PlanRouteBanner(onClick: () -> Unit, modifier: Modifier = Modifier) 
             )
         }
         Icon(painterResource(R.drawable.ic_arrow_forward), null, Modifier.size(22.dp), tint = Color.White)
+    }
+}
+
+/** Tarjeta "Para ti": resume lo que la IA recomienda y abre la pantalla de recomendaciones. */
+@Composable
+private fun ForYouCard(
+    recommendations: List<AiRecommendation>,
+    loading: Boolean,
+    onSeeAllClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (!loading && recommendations.isEmpty()) return
+    val shape = RoundedCornerShape(20.dp)
+    val accent = Color(0xFFC2431E)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Color(0xFFFDEEE8))
+            .border(1.dp, Color(0xFFF6D3C6), shape)
+            .clickable(role = Role.Button, onClick = onSeeAllClick)
+            .padding(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(painterResource(R.drawable.ic_auto_awesome), null, Modifier.size(16.dp), tint = accent)
+            Text(stringResource(R.string.home_for_you), style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp), color = accent)
+        }
+        if (loading) {
+            Row(
+                modifier = Modifier.padding(top = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = accent)
+                Text(stringResource(R.string.home_for_you_loading), style = MaterialTheme.typography.bodySmall, color = Color(0xFF6E4034))
+            }
+            return@Column
+        }
+        val intro = recommendations.firstOrNull { it.reason.isNotBlank() }?.reason
+            ?: stringResource(R.string.home_for_you_default)
+        Text(
+            intro,
+            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+            color = Color(0xFF6E4034),
+            modifier = Modifier.padding(top = 7.dp)
+        )
+        Text(
+            pluralStringResource(R.plurals.home_for_you_see_all, recommendations.size, recommendations.size),
+            style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp),
+            color = accent,
+            modifier = Modifier.padding(top = 11.dp)
+        )
     }
 }
 
@@ -467,6 +531,8 @@ private fun HomeScreenPreview() {
                 userName = "Mariana",
                 city = "Armenia, Quindío",
                 hasUnreadNotifications = true,
+                recommendations = publications.take(2).map { AiRecommendation(it, "Te gusta la naturaleza y caminar") },
+                recommendationsLoading = false,
                 content = HomeContent(
                     nearby = publications.take(3),
                     topRated = publications.take(2),
@@ -477,7 +543,8 @@ private fun HomeScreenPreview() {
             onSearchClick = {},
             onPublicationClick = {},
             onNotificationsClick = {},
-            onPlanRouteClick = {}
+            onPlanRouteClick = {},
+            onRecommendationsClick = {}
         )
     }
 }

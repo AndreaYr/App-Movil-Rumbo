@@ -6,7 +6,9 @@ import com.app.rumbo.data.repository.InMemoryUserRepository
 import com.app.rumbo.domain.model.PublicationStatus
 import com.app.rumbo.domain.usecase.GetCurrentUserUseCase
 import com.app.rumbo.domain.usecase.GetHomeUseCase
+import com.app.rumbo.domain.repository.AiRepository
 import com.app.rumbo.domain.usecase.HasUnreadNotificationsUseCase
+import com.app.rumbo.domain.usecase.RecommendPlacesUseCase
 import com.app.rumbo.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -21,6 +23,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
+private object NoAi : AiRepository {
+    override suspend fun complete(system: String, user: String): String? = null
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
 
@@ -34,7 +40,8 @@ class HomeViewModelTest {
         viewModel = HomeViewModel(
             GetHomeUseCase(InMemoryPublicationRepository()),
             GetCurrentUserUseCase(InMemoryUserRepository()),
-            HasUnreadNotificationsUseCase(InMemoryNotificationRepository())
+            HasUnreadNotificationsUseCase(InMemoryNotificationRepository()),
+            RecommendPlacesUseCase(InMemoryPublicationRepository(), NoAi)
         )
     }
 
@@ -87,5 +94,13 @@ class HomeViewModelTest {
 
         assertEquals(listOf("valle-cocora", "trucha-cocora"), fresh.map { it.id })
         assertTrue(fresh.none { it.status == PublicationStatus.REJECTED })
+    }
+
+    @Test
+    fun `las recomendaciones terminan de cargar y no incluyen lugares ya marcados`() = runTest {
+        val state = loadedState()
+
+        assertFalse(state.recommendationsLoading)
+        assertTrue(state.recommendations.none { it.publication.interested || it.publication.visited })
     }
 }

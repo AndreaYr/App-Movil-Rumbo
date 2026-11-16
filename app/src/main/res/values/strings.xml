@@ -153,6 +153,13 @@
     <string name="home_section_new">Nuevos lugares</string>
     <string name="home_verified">Verificada</string>
     <string name="home_published_by">Publicado por %1$s · %2$s</string>
+    <string name="home_for_you">Para ti</string>
+    <string name="home_for_you_loading">Buscando lugares para ti…</string>
+    <string name="home_for_you_default">Elegimos estos lugares según los que te interesan y has visitado.</string>
+    <plurals name="home_for_you_see_all">
+        <item quantity="one">Ver la recomendación →</item>
+        <item quantity="other">Ver las %1$d recomendaciones →</item>
+    </plurals>
     <string name="home_new">Nuevo</string>
     <string name="home_info_line">%1$s · %2$s</string>
     <string name="home_trend_growth">+%1$d%%</string>

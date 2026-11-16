@@ -47,10 +47,12 @@ enum class RumboTab(@param:DrawableRes val icon: Int, @param:StringRes val label
 fun RumboScaffold(
     selectedTab: RumboTab,
     onTabSelected: (RumboTab) -> Unit,
+    floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
         bottomBar = { RumboBottomBar(selectedTab, onTabSelected) },
+        floatingActionButton = floatingActionButton,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         content = content
     )

@@ -51,6 +51,22 @@ class PlanRouteUseCase @Inject constructor(
         return best
     }
 
+    /**
+     * Ruta con las paradas exactamente en el orden dado (p. ej. el que propuso la IA).
+     * Distancia y tiempo se calculan igual que en [plan]: primer tramo desde el usuario y luego parada a parada.
+     */
+    fun planInOrder(stops: List<Publication>, preferences: RoutePreferences): RoutePlan {
+        if (stops.isEmpty()) return RoutePlan()
+        var distanceKm = distanceFromStart(stops.first(), preferences)
+        stops.zipWithNext { a, b -> distanceKm += kmBetween(a, b) }
+        val travelMinutes = distanceKm / preferences.transport.speedKmh * 60
+        return RoutePlan(
+            stops = stops,
+            distanceKm = distanceKm,
+            totalMinutes = (travelMinutes + stops.size * STAY_MINUTES).roundToInt()
+        )
+    }
+
     /** Ordena las paradas por cercanía y calcula distancia y tiempo. El primer tramo sale de la posición del usuario. */
     private fun route(stops: List<Publication>, preferences: RoutePreferences): RoutePlan {
         val remaining = stops.sortedBy { distanceFromStart(it, preferences) }.toMutableList()

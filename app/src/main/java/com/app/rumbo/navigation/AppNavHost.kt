@@ -22,6 +22,7 @@ import com.app.rumbo.features.editprofile.EditProfileRoute
 import com.app.rumbo.features.editpublication.EditPublicationRoute
 import com.app.rumbo.features.feed.FeedRoute
 import com.app.rumbo.features.home.HomeRoute
+import com.app.rumbo.features.recommendations.AiRecommendationsRoute
 import com.app.rumbo.features.login.LoginRoute
 import com.app.rumbo.features.loginmoderator.LoginModeratorRoute
 import com.app.rumbo.features.moderatoraccount.ModeratorAccountRoute
@@ -78,9 +79,16 @@ fun AppNavHost(
                     onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) },
                     onNotificationsClick = { navigateToTab(navController, RumboTab.ALERTS) },
                     onPlanRouteClick = { navController.navigate(PlanRouteDestination) },
+                    onRecommendationsClick = { navController.navigate(AiRecommendationsDestination) },
                     modifier = Modifier.padding(padding)
                 )
             }
+        }
+        composable<AiRecommendationsDestination> {
+            AiRecommendationsRoute(
+                onTabSelected = { navigateToTab(navController, it) },
+                onPublicationClick = { id -> navController.navigate(PublicationDetailDestination(id)) }
+            )
         }
         composable<FeedDestination> {
             RumboScaffold(

@@ -150,4 +150,15 @@ class PlanRouteUseCaseTest {
         assertTrue(Transport.MOTO.speedKmh < Transport.CAR.speedKmh)
         assertEquals(listOf(Transport.WALK, Transport.BIKE, Transport.MOTO, Transport.CAR), Transport.entries)
     }
+
+    @Test
+    fun `planInOrder respeta el orden dado y suma los tramos`() {
+        val stops = publications.filter { it.status == PublicationStatus.VERIFIED }.take(3).reversed()
+        val result = useCase.planInOrder(stops, RoutePreferences(transport = Transport.CAR))
+
+        assertEquals(stops.map { it.id }, result.stops.map { it.id })
+        assertTrue(result.distanceKm >= stops.first().distanceKm)
+        assertTrue(result.totalMinutes >= stops.size * 60)
+        assertTrue(useCase.planInOrder(emptyList(), RoutePreferences()).stops.isEmpty())
+    }
 }
